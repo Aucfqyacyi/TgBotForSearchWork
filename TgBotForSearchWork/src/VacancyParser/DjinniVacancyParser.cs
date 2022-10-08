@@ -2,7 +2,7 @@
 
 namespace TgBotForSearchWork.src.VacancyParser;
 
-internal class DjinniVacancyParser : BaseVacancyParser
+internal class DjinniVacancyParser : VacancyParser
 {
     protected override CssClass VacancyItem => new("list-jobs__item");
 
@@ -13,4 +13,6 @@ internal class DjinniVacancyParser : BaseVacancyParser
     protected override CssClass Date => new("text-date pull-right");
 
     protected override CssClass Url => new("profile");
+
+    protected override string Host => @"https://djinni.co";
 }

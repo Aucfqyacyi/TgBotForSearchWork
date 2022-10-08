@@ -1,4 +1,5 @@
 ﻿using AngleSharp.Dom;
+using TgBotForSearchWork.src.VacancyParser;
 
 namespace TgBotForSearchWork.src.Extensions;
 
@@ -15,13 +16,12 @@ internal static class IElementExtension
 
     public static string GetHref(this IElement element, string host)
     {
-        string http = @"https";
         string? url = element.GetAttribute("href");
         if (url is null)
         {
             return string.Empty;
         }
-        if (url.StartsWith(http))
+        if (url.StartsWith(Host.Https))
         {
             return url;
         }
