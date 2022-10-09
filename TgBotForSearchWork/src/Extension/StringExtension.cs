@@ -2,8 +2,13 @@
 
 internal static class StringExtension
 {
-    public static string ReplaceNonBreakingSpace(this string str)
+    public static string FormatHtmlText(this string str)
     {
-        return str.Replace("&nbsp;", " ");
+        return str.Trim('\n', '\t', ' ').Replace("&nbsp;", " ");
+    }
+
+    public static bool IsNotNullOrEmpty(this string? str)
+    {
+        return string.IsNullOrEmpty(str) is false;
     }
 }

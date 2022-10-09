@@ -1,7 +1,7 @@
 ﻿
 using TgBotForSearchWork.src.Other;
 
-namespace TgBotForSearchWork.src.VacancyParser;
+namespace TgBotForSearchWork.src.VacancyParsers;
 
 internal class DouVacancyParser : VacancyParser
 {
@@ -15,5 +15,4 @@ internal class DouVacancyParser : VacancyParser
 
     protected override CssClass Url => new("vt");
 
-    protected override string Host => @"https://jobs.dou.ua";
 }

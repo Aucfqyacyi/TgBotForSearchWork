@@ -3,7 +3,7 @@ using AngleSharp.Dom;
 
 namespace TgBotForSearchWork.src.Other;
 
-internal class HtmlDocument
+internal static class HtmlDocument
 {
     private readonly static IBrowsingContext _browsingContext;
 
@@ -12,7 +12,7 @@ internal class HtmlDocument
         _browsingContext = BrowsingContext.New();
     }
 
-    public static Task<IDocument> Create(Stream stream, CancellationToken cancellationToken = default)
+    public static Task<IDocument> CreateAsync(Stream stream, CancellationToken cancellationToken = default)
     {
         return _browsingContext.OpenAsync(req => req.Content(stream), cancellationToken);
     }

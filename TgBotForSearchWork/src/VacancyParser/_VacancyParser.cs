@@ -3,20 +3,19 @@ using TgBotForSearchWork.src.Extensions;
 using TgBotForSearchWork.src.Other;
 using TgBotForSearchWork.src.TelegramBot.Models;
 
-namespace TgBotForSearchWork.src.VacancyParser;
+namespace TgBotForSearchWork.src.VacancyParsers;
 
 public abstract class VacancyParser
 {
-    protected abstract string Host { get; }
     protected abstract CssClass VacancyItem { get; }
     protected abstract CssClass Title { get; }
     protected abstract CssClass Description { get; }
     protected abstract CssClass Date { get; }
     protected abstract CssClass Url { get; }
 
-    public async Task<List<Vacancy>> ParseAsync(Stream stream, CancellationToken cancellationToken = default)
+    public async Task<List<Vacancy>> ParseAsync(Stream stream, string host, CancellationToken cancellationToken = default)
     {        
-        IDocument doc = await HtmlDocument.Create(stream, cancellationToken);
+        IDocument doc = await HtmlDocument.CreateAsync(stream, cancellationToken);
         IHtmlCollection<IElement> vacancyElements = doc.GetElementsByClassName(VacancyItem.Name);
         List<Vacancy> vacancies = new();
         foreach (IElement vacancyElement in vacancyElements)
@@ -24,13 +23,13 @@ public abstract class VacancyParser
             IElement? element = vacancyElement.FirstElementChild;           
             if (element is not null)
             {
-                vacancies.Add(CreateVacancy(element));
+                vacancies.Add(CreateVacancy(element, host));
             }          
         }
         return vacancies;
     }
 
-    private Vacancy CreateVacancy(IElement element)
+    private Vacancy CreateVacancy(IElement element, string host)
     {
         Vacancy vacancy = new();
         do
@@ -38,7 +37,7 @@ public abstract class VacancyParser
             IElement nextElement = element;
             do
             {
-                AddTitle(vacancy, nextElement);
+                AddTitle(vacancy, nextElement, host);
                 AddDescription(vacancy, nextElement);
                 AddDate(vacancy, nextElement);
 
@@ -47,7 +46,7 @@ public abstract class VacancyParser
         return vacancy;
     }
 
-    protected virtual void AddTitle(Vacancy vacancy, IElement element)
+    protected virtual void AddTitle(Vacancy vacancy, IElement element, string host)
     {
         if (element.ClassName != Title.Name)
         {
@@ -59,7 +58,7 @@ public abstract class VacancyParser
             if (tagA.ClassName == Url.Name)
             {
                 vacancy.Title = tagA.GetFirstChildInnerHtml();
-                vacancy.Url = tagA.GetHref(Host);
+                vacancy.Url = tagA.GetHref(host);
                 break;
             }
         }

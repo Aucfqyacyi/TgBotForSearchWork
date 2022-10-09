@@ -1,6 +1,6 @@
 ﻿using TgBotForSearchWork.src.Other;
 
-namespace TgBotForSearchWork.src.VacancyParser;
+namespace TgBotForSearchWork.src.VacancyParsers;
 
 internal class DjinniVacancyParser : VacancyParser
 {
@@ -13,6 +13,4 @@ internal class DjinniVacancyParser : VacancyParser
     protected override CssClass Date => new("text-date pull-right");
 
     protected override CssClass Url => new("profile");
-
-    protected override string Host => @"https://djinni.co";
 }

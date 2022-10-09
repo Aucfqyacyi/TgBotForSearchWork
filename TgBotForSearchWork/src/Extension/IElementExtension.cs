@@ -1,5 +1,5 @@
 ﻿using AngleSharp.Dom;
-using TgBotForSearchWork.src.VacancyParser;
+using TgBotForSearchWork.src.VacancyParsers;
 
 namespace TgBotForSearchWork.src.Extensions;
 
@@ -11,7 +11,7 @@ internal static class IElementExtension
         {
             return GetFirstChildInnerHtml(element.FirstElementChild);
         }
-        return element.InnerHtml.ReplaceNonBreakingSpace();
+        return element.InnerHtml.FormatHtmlText();
     }
 
     public static string GetHref(this IElement element, string host)
@@ -25,6 +25,6 @@ internal static class IElementExtension
         {
             return url;
         }
-        return host + url;
+        return Host.Https + host + url;
     }
 }
