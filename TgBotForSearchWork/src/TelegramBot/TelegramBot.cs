@@ -15,16 +15,15 @@ public class TelegramBot
 {
 	private readonly TelegramBotClient _telegramBotClient;
     private readonly CancellationTokenSource _cancellationTokenSource = new();
-    private readonly FileManager _fileManager;
     private readonly ReceiverOptions _receiverOptions;
-    private readonly List<User> _users = new();
+    private readonly UserManager _userManager;
 
-    public TelegramBot(string token, FileManager fileManager, ReceiverOptions? receiverOptions = null)
-	{
-		_telegramBotClient = new(token, GHttpClient.Client);
+    public TelegramBot(string token, UserManager userManager, ReceiverOptions ? receiverOptions = null)
+    {
+        _telegramBotClient = new(token, GHttpClient.Client);
         receiverOptions ??= new ReceiverOptions { AllowedUpdates = Array.Empty<UpdateType>() };
         _receiverOptions = receiverOptions;
-        _fileManager = fileManager;
+        _userManager = userManager;
     }
 
     public async Task Start()
@@ -36,10 +35,10 @@ public class TelegramBot
                     cancellationToken: _cancellationTokenSource.Token);
         try
         {
-            _users.AddRange(_fileManager.Read());
             while (true)
             {
-                _users.ForEach(async user => await SendVacancy(user, _cancellationTokenSource.Token));
+                foreach (var user in _userManager.Users)
+                    await SendVacancy(user, _cancellationTokenSource.Token);
                 await Task.Delay(TimeSpan.FromMinutes(3), _cancellationTokenSource.Token);
             }
         }
@@ -110,9 +109,9 @@ public class TelegramBot
         {
             var chatId = message.Chat.Id;
             if (Command.Start.Contains(messageText))
-                AddUser(chatId);
+                _userManager.AddUser(chatId);
             if (Command.Stop.Contains(messageText))
-                RemoveUser(chatId);
+                _userManager.RemoveUser(chatId);
             if (Command.Test.Contains(messageText))
                 await botClient.SendTextMessageAsync(chatId, "Hello, I am friendly neighborhood bot <3.\n", cancellationToken: cancellationToken);
         }
@@ -134,26 +133,5 @@ public class TelegramBot
         Console.WriteLine(errorMessage);
         return Task.CompletedTask;
     }
-
-    private void AddUser(long chatId)
-    {
-        if (_users.Any(user => user.ChatId == chatId) is false)
-        {
-            User user = new User(chatId);
-            user.UrisToVacancies.Add(new Uri(@"https://jobs.dou.ua/vacancies/?remote&category=.NET&exp=1-3"), null);
-            user.UrisToVacancies.Add(new Uri(@"https://djinni.co/jobs/?primary_keyword=.NET&exp_level=1y&exp_level=2y&employment=remote"), null);
-            _users.Add(user);
-            _fileManager.Write(user);
-        }
-    }
-
-    private void RemoveUser(long chatId)
-    {
-        User? user = _users.FirstOrDefault(user => user.ChatId == chatId);
-        if (user is not null)
-        {
-            _users.Remove(user);
-            _fileManager.Write(_users);
-        }      
-    }
+  
 }
