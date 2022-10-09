@@ -1,4 +1,5 @@
-﻿using TgBotForSearchWork.src.TelegramBot.FileManagers;
+﻿using TgBotForSearchWork.src.Extensions;
+using TgBotForSearchWork.src.TelegramBot.FileManagers;
 using TgBotForSearchWork.src.TelegramBot.Models;
 
 namespace TgBotForSearchWork.src.TelegramBot;
@@ -19,8 +20,10 @@ public class UserManager
         if (_users.Any(user => user.ChatId == chatId) is false)
         {
             User user = new User(chatId);
-            user.UrisToVacancies.Add(new Uri(@"https://jobs.dou.ua/vacancies/?remote&category=.NET&exp=1-3"), null);
-            user.UrisToVacancies.Add(new Uri(@"https://djinni.co/jobs/?primary_keyword=.NET&exp_level=1y&exp_level=2y&employment=remote"), null);
+            string url1 = @"https://jobs.dou.ua/vacancies/?remote&category=.NET&exp=1-3";
+            string url2 = @"https://djinni.co/jobs/?primary_keyword=.NET&exp_level=1y&exp_level=2y&employment=remote";
+            user.HashsToUris.Add(url1.GetMD5(), new Uri(url1));
+            user.HashsToUris.Add(url2.GetMD5(), new Uri(url2));
             _users.Add(user);
             _fileManager.Write(user);
         }

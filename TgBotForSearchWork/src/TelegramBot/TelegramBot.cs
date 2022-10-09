@@ -1,8 +1,12 @@
-﻿using Telegram.Bot;
+﻿using System.Text;
+using System.Threading;
+using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
+using TgBotForSearchWork.src.Extensions;
 using TgBotForSearchWork.src.Other;
 using TgBotForSearchWork.src.TelegramBot.FileManagers;
 using TgBotForSearchWork.src.TelegramBot.Models;
@@ -42,23 +46,27 @@ public class TelegramBot
                 await Task.Delay(TimeSpan.FromMinutes(3), _cancellationTokenSource.Token);
             }
         }
+        catch (TaskCanceledException)
+        {
+
+        }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            _cancellationTokenSource.Cancel();
+            Stop();
         }      
     }
 
     private async Task SendVacancy(User user, CancellationToken cancellationToken = default)
     {
-        foreach (var uriToVacancy in user.UrisToVacancies)
+        foreach (var uri in user.HashsToUris.Values)
         {
-            using Stream response = await GHttpClient.GetAsync(uriToVacancy.Key, cancellationToken);
-            List<Vacancy> vacancies = await GetRelevantVacancies(response, uriToVacancy, cancellationToken);
+            using Stream response = await GHttpClient.GetAsync(uri, cancellationToken);
+            List<Vacancy> vacancies = await GetRelevantVacancies(response, uri, user.LastVacancy, cancellationToken);
             if (vacancies.Count != 0)
             {
                 await SendVacancy(user.ChatId, vacancies);
-                user.UrisToVacancies[uriToVacancy.Key] = vacancies.FirstOrDefault();
+                user.LastVacancy = vacancies.FirstOrDefault();
             }
         }
     }
@@ -71,23 +79,26 @@ public class TelegramBot
 
     private async Task SendVacancy(long chatId, Vacancy vacancy, CancellationToken cancellationToken = default)
     {
-        await _telegramBotClient.SendTextMessageAsync(chatId, vacancy.Present(), ParseMode.Markdown,
-                                                                                disableWebPagePreview: true,
-                                                                                cancellationToken: cancellationToken);
+        await _telegramBotClient.SendTextMessageAsync(chatId, 
+                                                      vacancy.Present(), 
+                                                      ParseMode.Markdown,
+                                                      replyMarkup: GetInlineButton(vacancy.Url),
+                                                      disableWebPagePreview: true,
+                                                      cancellationToken: cancellationToken);
     }
 
-    private async Task<List<Vacancy>> GetRelevantVacancies(Stream response, KeyValuePair<Uri, Vacancy?> uriToVacancy, 
+    private async Task<List<Vacancy>> GetRelevantVacancies(Stream response, Uri uri, Vacancy? lastVacancy, 
                                                                             CancellationToken cancellationToken = default)
     {
-        VacancyParser vacancyParser = VacancyParserFactory.Create(uriToVacancy.Key);
-        List<Vacancy> vacancies = await vacancyParser.ParseAsync(response, uriToVacancy.Key.Host, cancellationToken);
-        if (uriToVacancy.Value is not null)
+        VacancyParser vacancyParser = VacancyParserFactory.Create(uri);
+        List<Vacancy> vacancies = await vacancyParser.ParseAsync(response, uri.Host, cancellationToken);
+        if (lastVacancy is not null)
         {
-            if (uriToVacancy.Value == vacancies.FirstOrDefault())
+            if (lastVacancy == vacancies.FirstOrDefault())
             {
                 return new();
             }
-            int index = vacancies.FindIndex(vacancy => vacancy.Title == uriToVacancy.Value.Title);
+            int index = vacancies.FindIndex(vacancy => vacancy.Title == lastVacancy.Title);
             if (index != -1)
             {
                 vacancies.RemoveRange(index, vacancies.Count - index);
@@ -98,22 +109,25 @@ public class TelegramBot
 
     public void Stop()
     {
-        _cancellationTokenSource.Cancel();
+        if (_cancellationTokenSource.IsCancellationRequested is false)
+        {
+            _cancellationTokenSource.Cancel();
+        }
     }
 
     private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken = default)
-    {
-        if (update.Message is not { } message || message.Text is not { } messageText)
-            return;
+    {      
         try
         {
-            var chatId = message.Chat.Id;
-            if (Command.Start.Contains(messageText))
-                _userManager.AddUser(chatId);
-            if (Command.Stop.Contains(messageText))
-                _userManager.RemoveUser(chatId);
-            if (Command.Test.Contains(messageText))
-                await botClient.SendTextMessageAsync(chatId, "Hello, I am friendly neighborhood bot <3.\n", cancellationToken: cancellationToken);
+            switch (update.Type)
+            {
+                case UpdateType.Message:
+                    await OnMessage(botClient, update, cancellationToken);
+                    break;
+                case UpdateType.CallbackQuery:
+                    await OnCallbackQuery(botClient, update, cancellationToken);
+                    break;
+            }       
         }
         catch (Exception ex)
         {
@@ -133,5 +147,28 @@ public class TelegramBot
         Console.WriteLine(errorMessage);
         return Task.CompletedTask;
     }
-  
+
+    private IReplyMarkup GetInlineButton(string url)
+    {
+        return new InlineKeyboardMarkup(new InlineKeyboardButton(Command.GetFullVacancy) { CallbackData = url.GetMD5() });
+    }
+
+    private async Task OnMessage(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken = default)
+    {
+        string messageText = update.Message!.Text!;
+        var chatId = update.Message!.Chat.Id;
+        if (Command.Start.Contains(messageText))
+            _userManager.AddUser(chatId);
+        if (Command.Stop.Contains(messageText))
+            _userManager.RemoveUser(chatId);
+        if (Command.Test.Contains(messageText))
+            await botClient.SendTextMessageAsync(chatId, "Hello, I am friendly neighborhood bot <3.\n", cancellationToken: cancellationToken);
+    }
+
+    private async Task OnCallbackQuery(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken = default)
+    {
+        string data = update.CallbackQuery!.Data!;
+        var chatId = update.CallbackQuery!.Message!.Chat.Id;
+        await botClient.SendTextMessageAsync(chatId, data, cancellationToken: cancellationToken);
+    }
 }

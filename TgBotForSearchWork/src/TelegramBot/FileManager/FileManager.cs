@@ -30,7 +30,7 @@ public class FileManager
     private void Write(FileWriter fileWriter, User user)
     {
         fileWriter.WriteLine(user.ChatId);
-        foreach (var url in user.UrisToVacancies.Keys)
+        foreach (var url in user.HashsToUris.Values)
         {
             fileWriter.WriteLine(url.OriginalString);
         }
@@ -47,7 +47,7 @@ public class FileManager
             User user = new(Convert.ToInt64(line));
             while ((line = fileReader.ReadLine()).IsNotNullOrEmpty())
             {
-                user.UrisToVacancies.Add(new Uri(line!), null);
+                user.HashsToUris.Add(line!.GetMD5(), new Uri(line!));
             }
             users.Add(user);
         }
