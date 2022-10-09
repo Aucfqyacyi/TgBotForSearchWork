@@ -34,12 +34,20 @@ public class TelegramBot
                     pollingErrorHandler: HandlePollingErrorAsync,
                     receiverOptions: _receiverOptions,
                     cancellationToken: _cancellationTokenSource.Token);
-        _users.AddRange(_fileManager.Read());
-        while (true) 
+        try
         {
-            _users.ForEach(async user => await SendVacancy(user, _cancellationTokenSource.Token));
-            await Task.Delay(TimeSpan.FromMinutes(3), _cancellationTokenSource.Token);
+            _users.AddRange(_fileManager.Read());
+            while (true)
+            {
+                _users.ForEach(async user => await SendVacancy(user, _cancellationTokenSource.Token));
+                await Task.Delay(TimeSpan.FromMinutes(3), _cancellationTokenSource.Token);
+            }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            _cancellationTokenSource.Cancel();
+        }      
     }
 
     private async Task SendVacancy(User user, CancellationToken cancellationToken = default)
@@ -65,8 +73,8 @@ public class TelegramBot
     private async Task SendVacancy(long chatId, Vacancy vacancy, CancellationToken cancellationToken = default)
     {
         await _telegramBotClient.SendTextMessageAsync(chatId, vacancy.Present(), ParseMode.Markdown,
-                                                                                 disableWebPagePreview: true,
-                                                                                 cancellationToken: cancellationToken);
+                                                                                disableWebPagePreview: true,
+                                                                                cancellationToken: cancellationToken);
     }
 
     private async Task<List<Vacancy>> GetRelevantVacancies(Stream response, KeyValuePair<Uri, Vacancy?> uriToVacancy, 
@@ -98,14 +106,20 @@ public class TelegramBot
     {
         if (update.Message is not { } message || message.Text is not { } messageText)
             return;
-
-        var chatId = message.Chat.Id;
-        if (Command.Start.Contains(messageText))
-            AddUser(chatId);
-        if (Command.Stop.Contains(messageText))
-            RemoveUser(chatId);
-        if (Command.Test.Contains(messageText))
-            await botClient.SendTextMessageAsync(chatId, "Hello, I am friendly neighborhood bot <3.\n", cancellationToken: cancellationToken);
+        try
+        {
+            var chatId = message.Chat.Id;
+            if (Command.Start.Contains(messageText))
+                AddUser(chatId);
+            if (Command.Stop.Contains(messageText))
+                RemoveUser(chatId);
+            if (Command.Test.Contains(messageText))
+                await botClient.SendTextMessageAsync(chatId, "Hello, I am friendly neighborhood bot <3.\n", cancellationToken: cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
     private Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken = default)
