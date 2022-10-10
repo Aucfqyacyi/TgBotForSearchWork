@@ -21,7 +21,7 @@ public class UserManager
             string url1 = @"https://jobs.dou.ua/vacancies/?remote&category=.NET&exp=1-3";
             string url2 = @"https://djinni.co/jobs/?primary_keyword=.NET&exp_level=1y&exp_level=2y&employment=remote";
             user.UrisToVacancies.Add(new Uri(url1), null);
-            user.UrisToVacancies.Add(new Uri(url1), null);
+            user.UrisToVacancies.Add(new Uri(url2), null);
             _users.Add(user);
             _fileManager.Write(user);
         }

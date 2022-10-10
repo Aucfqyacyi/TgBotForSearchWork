@@ -1,40 +1,25 @@
-﻿using TgBotForSearchWork.Core;
+﻿using TgBotForSearchWork.Core.Constants;
+using TgBotForSearchWork.VacancyParsers.AllVacancyParsers;
+using TgBotForSearchWork.VacancyParsers.Constants;
+using TgBotForSearchWork.VacancyParsers.DetailVacancyVarsers;
 
 namespace TgBotForSearchWork.VacancyParsers;
 
 public static class VacancyParserFactory
 {
-    public static VacancyParser Create(string host)
+    public static IAllVacancyParser CreateAllVacancyParser(Uri uri)
     {
-        switch (host)
-        {
-            case Host.Dou:
-                return new DouVacancyParser();
-            case Host.Djinni:
-                return new DjinniVacancyParser();
-            default:
-                throw new Exception($"Host({host}) was not found");
-        }
+        if (Host.All[Site.Dou] == uri.Host)
+            return new DouVacancyParser();
+        if (Host.All[Site.Djinni] == uri.Host)
+            return new DjinniVacancyParser();
+        throw new Exception($"Host({uri.Host}) was not found");
     }
 
-    public static Dictionary<string, VacancyParser> Create(IEnumerable<string> hosts)
+    public static IDetailVacancyParser CreateDetailVacancyParser(Uri uri)
     {
-        Dictionary<string, VacancyParser> parsers = new();
-        foreach (var host in hosts)
-        {
-            parsers.Add(host, Create(host));
-        }
-        return parsers;
-    }
-
-    public static VacancyParser Create(Uri uri)
-    {
-        return Create(uri.Host);
-    }
-
-    public static Dictionary<string, VacancyParser> Create(IEnumerable<Uri> uris)
-    {
-        return Create(uris.Select(e => e.Host));
+        return new DetailVacancyParser();
+        throw new Exception($"Host({uri.Host}) was not found");
     }
 
 }

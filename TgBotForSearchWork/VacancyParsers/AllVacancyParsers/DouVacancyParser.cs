@@ -1,14 +1,14 @@
 ﻿using TgBotForSearchWork.VacancyParsers.Models;
 
-namespace TgBotForSearchWork.VacancyParsers;
+namespace TgBotForSearchWork.VacancyParsers.AllVacancyParsers;
 
-internal class DouVacancyParser : VacancyParser
+internal class DouVacancyParser : AllVacancyParser
 {
     protected override CssClass VacancyItem => new("l-vacancy");
 
     protected override CssClass Title => new("title");
 
-    protected override CssClass Description => new("sh-info");
+    protected override CssClass ShortDescription => new("sh-info");
 
     protected override CssClass Date => new("date");
 

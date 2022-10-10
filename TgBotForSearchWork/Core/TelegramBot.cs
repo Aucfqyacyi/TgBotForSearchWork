@@ -4,10 +4,13 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using TgBotForSearchWork.Core.Constants;
+using TgBotForSearchWork.Core.Other;
 using TgBotForSearchWork.Core.UserManagers;
 using TgBotForSearchWork.Extensions;
-using TgBotForSearchWork.Others;
 using TgBotForSearchWork.VacancyParsers;
+using TgBotForSearchWork.VacancyParsers.AllVacancyParsers;
+using TgBotForSearchWork.VacancyParsers.DetailVacancyVarsers;
 using TgBotForSearchWork.VacancyParsers.Models;
 using User = TgBotForSearchWork.Core.UserManagers.User;
 
@@ -87,11 +90,28 @@ public class TelegramBot
                                                       cancellationToken: cancellationToken);
     }
 
+    private async Task SendDetailVacancyDescription(long chatId, int messageId, string url, CancellationToken cancellationToken = default)
+    {
+        if (url.IsNotNullOrEmpty())
+        {
+            using Stream response = await GHttpClient.GetAsync(url, cancellationToken);
+            IDetailVacancyParser vacancyParser = VacancyParserFactory.CreateDetailVacancyParser(new Uri(url));
+            string vacancyDescription = await vacancyParser.ParseAsync(response, cancellationToken);
+            await _telegramBotClient.SendTextMessageAsync(chatId,
+                                                          vacancyDescription,
+                                                          ParseMode.Markdown,
+                                                          replyToMessageId: messageId,
+                                                          disableWebPagePreview: true,
+                                                          cancellationToken: cancellationToken);
+        }
+        
+    }
+
     private async Task<List<Vacancy>> GetRelevantVacancies(Stream response, Uri uri, Vacancy? lastVacancy, 
                                                                             CancellationToken cancellationToken = default)
     {
-        VacancyParser vacancyParser = VacancyParserFactory.Create(uri);
-        List<Vacancy> vacancies = await vacancyParser.ParseAllAsync(response, uri.Host, cancellationToken);
+        IAllVacancyParser vacancyParser = VacancyParserFactory.CreateAllVacancyParser(uri);
+        List<Vacancy> vacancies = await vacancyParser.ParseAsync(response, uri.Host, cancellationToken);
         if (lastVacancy is not null)
         {
             if (lastVacancy == vacancies.FirstOrDefault())
@@ -150,7 +170,10 @@ public class TelegramBot
 
     private IReplyMarkup GetInlineButton(string url)
     {
-        return new InlineKeyboardMarkup(new InlineKeyboardButton(Command.GetFullVacancy) { CallbackData = url.GetMD5() });
+        return new InlineKeyboardMarkup(new InlineKeyboardButton(Command.GetFullVacancy) 
+                                        { 
+                                            CallbackData = UrlEncryption.Encrypt(new Uri(url)) 
+                                        });
     }
 
     private async Task OnMessage(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken = default)
@@ -167,8 +190,11 @@ public class TelegramBot
 
     private async Task OnCallbackQuery(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken = default)
     {
-        string data = update.CallbackQuery!.Data!;
-        var chatId = update.CallbackQuery!.Message!.Chat.Id;
-        await botClient.SendTextMessageAsync(chatId, data, cancellationToken: cancellationToken);
+        var callbackQuery = update.CallbackQuery;
+        string data = callbackQuery!.Data!;
+        await SendDetailVacancyDescription(callbackQuery!.Message!.Chat.Id, 
+                                           callbackQuery.Message!.MessageId, 
+                                           UrlEncryption.Dencrypt(data),                          
+                                           cancellationToken);
     }
 }

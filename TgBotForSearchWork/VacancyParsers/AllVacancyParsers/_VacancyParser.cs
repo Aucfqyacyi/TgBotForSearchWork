@@ -1,39 +1,33 @@
 ﻿using AngleSharp.Dom;
-using TgBotForSearchWork.Extensions;
+using TgBotForSearchWork.VacancyParsers.Extensions;
 using TgBotForSearchWork.VacancyParsers.Models;
 using TgBotForSearchWork.VacancyParsers.Others;
 
-namespace TgBotForSearchWork.VacancyParsers;
+namespace TgBotForSearchWork.VacancyParsers.AllVacancyParsers;
 
-public abstract class VacancyParser
+internal abstract class AllVacancyParser : IAllVacancyParser
 {
     protected abstract CssClass VacancyItem { get; }
     protected abstract CssClass Title { get; }
-    protected abstract CssClass Description { get; }
+    protected abstract CssClass ShortDescription { get; }
     protected abstract CssClass Date { get; }
     protected abstract CssClass Url { get; }
 
-    public async Task<List<Vacancy>> ParseAllAsync(Stream stream, string host, CancellationToken cancellationToken = default)
-    {        
+    public async Task<List<Vacancy>> ParseAsync(Stream stream, string host, CancellationToken cancellationToken = default)
+    {
         IDocument doc = await HtmlDocument.CreateAsync(stream, cancellationToken);
         IHtmlCollection<IElement> vacancyElements = doc.GetElementsByClassName(VacancyItem.Name);
         List<Vacancy> vacancies = new();
         foreach (IElement vacancyElement in vacancyElements)
         {
-            IElement? element = vacancyElement.FirstElementChild;           
+            IElement? element = vacancyElement.FirstElementChild;
             if (element is not null)
             {
                 vacancies.Add(CreateVacancy(element, host));
-            }          
+            }
         }
         return vacancies;
     }
-
-/*    public async Task<List<Vacancy>> ParseDetailAsync(Stream stream, string host, CancellationToken cancellationToken = default)
-    {
-        IDocument doc = await HtmlDocument.CreateAsync(stream, cancellationToken);
-        IHtmlCollection<IElement> vacancyElements = doc.GetElementsByClassName(VacancyItem.Name);
-    }*/
 
     private Vacancy CreateVacancy(IElement element, string host)
     {
@@ -64,20 +58,20 @@ public abstract class VacancyParser
             if (tagA.ClassName == Url.Name)
             {
                 vacancy.Title = tagA.GetFirstChildInnerHtml();
-                vacancy.Url = tagA.GetHref(host);
+                vacancy.Url = tagA.GetHrefAttribute(host);
                 break;
             }
         }
-            
+
     }
 
     protected virtual void AddDescription(Vacancy vacancy, IElement element)
     {
-        if (element.ClassName != Description.Name)
+        if (element.ClassName != ShortDescription.Name)
         {
             return;
         }
-        vacancy.Description = element.GetFirstChildInnerHtml();
+        vacancy.ShortDescription = element.GetFirstChildInnerHtml();
     }
 
     protected virtual void AddDate(Vacancy vacancy, IElement element)

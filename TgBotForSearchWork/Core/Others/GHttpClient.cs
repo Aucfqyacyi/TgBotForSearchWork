@@ -1,13 +1,13 @@
-﻿namespace TgBotForSearchWork.Others;
+﻿namespace TgBotForSearchWork.Core.Other;
 
 internal static class GHttpClient
 {
-	public static HttpClient Client { get; }
+    public static HttpClient Client { get; }
 
-	static GHttpClient()
-	{
-		Client = new HttpClient();
-	}
+    static GHttpClient()
+    {
+        Client = new HttpClient();
+    }
 
     public static async Task<Stream> GetAsync(Uri uri, CancellationToken cancellationToken = default)
     {

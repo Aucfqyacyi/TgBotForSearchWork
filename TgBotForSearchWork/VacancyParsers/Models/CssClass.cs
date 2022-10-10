@@ -1,6 +1,6 @@
 ﻿namespace TgBotForSearchWork.VacancyParsers.Models;
 
-public class CssClass
+internal class CssClass
 {
     public string Name { get; }
 
