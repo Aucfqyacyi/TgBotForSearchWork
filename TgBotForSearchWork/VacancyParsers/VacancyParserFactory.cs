@@ -1,4 +1,6 @@
-﻿namespace TgBotForSearchWork.src.VacancyParsers;
+﻿using TgBotForSearchWork.Core;
+
+namespace TgBotForSearchWork.VacancyParsers;
 
 public static class VacancyParserFactory
 {

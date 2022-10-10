@@ -1,4 +1,4 @@
-﻿namespace TgBotForSearchWork.src.VacancyParsers;
+﻿namespace TgBotForSearchWork.Core;
 
 internal static class Host
 {

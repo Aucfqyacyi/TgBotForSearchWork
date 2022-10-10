@@ -1,4 +1,4 @@
-﻿namespace TgBotForSearchWork.src.Other;
+﻿namespace TgBotForSearchWork.VacancyParsers.Models;
 
 public class CssClass
 {

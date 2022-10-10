@@ -1,4 +1,4 @@
-﻿namespace TgBotForSearchWork.src.TelegramBot.Models;
+﻿namespace TgBotForSearchWork.VacancyParsers.Models;
 
 public class Vacancy
 {

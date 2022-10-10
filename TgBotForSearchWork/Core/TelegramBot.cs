@@ -1,19 +1,17 @@
-﻿using System.Text;
-using System.Threading;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using TgBotForSearchWork.src.Extensions;
-using TgBotForSearchWork.src.Other;
-using TgBotForSearchWork.src.TelegramBot.FileManagers;
-using TgBotForSearchWork.src.TelegramBot.Models;
-using TgBotForSearchWork.src.VacancyParsers;
-using User = TgBotForSearchWork.src.TelegramBot.Models.User;
+using TgBotForSearchWork.Core.UserManagers;
+using TgBotForSearchWork.Extensions;
+using TgBotForSearchWork.Others;
+using TgBotForSearchWork.VacancyParsers;
+using TgBotForSearchWork.VacancyParsers.Models;
+using User = TgBotForSearchWork.Core.UserManagers.User;
 
-namespace TgBotForSearchWork.src.TelegramBot;
+namespace TgBotForSearchWork.Core;
 
 public class TelegramBot
 {
@@ -21,13 +19,15 @@ public class TelegramBot
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private readonly ReceiverOptions _receiverOptions;
     private readonly UserManager _userManager;
+    private readonly TimeSpan _timeOut;
 
-    public TelegramBot(string token, UserManager userManager, ReceiverOptions ? receiverOptions = null)
+    public TelegramBot(string token, TimeSpan timeOut, UserManager userManager, ReceiverOptions ? receiverOptions = null)
     {
         _telegramBotClient = new(token, GHttpClient.Client);
         receiverOptions ??= new ReceiverOptions { AllowedUpdates = Array.Empty<UpdateType>() };
         _receiverOptions = receiverOptions;
         _userManager = userManager;
+        _timeOut = timeOut;
     }
 
     public async Task Start()
@@ -43,7 +43,7 @@ public class TelegramBot
             {
                 foreach (var user in _userManager.Users)
                     await SendVacancy(user, _cancellationTokenSource.Token);
-                await Task.Delay(TimeSpan.FromMinutes(3), _cancellationTokenSource.Token);
+                await Task.Delay(_timeOut, _cancellationTokenSource.Token);
             }
         }
         catch (TaskCanceledException)
@@ -59,14 +59,14 @@ public class TelegramBot
 
     private async Task SendVacancy(User user, CancellationToken cancellationToken = default)
     {
-        foreach (var uri in user.HashsToUris.Values)
+        foreach (var uriToVacancy in user.UrisToVacancies)
         {
-            using Stream response = await GHttpClient.GetAsync(uri, cancellationToken);
-            List<Vacancy> vacancies = await GetRelevantVacancies(response, uri, user.LastVacancy, cancellationToken);
+            using Stream response = await GHttpClient.GetAsync(uriToVacancy.Key, cancellationToken);
+            List<Vacancy> vacancies = await GetRelevantVacancies(response, uriToVacancy.Key, uriToVacancy.Value, cancellationToken);
             if (vacancies.Count != 0)
             {
                 await SendVacancy(user.ChatId, vacancies);
-                user.LastVacancy = vacancies.FirstOrDefault();
+                user.UrisToVacancies[uriToVacancy.Key] = vacancies.FirstOrDefault();
             }
         }
     }
@@ -91,7 +91,7 @@ public class TelegramBot
                                                                             CancellationToken cancellationToken = default)
     {
         VacancyParser vacancyParser = VacancyParserFactory.Create(uri);
-        List<Vacancy> vacancies = await vacancyParser.ParseAsync(response, uri.Host, cancellationToken);
+        List<Vacancy> vacancies = await vacancyParser.ParseAllAsync(response, uri.Host, cancellationToken);
         if (lastVacancy is not null)
         {
             if (lastVacancy == vacancies.FirstOrDefault())

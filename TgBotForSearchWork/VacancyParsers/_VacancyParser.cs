@@ -1,9 +1,9 @@
 ﻿using AngleSharp.Dom;
-using TgBotForSearchWork.src.Extensions;
-using TgBotForSearchWork.src.Other;
-using TgBotForSearchWork.src.TelegramBot.Models;
+using TgBotForSearchWork.Extensions;
+using TgBotForSearchWork.VacancyParsers.Models;
+using TgBotForSearchWork.VacancyParsers.Others;
 
-namespace TgBotForSearchWork.src.VacancyParsers;
+namespace TgBotForSearchWork.VacancyParsers;
 
 public abstract class VacancyParser
 {
@@ -13,7 +13,7 @@ public abstract class VacancyParser
     protected abstract CssClass Date { get; }
     protected abstract CssClass Url { get; }
 
-    public async Task<List<Vacancy>> ParseAsync(Stream stream, string host, CancellationToken cancellationToken = default)
+    public async Task<List<Vacancy>> ParseAllAsync(Stream stream, string host, CancellationToken cancellationToken = default)
     {        
         IDocument doc = await HtmlDocument.CreateAsync(stream, cancellationToken);
         IHtmlCollection<IElement> vacancyElements = doc.GetElementsByClassName(VacancyItem.Name);
@@ -28,6 +28,12 @@ public abstract class VacancyParser
         }
         return vacancies;
     }
+
+/*    public async Task<List<Vacancy>> ParseDetailAsync(Stream stream, string host, CancellationToken cancellationToken = default)
+    {
+        IDocument doc = await HtmlDocument.CreateAsync(stream, cancellationToken);
+        IHtmlCollection<IElement> vacancyElements = doc.GetElementsByClassName(VacancyItem.Name);
+    }*/
 
     private Vacancy CreateVacancy(IElement element, string host)
     {

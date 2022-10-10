@@ -1,6 +1,6 @@
-﻿using TgBotForSearchWork.src.Other;
+﻿using TgBotForSearchWork.VacancyParsers.Models;
 
-namespace TgBotForSearchWork.src.VacancyParsers;
+namespace TgBotForSearchWork.VacancyParsers;
 
 internal class DjinniVacancyParser : VacancyParser
 {

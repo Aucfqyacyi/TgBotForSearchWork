@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace TgBotForSearchWork.src.TelegramBot.FileManagers;
+namespace TgBotForSearchWork.Core.FileManagers;
 
 internal class FileWriter : IDisposable
 {

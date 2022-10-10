@@ -1,7 +1,7 @@
 ﻿using AngleSharp.Dom;
-using TgBotForSearchWork.src.VacancyParsers;
+using TgBotForSearchWork.Core;
 
-namespace TgBotForSearchWork.src.Extensions;
+namespace TgBotForSearchWork.Extensions;
 
 internal static class IElementExtension
 {

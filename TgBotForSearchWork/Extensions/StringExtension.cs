@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace TgBotForSearchWork.src.Extensions;
+namespace TgBotForSearchWork.Extensions;
 
 internal static class StringExtension
 {
