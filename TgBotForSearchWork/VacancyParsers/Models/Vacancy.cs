@@ -9,6 +9,6 @@ public class Vacancy
 
     public string Present()
     {
-        return $"[{Title}]({Url})\n{ShortDescription}\nPublication date - {Date}";
+        return $"[{Title}]({Url})\n{ShortDescription}\nPublication date - {Date}".Replace('_', ' ');
     }
 }

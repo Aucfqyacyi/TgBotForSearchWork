@@ -7,11 +7,8 @@ using Telegram.Bot.Types.ReplyMarkups;
 using TgBotForSearchWork.Core.Constants;
 using TgBotForSearchWork.Core.Other;
 using TgBotForSearchWork.Core.UserManagers;
-using TgBotForSearchWork.Extensions;
-using TgBotForSearchWork.VacancyParsers;
-using TgBotForSearchWork.VacancyParsers.AllVacancyParsers;
-using TgBotForSearchWork.VacancyParsers.DetailVacancyVarsers;
 using TgBotForSearchWork.VacancyParsers.Models;
+using TgBotForSearchWork.VacancyParsers.VacancyParsers;
 using User = TgBotForSearchWork.Core.UserManagers.User;
 
 namespace TgBotForSearchWork.Core;
@@ -85,26 +82,8 @@ public class TelegramBot
         await _telegramBotClient.SendTextMessageAsync(chatId, 
                                                       vacancy.Present(), 
                                                       ParseMode.Markdown,
-                                                      replyMarkup: GetInlineButton(vacancy.Url),
                                                       disableWebPagePreview: true,
                                                       cancellationToken: cancellationToken);
-    }
-
-    private async Task SendDetailVacancyDescription(long chatId, int messageId, string url, CancellationToken cancellationToken = default)
-    {
-        if (url.IsNotNullOrEmpty())
-        {
-            using Stream response = await GHttpClient.GetAsync(url, cancellationToken);
-            IDetailVacancyParser vacancyParser = VacancyParserFactory.CreateDetailVacancyParser(new Uri(url));
-            string vacancyDescription = await vacancyParser.ParseAsync(response, cancellationToken);
-            await _telegramBotClient.SendTextMessageAsync(chatId,
-                                                          vacancyDescription,
-                                                          ParseMode.Markdown,
-                                                          replyToMessageId: messageId,
-                                                          disableWebPagePreview: true,
-                                                          cancellationToken: cancellationToken);
-        }
-        
     }
 
     private async Task<List<Vacancy>> GetRelevantVacancies(Stream response, Uri uri, Vacancy? lastVacancy, 
@@ -144,9 +123,6 @@ public class TelegramBot
                 case UpdateType.Message:
                     await OnMessage(botClient, update, cancellationToken);
                     break;
-                case UpdateType.CallbackQuery:
-                    await OnCallbackQuery(botClient, update, cancellationToken);
-                    break;
             }       
         }
         catch (Exception ex)
@@ -168,14 +144,6 @@ public class TelegramBot
         return Task.CompletedTask;
     }
 
-    private IReplyMarkup GetInlineButton(string url)
-    {
-        return new InlineKeyboardMarkup(new InlineKeyboardButton(Command.GetFullVacancy) 
-                                        { 
-                                            CallbackData = UrlEncryption.Encrypt(new Uri(url)) 
-                                        });
-    }
-
     private async Task OnMessage(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken = default)
     {
         string messageText = update.Message!.Text!;
@@ -186,15 +154,5 @@ public class TelegramBot
             _userManager.RemoveUser(chatId);
         if (Command.Test.Contains(messageText))
             await botClient.SendTextMessageAsync(chatId, "Hello, I am friendly neighborhood bot <3.\n", cancellationToken: cancellationToken);
-    }
-
-    private async Task OnCallbackQuery(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken = default)
-    {
-        var callbackQuery = update.CallbackQuery;
-        string data = callbackQuery!.Data!;
-        await SendDetailVacancyDescription(callbackQuery!.Message!.Chat.Id, 
-                                           callbackQuery.Message!.MessageId, 
-                                           UrlEncryption.Dencrypt(data),                          
-                                           cancellationToken);
     }
 }

@@ -13,20 +13,7 @@ internal static class IElementExtension
         {
             return element.FirstElementChild.GetFirstChildInnerHtml();
         }
-        return element.InnerHtml.FormatHtmlText();
-    }
-
-
-    public static string GetAllText(this IElement element)
-    {
-        StringBuilder stringBuilder = new();
-        do
-        {
-            stringBuilder.Append(GetFirstChildInnerHtml(element));
-
-        } while ((element = element?.NextElementSibling) is not null);
-
-        return stringBuilder.ToString();
+        return element.TextContent;
     }
 
     public static string GetHrefAttribute(this IElement element, string host)

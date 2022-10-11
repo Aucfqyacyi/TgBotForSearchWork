@@ -3,7 +3,7 @@ using TgBotForSearchWork.VacancyParsers.Extensions;
 using TgBotForSearchWork.VacancyParsers.Models;
 using TgBotForSearchWork.VacancyParsers.Others;
 
-namespace TgBotForSearchWork.VacancyParsers.AllVacancyParsers;
+namespace TgBotForSearchWork.VacancyParsers.VacancyParsers;
 
 internal abstract class AllVacancyParser : IAllVacancyParser
 {
