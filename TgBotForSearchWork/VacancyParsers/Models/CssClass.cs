@@ -1,11 +1,13 @@
 ﻿namespace TgBotForSearchWork.VacancyParsers.Models;
 
-internal class CssClass
+internal class HtmlElement
 {
-    public string Name { get; }
+    public string CssClassName { get; }
+    public string TagName { get; }
 
-    public CssClass(string name)
+    public HtmlElement(string name, string tagName = "")
     {
-        Name = name;
+        CssClassName = name;
+        TagName = tagName;
     }
 }

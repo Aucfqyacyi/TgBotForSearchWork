@@ -1,19 +1,21 @@
 ﻿using AngleSharp.Dom;
 using System.Text;
+using System.Xml.Linq;
 using TgBotForSearchWork.Extensions;
 using TgBotForSearchWork.VacancyParsers.Constants;
+using TgBotForSearchWork.VacancyParsers.Models;
 
 namespace TgBotForSearchWork.VacancyParsers.Extensions;
 
 internal static class IElementExtension
 {
-    public static string GetFirstChildInnerHtml(this IElement element)
+    public static string GetFirstChildTextContent(this IElement element)
     {
-        if (element.FirstElementChild is not null)
+        if (element.FirstElementChild is not null && element.FirstElementChild.TagName != "BR")
         {
-            return element.FirstElementChild.GetFirstChildInnerHtml();
+            return element.FirstElementChild.GetFirstChildTextContent();
         }
-        return element.TextContent;
+        return element.TextContent.Trim('\t', '\n', ' ').Replace("  ", string.Empty).Replace('_', ' ') + '\n';
     }
 
     public static string GetHrefAttribute(this IElement element, string host)
@@ -28,6 +30,36 @@ internal static class IElementExtension
             return url;
         }
         return Host.Https + host + url;
+    }
+
+    public static string GetTextContent(this IElement vacancyElement, HtmlElement htmlElement)
+    {
+        return GetIElement(vacancyElement, htmlElement)?.GetFirstChildTextContent() ?? string.Empty;
+    }
+
+    public static IElement? GetIElement(this IElement vacancyElement, HtmlElement htmlElement)
+    {
+        IHtmlCollection<IElement>? elements = null;
+
+        if (htmlElement.CssClassName.IsNotNullOrEmpty())
+            elements = vacancyElement.GetElementsByClassName(htmlElement.CssClassName);
+
+        if (htmlElement.TagName.IsNotNullOrEmpty() && (elements is null || elements.Count() == 0))
+            elements = vacancyElement.GetElementsByTagName(htmlElement.TagName);
+
+        if (elements is not null)
+        {
+            foreach (var element in elements)
+            {
+                if ((element.ClassName == htmlElement.CssClassName || string.IsNullOrEmpty(htmlElement.CssClassName)) &&
+                    (element.TagName == htmlElement.TagName || string.IsNullOrEmpty(htmlElement.TagName)))
+                {
+                    return element;
+                }
+            }
+        }
+
+        return null;
     }
 
 }

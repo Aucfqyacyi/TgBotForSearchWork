@@ -9,5 +9,7 @@ internal static class Host
     {
         All.Add(Site.Dou, "jobs.dou.ua");
         All.Add(Site.Djinni, "djinni.co");
+        All.Add(Site.WorkUa, "www.work.ua");
+        All.Add(Site.RabotaUa, "rabota.ua");
     }
 }

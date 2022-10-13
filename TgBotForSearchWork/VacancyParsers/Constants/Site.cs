@@ -3,5 +3,7 @@
 internal enum Site
 {
     Dou,
-    Djinni
+    Djinni, 
+    WorkUa,
+    RabotaUa
 }
