@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "TgBotForSearchWork": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

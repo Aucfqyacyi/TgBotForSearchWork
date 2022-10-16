@@ -13,8 +13,6 @@ public static class VacancyParserFactory
             return new DjinniVacancyParser();
         if (Host.All[Site.WorkUa] == uri.Host)
             return new WorkUaVacancyParser();
-        if (Host.All[Site.RabotaUa] == uri.Host)
-            return new RabotaUaVacancyParser();
         throw new Exception($"Host({uri.Host}) was not found");
     }
 }

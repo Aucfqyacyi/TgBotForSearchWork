@@ -5,5 +5,4 @@ internal enum Site
     Dou,
     Djinni, 
     WorkUa,
-    RabotaUa
 }

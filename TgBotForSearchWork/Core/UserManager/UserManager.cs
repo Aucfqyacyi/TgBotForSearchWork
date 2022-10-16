@@ -18,10 +18,12 @@ public class UserManager
         if (_users.Any(user => user.ChatId == chatId) is false)
         {
             User user = new User(chatId);
-            string url1 = @"https://jobs.dou.ua/vacancies/?remote&category=.NET&exp=1-3";
-            string url2 = @"https://djinni.co/jobs/?primary_keyword=.NET&exp_level=1y&exp_level=2y&employment=remote";
-            user.UrisToVacancies.Add(new Uri(url1), null);
-            user.UrisToVacancies.Add(new Uri(url2), null);
+            user.UrisToVacancies.Add(new Uri(@"https://jobs.dou.ua/vacancies/?remote&category=.NET&exp=1-3"), null);
+            user.UrisToVacancies.Add(new Uri(@"https://jobs.dou.ua/vacancies/?remote&category=C%2B%2B&exp=0-1"), null);
+            user.UrisToVacancies.Add(new Uri(@"https://djinni.co/jobs/?employment=remote&primary_keyword=C%2B%2B&exp_level=no_exp&exp_level=1y"), null);
+            user.UrisToVacancies.Add(new Uri(@"https://djinni.co/jobs/?primary_keyword=.NET&exp_level=1y&exp_level=2y&employment=remote"), null);
+            user.UrisToVacancies.Add(new Uri(@"https://www.work.ua/ru/jobs-remote-.net+developer/"), null);
+            user.UrisToVacancies.Add(new Uri(@"https://www.work.ua/ru/jobs-remote-c%2B%2B+developer/"), null);
             _users.Add(user);
             _fileManager.Write(user);
         }
