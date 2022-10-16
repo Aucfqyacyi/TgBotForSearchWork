@@ -1,4 +1,4 @@
-﻿namespace TgBotForSearchWork.VacancyParsers.Models;
+﻿namespace TgBotForSearchWork.Models;
 
 public class Vacancy
 {

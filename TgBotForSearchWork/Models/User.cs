@@ -1,6 +1,6 @@
-﻿using TgBotForSearchWork.VacancyParsers.Models;
+﻿using TgBotForSearchWork.Models;
 
-namespace TgBotForSearchWork.Core.UserManagers;
+namespace TgBotForSearchWork.Models;
 
 public class User
 {

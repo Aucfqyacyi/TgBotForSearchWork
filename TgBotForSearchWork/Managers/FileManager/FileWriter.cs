@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace TgBotForSearchWork.Core.FileManagers;
+namespace TgBotForSearchWork.Managers.FileManagers;
 
 internal class FileWriter : IDisposable
 {

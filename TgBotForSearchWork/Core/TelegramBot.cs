@@ -3,13 +3,12 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
-using TgBotForSearchWork.Core.Constants;
-using TgBotForSearchWork.Core.Other;
-using TgBotForSearchWork.Core.UserManagers;
-using TgBotForSearchWork.VacancyParsers.Models;
-using TgBotForSearchWork.VacancyParsers.VacancyParsers;
-using User = TgBotForSearchWork.Core.UserManagers.User;
+using TgBotForSearchWork.Constants;
+using TgBotForSearchWork.Managers.UserManagers;
+using TgBotForSearchWork.Models;
+using TgBotForSearchWork.Others;
+using TgBotForSearchWork.VacancyParsers;
+using User = TgBotForSearchWork.Models.User;
 
 namespace TgBotForSearchWork.Core;
 

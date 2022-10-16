@@ -1,6 +1,7 @@
-﻿using TgBotForSearchWork.Core.FileManagers;
+﻿using TgBotForSearchWork.Managers.FileManagers;
+using TgBotForSearchWork.Models;
 
-namespace TgBotForSearchWork.Core.UserManagers;
+namespace TgBotForSearchWork.Managers.UserManagers;
 
 public class UserManager
 {

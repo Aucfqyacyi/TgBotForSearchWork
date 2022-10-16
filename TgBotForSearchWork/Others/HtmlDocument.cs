@@ -1,7 +1,7 @@
 ﻿using AngleSharp;
 using AngleSharp.Dom;
 
-namespace TgBotForSearchWork.VacancyParsers.Others;
+namespace TgBotForSearchWork.Others;
 
 internal static class HtmlDocument
 {

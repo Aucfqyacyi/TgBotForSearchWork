@@ -1,4 +1,4 @@
-﻿namespace TgBotForSearchWork.Core.Other;
+﻿namespace TgBotForSearchWork.Others;
 
 internal static class GHttpClient
 {

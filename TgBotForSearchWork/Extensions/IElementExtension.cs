@@ -1,11 +1,8 @@
 ﻿using AngleSharp.Dom;
-using System.Text;
-using System.Xml.Linq;
-using TgBotForSearchWork.Extensions;
-using TgBotForSearchWork.VacancyParsers.Constants;
-using TgBotForSearchWork.VacancyParsers.Models;
+using TgBotForSearchWork.Constants;
+using TgBotForSearchWork.Models;
 
-namespace TgBotForSearchWork.VacancyParsers.Extensions;
+namespace TgBotForSearchWork.Extensions;
 
 internal static class IElementExtension
 {
@@ -34,7 +31,7 @@ internal static class IElementExtension
 
     public static string GetTextContent(this IElement vacancyElement, HtmlElement htmlElement)
     {
-        return GetIElement(vacancyElement, htmlElement)?.GetFirstChildTextContent() ?? string.Empty;
+        return vacancyElement.GetIElement(htmlElement)?.GetFirstChildTextContent() ?? string.Empty;
     }
 
     public static IElement? GetIElement(this IElement vacancyElement, HtmlElement htmlElement)

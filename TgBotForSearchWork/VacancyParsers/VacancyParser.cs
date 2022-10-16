@@ -1,9 +1,9 @@
 ﻿using AngleSharp.Dom;
-using TgBotForSearchWork.VacancyParsers.Extensions;
-using TgBotForSearchWork.VacancyParsers.Models;
-using TgBotForSearchWork.VacancyParsers.Others;
+using TgBotForSearchWork.Extensions;
+using TgBotForSearchWork.Models;
+using TgBotForSearchWork.Others;
 
-namespace TgBotForSearchWork.VacancyParsers.VacancyParsers;
+namespace TgBotForSearchWork.VacancyParsers;
 
 internal abstract class VacancyParser : IAllVacancyParser
 {

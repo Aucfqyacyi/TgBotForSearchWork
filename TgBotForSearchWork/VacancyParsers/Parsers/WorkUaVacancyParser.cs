@@ -1,6 +1,6 @@
-﻿using TgBotForSearchWork.VacancyParsers.Models;
+﻿using TgBotForSearchWork.Models;
 
-namespace TgBotForSearchWork.VacancyParsers.VacancyParsers.Parsers;
+namespace TgBotForSearchWork.VacancyParsers.Parsers;
 
 internal class WorkUaVacancyParser : VacancyParser
 {
@@ -11,8 +11,4 @@ internal class WorkUaVacancyParser : VacancyParser
     protected override HtmlElement ShortDescription => new("overflow text-muted add-top-sm cut-bottom");
 
     protected override HtmlElement Url => new(string.Empty, "A");
-    public override Task<List<Vacancy>> ParseAsync(Stream stream, string host, CancellationToken cancellationToken = default)
-    {
-        return base.ParseAsync(stream, host, cancellationToken);
-    }
 }
