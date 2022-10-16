@@ -55,7 +55,6 @@ internal static class IElementExtension
                 }
             }
         }
-
         return null;
     }
 

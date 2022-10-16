@@ -1,4 +1,5 @@
-﻿using Telegram.Bot;
+﻿using System.Diagnostics;
+using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -46,13 +47,10 @@ public class TelegramBot
             }
         }
         catch (TaskCanceledException)
-        {
-
-        }
+        {  }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            Stop();
         }      
     }
 
@@ -73,12 +71,14 @@ public class TelegramBot
     private async Task SendVacancy(long chatId, List<Vacancy> vacancies, CancellationToken cancellationToken = default)
     {
         foreach (var vacancy in vacancies)
+        {
             await SendVacancy(chatId, vacancy, cancellationToken);
+        }
     }
 
-    private async Task SendVacancy(long chatId, Vacancy vacancy, CancellationToken cancellationToken = default)
+    private Task SendVacancy(long chatId, Vacancy vacancy, CancellationToken cancellationToken = default)
     {
-        await _telegramBotClient.SendTextMessageAsync(chatId, 
+        return _telegramBotClient.SendTextMessageAsync(chatId, 
                                                       vacancy.Present(), 
                                                       ParseMode.Markdown,
                                                       disableWebPagePreview: true,

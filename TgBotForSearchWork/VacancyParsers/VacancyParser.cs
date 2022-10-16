@@ -16,12 +16,17 @@ internal abstract class VacancyParser : IAllVacancyParser
     {
         IDocument doc = await HtmlDocument.CreateAsync(stream, cancellationToken);
         IHtmlCollection<IElement> vacancyElements = doc.GetElementsByClassName(VacancyItem.CssClassName);
-        List<Vacancy> vacancies = new();
+        List<Task<Vacancy>> tasks = new();
         foreach (IElement vacancyElement in vacancyElements)
         {
-            vacancies.Add(CreateVacancy(vacancyElement, host));
-        }
-        return vacancies;
+            tasks.Add(CreateVacancyAsync(vacancyElement, host));
+        }          
+        await Task.WhenAll(tasks);
+        return tasks.Aggregate(new List<Vacancy>(), (vacancies, task) =>
+        {
+            vacancies.Add(task.Result);
+            return vacancies;
+        });
     }
 
     private Vacancy CreateVacancy(IElement element, string host)
@@ -30,5 +35,10 @@ internal abstract class VacancyParser : IAllVacancyParser
         string title = element.GetTextContent(Title);
         string shortDescription = element.GetTextContent(ShortDescription);
         return new(title, url, shortDescription);
+    }
+
+    private Task<Vacancy> CreateVacancyAsync(IElement element, string host)
+    {
+        return Task.Run(() => CreateVacancy(element, host));
     }
 }
