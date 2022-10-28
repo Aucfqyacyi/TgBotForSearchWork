@@ -20,4 +20,4 @@ RUN dotnet publish "TgBotForSearchWork.csproj" -c Release -o /app/publish /p:Use
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "TgBotForSearchWork.dll"]
+CMD ["dotnet", "TgBotForSearchWork.dll", "--token", "2128837514:AAEJVAT5VUFQcXGo03tsCj0KobKns8HQRgU", "--time", "60"]

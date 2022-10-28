@@ -3,8 +3,13 @@
     "TgBotForSearchWork": {
       "commandName": "Project"
     },
-    "Docker": {
-      "commandName": "Docker"
+    "Test": {
+      "commandName": "Project",
+      "commandLineArgs": "--token 5560452187:AAE_oRvabO1hSZh2TP_JaqOGTgMNUuYYeww --time 15"
+    },
+    "Release": {
+      "commandName": "Project",
+      "commandLineArgs": "--token 2128837514:AAEJVAT5VUFQcXGo03tsCj0KobKns8HQRgU --time 60"
     }
   }
 }

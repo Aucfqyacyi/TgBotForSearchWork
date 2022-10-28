@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -32,6 +31,7 @@ public class TelegramBot
 
     public async Task Start()
     {
+        Log.Info("Application started.");
         _telegramBotClient.StartReceiving(
                     updateHandler: HandleUpdateAsync,
                     pollingErrorHandler: HandlePollingErrorAsync,
@@ -50,7 +50,7 @@ public class TelegramBot
         {  }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            Log.Info(ex.Message);
         }      
     }
 
@@ -65,6 +65,7 @@ public class TelegramBot
                 await SendVacancy(user.ChatId, vacancies);
                 user.UrisToVacancies[uriToVacancy.Key] = vacancies.FirstOrDefault();
             }
+            Log.Info($"{uriToVacancy.Key.Host} has number of vacancies {vacancies.Count}");
         }
     }
 
@@ -88,7 +89,7 @@ public class TelegramBot
     private async Task<List<Vacancy>> GetRelevantVacancies(Stream response, Uri uri, Vacancy? lastVacancy, 
                                                                             CancellationToken cancellationToken = default)
     {
-        IAllVacancyParser vacancyParser = VacancyParserFactory.CreateAllVacancyParser(uri);
+        IVacancyParser vacancyParser = VacancyParserFactory.CreateVacancyParser(uri);
         List<Vacancy> vacancies = await vacancyParser.ParseAsync(response, uri.Host, cancellationToken);
         if (lastVacancy is not null)
         {
@@ -109,6 +110,7 @@ public class TelegramBot
     {
         if (_cancellationTokenSource.IsCancellationRequested is false)
         {
+            Log.Info("Application stopped.");         
             _cancellationTokenSource.Cancel();
         }
     }
@@ -139,7 +141,7 @@ public class TelegramBot
             _ => exception.ToString()
         };
 
-        Console.WriteLine(errorMessage);
+        Log.Info(errorMessage);
         return Task.CompletedTask;
     }
 
@@ -147,11 +149,27 @@ public class TelegramBot
     {
         string messageText = update.Message!.Text!;
         var chatId = update.Message!.Chat.Id;
-        if (Command.Start.Contains(messageText))
+        if (messageText.Contains(Command.AddUrl))
+            await OnUrlToUser(botClient, update, cancellationToken);
+        if (messageText.Contains(Command.Start))
             _userManager.AddUser(chatId);
-        if (Command.Stop.Contains(messageText))
+        if (messageText.Contains(Command.Stop))
             _userManager.RemoveUser(chatId);
-        if (Command.Test.Contains(messageText))
-            await botClient.SendTextMessageAsync(chatId, "Hello, I am friendly neighborhood bot <3.\n", cancellationToken: cancellationToken);
+        if (messageText.Contains(Command.Test))
+        {
+            await botClient.SendTextMessageAsync(chatId, "Hello, I am friendly neighborhood bot <3.", cancellationToken: cancellationToken);
+            Log.Info($"Test command was called.");
+        }
+            
+    }
+
+    private async Task OnUrlToUser(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken = default)
+    {
+        var chatId = update.Message!.Chat.Id;
+        string url = update.Message!.Text!.Substring(Command.AddUrl.Length + 1);
+        if(_userManager.AddUrlToUser(chatId, url))
+            await botClient.SendTextMessageAsync(chatId, "Url added successfully.", cancellationToken: cancellationToken);
+        else
+            await botClient.SendTextMessageAsync(chatId, "User was not found!", cancellationToken: cancellationToken);
     }
 }

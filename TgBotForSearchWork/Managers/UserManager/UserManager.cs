@@ -1,4 +1,5 @@
-﻿using TgBotForSearchWork.Managers.FileManagers;
+﻿using AngleSharp.Dom;
+using TgBotForSearchWork.Managers.FileManagers;
 using TgBotForSearchWork.Models;
 
 namespace TgBotForSearchWork.Managers.UserManagers;
@@ -19,7 +20,35 @@ public class UserManager
         if (_users.Any(user => user.ChatId == chatId) is false)
         {
             User user = new User(chatId);
+            _users.Add(user);
+            _fileManager.Write(user);
+        }
+    }
+
+    public bool AddUrlToUser(long chatId, string url)
+    {
+        User? user = _users.FirstOrDefault(user => user.ChatId == chatId);
+        if (user is not null)
+        {
+            Uri uri = new Uri(url);
+            if (user.UrisToVacancies.ContainsKey(uri))
+            {
+                user.UrisToVacancies.Add(uri, null);
+            }         
+            return true;
+        }
+        return false;
+    }
+
+    public void AddDefaultUser()
+    {
+        long chatId = 692816611;
+        if (_users.Any(user => user.ChatId == chatId) is false)
+        {
+            User user = new User(chatId);
+            user.UrisToVacancies.Add(new Uri(@"https://jobs.dou.ua/vacancies/?remote&category=.NET&exp=0-1"), null);
             user.UrisToVacancies.Add(new Uri(@"https://jobs.dou.ua/vacancies/?remote&category=.NET&exp=1-3"), null);
+            user.UrisToVacancies.Add(new Uri(@"https://jobs.dou.ua/vacancies/?remote&category=C%2B%2B&exp=1-3"), null);
             user.UrisToVacancies.Add(new Uri(@"https://jobs.dou.ua/vacancies/?remote&category=C%2B%2B&exp=0-1"), null);
             user.UrisToVacancies.Add(new Uri(@"https://djinni.co/jobs/?employment=remote&primary_keyword=C%2B%2B&exp_level=no_exp&exp_level=1y"), null);
             user.UrisToVacancies.Add(new Uri(@"https://djinni.co/jobs/?primary_keyword=.NET&exp_level=1y&exp_level=2y&employment=remote"), null);

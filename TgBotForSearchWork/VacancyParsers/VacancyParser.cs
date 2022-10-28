@@ -5,7 +5,7 @@ using TgBotForSearchWork.Others;
 
 namespace TgBotForSearchWork.VacancyParsers;
 
-internal abstract class VacancyParser : IAllVacancyParser
+internal abstract class VacancyParser : IVacancyParser
 {
     protected abstract HtmlElement VacancyItem { get; }
     protected abstract HtmlElement Title { get; }
@@ -16,17 +16,12 @@ internal abstract class VacancyParser : IAllVacancyParser
     {
         IDocument doc = await HtmlDocument.CreateAsync(stream, cancellationToken);
         IHtmlCollection<IElement> vacancyElements = doc.GetElementsByClassName(VacancyItem.CssClassName);
-        List<Task<Vacancy>> tasks = new();
+        List<Vacancy> vacancies = new();
         foreach (IElement vacancyElement in vacancyElements)
         {
-            tasks.Add(CreateVacancyAsync(vacancyElement, host));
+            vacancies.Add(CreateVacancy(vacancyElement, host));
         }          
-        await Task.WhenAll(tasks);
-        return tasks.Aggregate(new List<Vacancy>(), (vacancies, task) =>
-        {
-            vacancies.Add(task.Result);
-            return vacancies;
-        });
+        return vacancies;
     }
 
     private Vacancy CreateVacancy(IElement element, string host)
