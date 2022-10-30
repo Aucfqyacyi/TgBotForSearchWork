@@ -1,11 +1,9 @@
-﻿using TgBotForSearchWork.Models;
-
-namespace TgBotForSearchWork.Models;
+﻿namespace TgBotForSearchWork.Models;
 
 public class User
 {
     public long ChatId { get; set; }
-    public Dictionary<Uri, Vacancy?> UrisToVacancies { get; set; } = new();
+    public Dictionary<Url, Vacancy?> UrlsToVacancies { get; set; } = new();
 
     public User()
     { }
@@ -17,7 +15,7 @@ public class User
         {
             foreach (var url in urls)
             {
-                UrisToVacancies.Add(new Uri(url), null);
+                UrlsToVacancies.Add(new Url(url), null);
             }
         }
     }

@@ -7,6 +7,7 @@ internal static class GHttpClient
     static GHttpClient()
     {
         Client = new HttpClient();
+        Client.Timeout = TimeSpan.FromMinutes(2);
     }
 
     public static async Task<Stream> GetAsync(Uri uri, CancellationToken cancellationToken = default)

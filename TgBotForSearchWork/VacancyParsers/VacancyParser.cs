@@ -12,14 +12,15 @@ internal abstract class VacancyParser : IVacancyParser
     protected abstract HtmlElement ShortDescription { get; }
     protected abstract HtmlElement Url { get; }
 
-    public virtual async Task<List<Vacancy>> ParseAsync(Stream stream, string host, CancellationToken cancellationToken = default)
+    public virtual async Task<List<Vacancy>> ParseAsync(Uri uri, CancellationToken cancellationToken = default)
     {
-        IDocument doc = await HtmlDocument.CreateAsync(stream, cancellationToken);
+        using Stream response = await GHttpClient.GetAsync(uri, cancellationToken);
+        using IDocument doc = await HtmlDocument.CreateAsync(response, cancellationToken);
         IHtmlCollection<IElement> vacancyElements = doc.GetElementsByClassName(VacancyItem.CssClassName);
         List<Vacancy> vacancies = new();
         foreach (IElement vacancyElement in vacancyElements)
         {
-            vacancies.Add(CreateVacancy(vacancyElement, host));
+            vacancies.Add(CreateVacancy(vacancyElement, uri.Host));
         }          
         return vacancies;
     }

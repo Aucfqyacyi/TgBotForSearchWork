@@ -20,7 +20,7 @@ public class TelegramBot
     private readonly UserManager _userManager;
     private readonly TimeSpan _timeOut;
 
-    public TelegramBot(string token, TimeSpan timeOut, UserManager userManager, ReceiverOptions ? receiverOptions = null)
+    public TelegramBot(string token, TimeSpan timeOut, UserManager userManager, ReceiverOptions? receiverOptions = null)
     {
         _telegramBotClient = new(token, GHttpClient.Client);
         receiverOptions ??= new ReceiverOptions { AllowedUpdates = Array.Empty<UpdateType>() };
@@ -29,55 +29,60 @@ public class TelegramBot
         _timeOut = timeOut;
     }
 
-    public async Task Start()
+    public async Task StartAsync()
     {
-        Log.Info("Application started.");
         _telegramBotClient.StartReceiving(
                     updateHandler: HandleUpdateAsync,
                     pollingErrorHandler: HandlePollingErrorAsync,
                     receiverOptions: _receiverOptions,
                     cancellationToken: _cancellationTokenSource.Token);
-        try
+
+        while (_cancellationTokenSource.Token.IsCancellationRequested is false)
         {
-            while (true)
+            try
             {
                 foreach (var user in _userManager.Users)
-                    await SendVacancy(user, _cancellationTokenSource.Token);
+                    await SendVacancyAsync(user, _cancellationTokenSource.Token);
                 await Task.Delay(_timeOut, _cancellationTokenSource.Token);
             }
-        }
-        catch (TaskCanceledException)
-        {  }
-        catch (Exception ex)
-        {
-            Log.Info(ex.Message);
-        }      
-    }
-
-    private async Task SendVacancy(User user, CancellationToken cancellationToken = default)
-    {
-        foreach (var uriToVacancy in user.UrisToVacancies)
-        {
-            using Stream response = await GHttpClient.GetAsync(uriToVacancy.Key, cancellationToken);
-            List<Vacancy> vacancies = await GetRelevantVacancies(response, uriToVacancy.Key, uriToVacancy.Value, cancellationToken);
-            if (vacancies.Count != 0)
+            catch (TaskCanceledException)
             {
-                await SendVacancy(user.ChatId, vacancies);
-                user.UrisToVacancies[uriToVacancy.Key] = vacancies.FirstOrDefault();
+                Log.Info($"Cancellation is requested in main token = {_cancellationTokenSource.Token.IsCancellationRequested}.");
             }
-            Log.Info($"{uriToVacancy.Key.Host} has number of vacancies {vacancies.Count}");
+            catch (Exception ex)
+            {
+                Log.Info(ex.Message);
+            }
         }
+             
     }
 
-    private async Task SendVacancy(long chatId, List<Vacancy> vacancies, CancellationToken cancellationToken = default)
+    private async Task SendVacancyAsync(User user, CancellationToken cancellationToken = default)
     {
-        foreach (var vacancy in vacancies)
+        foreach (var urlToVacancy in user.UrlsToVacancies)
         {
-            await SendVacancy(chatId, vacancy, cancellationToken);
+            if (urlToVacancy.Key.IsOff)
+            {                
+                IReadOnlyList<Vacancy> vacancies = await GetRelevantVacancies( urlToVacancy.Key, urlToVacancy.Value, cancellationToken);
+                if (vacancies.Count != 0)
+                {
+                    await SendVacancyAsync(user.ChatId, vacancies, cancellationToken);
+                    user.UrlsToVacancies[urlToVacancy.Key] = vacancies.FirstOrDefault();
+                }
+                Log.Info($"{urlToVacancy.Key.Host} has number of vacancies {vacancies.Count}");
+            }
         }
     }
 
-    private Task SendVacancy(long chatId, Vacancy vacancy, CancellationToken cancellationToken = default)
+    private async Task SendVacancyAsync(long chatId, IEnumerable<Vacancy> vacancies, CancellationToken cancellationToken = default)
+    {
+        foreach (Vacancy vacancy in vacancies)
+        {
+            await SendVacancyAsync(chatId, vacancy, cancellationToken);
+        }
+    }
+
+    private Task SendVacancyAsync(long chatId, Vacancy vacancy, CancellationToken cancellationToken = default)
     {
         return _telegramBotClient.SendTextMessageAsync(chatId, 
                                                       vacancy.Present(), 
@@ -86,18 +91,17 @@ public class TelegramBot
                                                       cancellationToken: cancellationToken);
     }
 
-    private async Task<List<Vacancy>> GetRelevantVacancies(Stream response, Uri uri, Vacancy? lastVacancy, 
-                                                                            CancellationToken cancellationToken = default)
+    private async Task<IReadOnlyList<Vacancy>> GetRelevantVacancies(Uri uri, Vacancy? lastVacancy, CancellationToken cancellationToken = default)
     {
         IVacancyParser vacancyParser = VacancyParserFactory.CreateVacancyParser(uri);
-        List<Vacancy> vacancies = await vacancyParser.ParseAsync(response, uri.Host, cancellationToken);
+        List<Vacancy> vacancies = await vacancyParser.ParseAsync(uri, cancellationToken);
         if (lastVacancy is not null)
         {
             if (lastVacancy == vacancies.FirstOrDefault())
             {
-                return new();
+                return new List<Vacancy>();
             }
-            int index = vacancies.FindIndex(vacancy => vacancy.Title == lastVacancy.Title);
+            int index = vacancies.FindIndex(vacancy => vacancy.Url == lastVacancy.Url);
             if (index != -1)
             {
                 vacancies.RemoveRange(index, vacancies.Count - index);
@@ -109,8 +113,7 @@ public class TelegramBot
     public void Stop()
     {
         if (_cancellationTokenSource.IsCancellationRequested is false)
-        {
-            Log.Info("Application stopped.");         
+        {     
             _cancellationTokenSource.Cancel();
         }
     }
@@ -128,7 +131,7 @@ public class TelegramBot
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            Log.Info(ex.Message);
         }
     }
 
@@ -148,9 +151,9 @@ public class TelegramBot
     private async Task OnMessage(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken = default)
     {
         string messageText = update.Message!.Text!;
-        var chatId = update.Message!.Chat.Id;
-        if (messageText.Contains(Command.AddUrl))
-            await OnUrlToUser(botClient, update, cancellationToken);
+        long chatId = update.Message!.Chat.Id;
+        if (messageText.Contains(Command.ShowAllUrls))
+            await OnShowAllUrls(chatId, cancellationToken);
         if (messageText.Contains(Command.Start))
             _userManager.AddUser(chatId);
         if (messageText.Contains(Command.Stop))
@@ -159,17 +162,21 @@ public class TelegramBot
         {
             await botClient.SendTextMessageAsync(chatId, "Hello, I am friendly neighborhood bot <3.", cancellationToken: cancellationToken);
             Log.Info($"Test command was called.");
-        }
-            
+        }          
     }
 
-    private async Task OnUrlToUser(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken = default)
+    private async Task OnShowAllUrls(long chatId, CancellationToken cancellationToken = default)
     {
-        var chatId = update.Message!.Chat.Id;
-        string url = update.Message!.Text!.Substring(Command.AddUrl.Length + 1);
-        if(_userManager.AddUrlToUser(chatId, url))
-            await botClient.SendTextMessageAsync(chatId, "Url added successfully.", cancellationToken: cancellationToken);
-        else
-            await botClient.SendTextMessageAsync(chatId, "User was not found!", cancellationToken: cancellationToken);
+        User? user = _userManager.Users.FirstOrDefault(user => user.ChatId == chatId);
+        if (user is not null)
+        {
+            foreach (Url url in user.UrlsToVacancies.Keys)
+            {
+                await _telegramBotClient.SendTextMessageAsync(chatId, 
+                                                              url.OriginalString, 
+                                                              disableWebPagePreview: true,
+                                                              cancellationToken: cancellationToken);
+            }
+        }      
     }
 }

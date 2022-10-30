@@ -6,6 +6,7 @@ namespace TgBotForSearchWork.Managers.FileManagers;
 public class FileManager
 {
     private readonly string _filename;
+    private char _exclamationMark = '!';
 
     public FileManager(string filename)
     {
@@ -30,9 +31,12 @@ public class FileManager
     private void Write(FileWriter fileWriter, User user)
     {
         fileWriter.WriteLine(user.ChatId);
-        foreach (var url in user.UrisToVacancies.Keys)
+        foreach (var url in user.UrlsToVacancies.Keys)
         {
-            fileWriter.WriteLine(url.OriginalString);
+            string str = url.OriginalString;
+            if (url.IsOff is false)
+                str = _exclamationMark + str;
+            fileWriter.WriteLine(str);
         }
         fileWriter.WriteLine();
     }
@@ -47,7 +51,15 @@ public class FileManager
             User user = new(Convert.ToInt64(line));
             while ((line = fileReader.ReadLine()).IsNotNullOrEmpty())
             {
-                user.UrisToVacancies.Add(new Uri(line!), null);
+                if (line!.StartsWith(_exclamationMark))
+                {
+                    user.UrlsToVacancies.Add(new Url(line!.TrimStart(_exclamationMark)), null);
+                }
+                else
+                {
+                    user.UrlsToVacancies.Add(new Url(line!, true), null);
+                }
+                
             }
             users.Add(user);
         }
