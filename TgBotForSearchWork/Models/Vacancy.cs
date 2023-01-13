@@ -2,12 +2,14 @@
 
 public class Vacancy
 {
+    public ulong Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string ShortDescription { get; set; } = string.Empty;
     public string Url { get; set; } = string.Empty;
 
-    public Vacancy(string title, string url, string shortDescription)
+    public Vacancy(ulong id, string title, string url, string shortDescription)
     {
+        Id = id;
         Title = title;
         Url = url;
         ShortDescription = shortDescription;

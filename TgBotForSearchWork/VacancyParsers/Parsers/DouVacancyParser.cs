@@ -12,4 +12,8 @@ internal class DouVacancyParser : VacancyParser
 
     protected override HtmlElement Url => new("vt", "A");
 
+    protected override uint IdPositionInUrl { get => 6; }
+
+    protected override char SymbolAfterId { get => '/'; }
+
 }

@@ -1,9 +1,15 @@
-﻿namespace TgBotForSearchWork.Models;
+﻿using MongoDB.Bson.Serialization.Attributes;
+
+namespace TgBotForSearchWork.Models;
 
 public class User
 {
+    private List<UrlToVacancies> _urls = new();
+
+    [BsonId]
     public long ChatId { get; set; }
-    public Dictionary<Url, Vacancy?> UrlsToVacancies { get; set; } = new();
+    [BsonElement] 
+    public IReadOnlyList<UrlToVacancies> Urls { get => _urls; set => _urls.AddRange(value); }
 
     public User()
     { }
@@ -15,7 +21,7 @@ public class User
         {
             foreach (var url in urls)
             {
-                UrlsToVacancies.Add(new Url(url), null);
+                _urls.Add(new UrlToVacancies(url));
             }
         }
     }

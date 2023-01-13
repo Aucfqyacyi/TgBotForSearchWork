@@ -1,7 +1,7 @@
 ﻿using AngleSharp.Dom;
 using TgBotForSearchWork.Extensions;
 using TgBotForSearchWork.Models;
-using TgBotForSearchWork.Others;
+using TgBotForSearchWork.Utilities;
 
 namespace TgBotForSearchWork.VacancyParsers;
 
@@ -11,6 +11,9 @@ internal abstract class VacancyParser : IVacancyParser
     protected abstract HtmlElement Title { get; }
     protected abstract HtmlElement ShortDescription { get; }
     protected abstract HtmlElement Url { get; }
+    protected abstract uint IdPositionInUrl { get; }
+    protected abstract char SymbolAfterId { get; }
+
 
     public virtual async Task<List<Vacancy>> ParseAsync(Uri uri, CancellationToken cancellationToken = default)
     {
@@ -21,7 +24,7 @@ internal abstract class VacancyParser : IVacancyParser
         foreach (IElement vacancyElement in vacancyElements)
         {
             vacancies.Add(CreateVacancy(vacancyElement, uri.Host));
-        }          
+        }
         return vacancies;
     }
 
@@ -30,11 +33,17 @@ internal abstract class VacancyParser : IVacancyParser
         string url = element.GetIElement(Url)?.GetHrefAttribute(host) ?? string.Empty;
         string title = element.GetTextContent(Title);
         string shortDescription = element.GetTextContent(ShortDescription);
-        return new(title, url, shortDescription);
+        ulong id = GetId(url);
+        return new(id, title, url, shortDescription);
     }
 
     private Task<Vacancy> CreateVacancyAsync(IElement element, string host)
     {
         return Task.Run(() => CreateVacancy(element, host));
+    }
+
+    protected ulong GetId(string url)
+    {
+        return ulong.Parse(url.Split('/')[IdPositionInUrl].Split(SymbolAfterId).First());       
     }
 }

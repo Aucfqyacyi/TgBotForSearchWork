@@ -11,4 +11,8 @@ internal class WorkUaVacancyParser : VacancyParser
     protected override HtmlElement ShortDescription => new("overflow text-muted add-top-sm cut-bottom");
 
     protected override HtmlElement Url => new(string.Empty, "A");
+
+    protected override uint IdPositionInUrl { get => 5; }
+
+    protected override char SymbolAfterId { get => '/'; }
 }

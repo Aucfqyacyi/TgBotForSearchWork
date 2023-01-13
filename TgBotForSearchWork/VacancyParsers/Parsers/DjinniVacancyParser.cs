@@ -11,4 +11,8 @@ internal class DjinniVacancyParser : VacancyParser
     protected override HtmlElement ShortDescription => new("list-jobs__description");
 
     protected override HtmlElement Url => new("profile", "A");
+
+    protected override uint IdPositionInUrl { get => 4; }
+
+    protected override char SymbolAfterId { get => '-'; }
 }
