@@ -1,4 +1,5 @@
-﻿using Parsers.FilterParsers.Parsers;
+﻿using Parsers.Constants;
+using Parsers.FilterParsers.Parsers;
 using Parsers.Models;
 
 namespace Parsers.FilterParsers;
@@ -9,7 +10,7 @@ public interface IFilterParser
 
     public static async Task Test()
     {
-        DjinniFilterParser a = new();
+        DouFilterParser a = new();
         await a.ParseAsync();
     }
 }
