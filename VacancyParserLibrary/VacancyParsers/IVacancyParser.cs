@@ -1,6 +1,6 @@
-﻿using TgBotForSearchWork.Models;
+﻿using Parsers.Models;
 
-namespace TgBotForSearchWork.VacancyParsers;
+namespace Parsers.VacancyParsers;
 
 public interface IVacancyParser
 {

@@ -1,6 +1,6 @@
-﻿using TgBotForSearchWork.Models;
+﻿using Parsers.Models;
 
-namespace TgBotForSearchWork.VacancyParsers.Parsers;
+namespace Parsers.VacancyParsers.Parsers;
 
 internal class DouVacancyParser : VacancyParser
 {

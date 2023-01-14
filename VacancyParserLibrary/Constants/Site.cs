@@ -1,4 +1,4 @@
-﻿namespace TgBotForSearchWork.Constants;
+﻿namespace Parsers.Constants;
 
 internal enum Site
 {

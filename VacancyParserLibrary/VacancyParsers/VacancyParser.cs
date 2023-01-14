@@ -1,9 +1,9 @@
 ﻿using AngleSharp.Dom;
-using TgBotForSearchWork.Extensions;
-using TgBotForSearchWork.Models;
-using TgBotForSearchWork.Utilities;
+using Parsers.Extensions;
+using Parsers.Models;
+using Parsers.Utilities;
 
-namespace TgBotForSearchWork.VacancyParsers;
+namespace Parsers.VacancyParsers;
 
 internal abstract class VacancyParser : IVacancyParser
 {
@@ -17,7 +17,7 @@ internal abstract class VacancyParser : IVacancyParser
 
     public virtual async Task<List<Vacancy>> ParseAsync(Uri uri, CancellationToken cancellationToken = default)
     {
-        using Stream response = await GHttpClient.GetAsync(uri, cancellationToken);
+        using Stream response = await GlobalHttpClient.GetAsync(uri, cancellationToken);
         using IDocument doc = await HtmlDocument.CreateAsync(response, cancellationToken);
         IHtmlCollection<IElement> vacancyElements = doc.GetElementsByClassName(VacancyItem.CssClassName);
         List<Vacancy> vacancies = new();

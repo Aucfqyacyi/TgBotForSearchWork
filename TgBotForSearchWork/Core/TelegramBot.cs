@@ -1,9 +1,9 @@
-﻿using Telegram.Bot;
+﻿using Parsers.Models;
+using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using TgBotForSearchWork.Constants;
 using TgBotForSearchWork.Models;
 using TgBotForSearchWork.Services;
 using TgBotForSearchWork.Utilities;
@@ -22,7 +22,7 @@ public class TelegramBot
 
     public TelegramBot(string token, TimeSpan timeOut, UserService userManager, ReceiverOptions? receiverOptions = null)
     {
-        _telegramBotClient = new(token, GHttpClient.Client);
+        _telegramBotClient = new(token, GlobalHttpClient.Client);
         receiverOptions ??= new ReceiverOptions { AllowedUpdates = Array.Empty<UpdateType>() };
         _receiverOptions = receiverOptions;
         _userService = userManager;

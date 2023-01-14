@@ -11,11 +11,11 @@ internal static class MongoDb
     static MongoDb()
     {
         _mongoClient = new("mongodb://localhost:27017");
-        _database = _mongoClient.GetDatabase(Assembly.GetCallingAssembly().GetName().Name);
+        _database = _mongoClient.GetDatabase("TgBotForSearchWorkDb");
     }
 
     public static IMongoCollection<TDocument> GetCollection<TDocument>(MongoCollectionSettings? settings = null)
     {
-        return _database.GetCollection<TDocument>(typeof(TDocument).Name+'s', settings);
+        return _database.GetCollection<TDocument>(typeof(TDocument).Name +'s', settings);
     }
 }

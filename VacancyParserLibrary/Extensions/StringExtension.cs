@@ -1,9 +1,9 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace TgBotForSearchWork.Extensions;
+namespace Parsers.Extensions;
 
-internal static class StringExtension
+public static class StringExtension
 {
     public static bool IsNotNullOrEmpty(this string? str)
     {

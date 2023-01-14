@@ -1,7 +1,7 @@
-﻿using TgBotForSearchWork.Constants;
-using TgBotForSearchWork.VacancyParsers.Parsers;
+﻿using Parsers.Constants;
+using Parsers.VacancyParsers.Parsers;
 
-namespace TgBotForSearchWork.VacancyParsers;
+namespace Parsers.VacancyParsers;
 
 public static class VacancyParserFactory
 {

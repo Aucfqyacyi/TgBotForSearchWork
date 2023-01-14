@@ -1,10 +1,9 @@
-﻿namespace TgBotForSearchWork.Utilities;
-
-internal static class GHttpClient
+﻿
+public static class GlobalHttpClient
 {
     public static HttpClient Client { get; }
 
-    static GHttpClient()
+    static GlobalHttpClient()
     {
         Client = new HttpClient();
         Client.Timeout = TimeSpan.FromMinutes(2);

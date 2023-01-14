@@ -1,7 +1,7 @@
-﻿using TgBotForSearchWork.Core;
-using TgBotForSearchWork.Extensions;
-using TgBotForSearchWork.Utilities;
+﻿using Parsers.Extensions;
+using TgBotForSearchWork.Core;
 using TgBotForSearchWork.Services;
+using TgBotForSearchWork.Utilities;
 
 
 if (CommandLineArgs.Token.IsNullOrEmpty())

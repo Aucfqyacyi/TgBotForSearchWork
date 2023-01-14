@@ -1,6 +1,7 @@
-﻿using TgBotForSearchWork.Models;
+﻿using Parsers.Models;
+using Parsers.VacancyParsers;
+using TgBotForSearchWork.Models;
 using TgBotForSearchWork.Utilities;
-using TgBotForSearchWork.VacancyParsers;
 
 namespace TgBotForSearchWork.Services;
 

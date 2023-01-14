@@ -1,4 +1,4 @@
-﻿namespace TgBotForSearchWork.Models;
+﻿namespace Parsers.Models;
 
 internal class HtmlElement
 {
