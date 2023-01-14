@@ -15,13 +15,18 @@ internal static class IElementExtension
         return element.TextContent.Trim('\t', '\n', ' ').Replace("  ", string.Empty).Replace('_', ' ') + '\n';
     }
 
-    public static string GetHrefAttribute(this IElement element, string host)
+    public static string GetHrefAttribute(this IElement element)
     {
         string? url = element.GetAttribute("href");
         if (url is null)
         {
             return string.Empty;
         }
+        return url;
+    }
+    public static string GetHrefAttribute(this IElement element, string host)
+    {
+        string? url = GetHrefAttribute(element);
         if (url.StartsWith(Host.Https))
         {
             return url;
@@ -36,13 +41,7 @@ internal static class IElementExtension
 
     public static IElement? GetIElement(this IElement vacancyElement, HtmlElement htmlElement)
     {
-        IHtmlCollection<IElement>? elements = null;
-
-        if (htmlElement.CssClassName.IsNotNullOrEmpty())
-            elements = vacancyElement.GetElementsByClassName(htmlElement.CssClassName);
-
-        if (htmlElement.TagName.IsNotNullOrEmpty() && (elements is null || elements.Count() == 0))
-            elements = vacancyElement.GetElementsByTagName(htmlElement.TagName);
+        IHtmlCollection<IElement>? elements = vacancyElement.GetIElements(htmlElement);
 
         if (elements is not null)
         {
@@ -56,6 +55,19 @@ internal static class IElementExtension
             }
         }
         return null;
+    }
+
+
+    public static IHtmlCollection<IElement>? GetIElements(this IElement vacancyElement, HtmlElement htmlElement)
+    {
+        IHtmlCollection<IElement>? elements = null;
+
+        if (htmlElement.CssClassName.IsNotNullOrEmpty())
+            elements = vacancyElement.GetElementsByClassName(htmlElement.CssClassName);
+
+        if (htmlElement.TagName.IsNotNullOrEmpty() && (elements is null || elements.Count() == 0))
+            elements = vacancyElement.GetElementsByTagName(htmlElement.TagName);
+        return elements;
     }
 
 }

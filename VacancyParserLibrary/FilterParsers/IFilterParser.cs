@@ -1,8 +1,15 @@
-﻿using Parsers.Models;
+﻿using Parsers.FilterParsers.Parsers;
+using Parsers.Models;
 
 namespace Parsers.FilterParsers;
 
 public interface IFilterParser
 {
-    public Task<List<Filter>> ParseAsync(Uri uri, CancellationToken cancellationToken = default);
+    public Task<List<Filter>> ParseAsync(CancellationToken cancellationToken = default);
+
+    public static async Task Test()
+    {
+        DjinniFilterParser a = new();
+        await a.ParseAsync();
+    }
 }

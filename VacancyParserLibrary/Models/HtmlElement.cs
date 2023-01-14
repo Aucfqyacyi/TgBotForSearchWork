@@ -1,13 +1,13 @@
 ﻿namespace Parsers.Models;
 
 internal class HtmlElement
-{
+{ 
     public string CssClassName { get; }
     public string TagName { get; }
 
-    public HtmlElement(string name, string tagName = "")
+    public HtmlElement(string cssClassName, string tagName = "")
     {
-        CssClassName = name;
+        CssClassName = cssClassName;
         TagName = tagName;
     }
 }

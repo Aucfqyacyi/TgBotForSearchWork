@@ -2,14 +2,14 @@
 
 internal static class Host
 {
-    private static readonly Dictionary<Site, string> _all = new();
+    private static readonly Dictionary<SiteType, string> _all = new();
     public const string Https = @"https://";
-    public static IReadOnlyDictionary<Site, string> All { get => _all; }
+    public static IReadOnlyDictionary<SiteType, string> All { get => _all; }
 
     static Host()
     {
-        _all.Add(Site.Dou, "jobs.dou.ua");
-        _all.Add(Site.Djinni, "djinni.co");
-        _all.Add(Site.WorkUa, "www.work.ua");
+        _all.Add(SiteType.Dou, "jobs.dou.ua");
+        _all.Add(SiteType.Djinni, "djinni.co");
+        _all.Add(SiteType.WorkUa, "www.work.ua");
     }
 }

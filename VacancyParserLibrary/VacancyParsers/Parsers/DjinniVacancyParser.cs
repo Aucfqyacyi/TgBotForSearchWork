@@ -4,15 +4,15 @@ namespace Parsers.VacancyParsers.Parsers;
 
 internal class DjinniVacancyParser : VacancyParser
 {
-    protected override HtmlElement VacancyItem => new("list-jobs__item");
+    protected override HtmlElement VacancyItem { get; } = new("list-jobs__item");
 
-    protected override HtmlElement Title => new("profile");
+    protected override HtmlElement Title { get; } = new("profile");
 
-    protected override HtmlElement ShortDescription => new("list-jobs__description");
+    protected override HtmlElement ShortDescription { get; } = new("list-jobs__description");
 
-    protected override HtmlElement Url => new("profile", "A");
+    protected override HtmlElement Url { get; } = new("profile", "A");
 
-    protected override uint IdPositionInUrl { get => 4; }
+    protected override uint IdPositionInUrl { get; } = 4;
 
-    protected override char SymbolAfterId { get => '-'; }
+    protected override char SymbolAfterId { get; } = '-';
 }
