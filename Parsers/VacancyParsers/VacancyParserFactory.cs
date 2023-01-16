@@ -9,11 +9,11 @@ public static class VacancyParserFactory
 
     public static IVacancyParser CreateVacancyParser(Uri uri)
     {
-        if (Host.All[SiteType.Dou] == uri.Host)
+        if (UrlsToSites.Hosts[SiteType.Dou] == uri.Host)
             return CreateVacancyParser<DouVacancyParser>(SiteType.Dou);
-        if (Host.All[SiteType.Djinni] == uri.Host)
+        if (UrlsToSites.Hosts[SiteType.Djinni] == uri.Host)
             return CreateVacancyParser<DjinniVacancyParser>(SiteType.Djinni);
-        if (Host.All[SiteType.WorkUa] == uri.Host)
+        if (UrlsToSites.Hosts[SiteType.WorkUa] == uri.Host)
             return CreateVacancyParser<WorkUaVacancyParser>(SiteType.WorkUa);
         throw new Exception($"Host({uri.Host}) was not found");
     }

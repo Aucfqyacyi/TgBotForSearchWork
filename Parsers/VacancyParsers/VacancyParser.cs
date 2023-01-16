@@ -30,7 +30,7 @@ internal abstract class VacancyParser : IVacancyParser
 
     private Vacancy CreateVacancy(IElement element, string host)
     {
-        string url = element.GetIElement(Url)?.GetHrefAttribute(host) ?? string.Empty;
+        string url = element.GetElement(Url)?.GetHrefAttribute(host) ?? string.Empty;
         string title = element.GetTextContent(Title);
         string shortDescription = element.GetTextContent(ShortDescription);
         ulong id = GetId(url);

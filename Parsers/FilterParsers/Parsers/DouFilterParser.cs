@@ -9,7 +9,7 @@ namespace Parsers.FilterParsers.Parsers;
 internal class DouFilterParser : FilterParser
 {
     protected override string SearchGetParamName { get; } = "search";
-    protected override string UriToMainPage { get; } = Host.Https + Host.All[SiteType.Dou] + @"/vacancies/";
+    protected override string UriToMainPage { get; } = UrlsToSites.GetFullUrlToSite(SiteType.Dou, @"/vacancies/");
 
     protected readonly HtmlElement _filterRegion = new("b-region-filter");
     protected readonly HtmlElement _ul = new(string.Empty, "ul");
@@ -42,7 +42,7 @@ internal class DouFilterParser : FilterParser
         if (filterRegion == null)
             return;
 
-        IHtmlCollection<IElement>? uls = filterRegion.GetIElements(_ul);
+        List<IElement> uls = filterRegion.GetElements(_ul);
         if (uls == null)
             return;
 
@@ -53,11 +53,11 @@ internal class DouFilterParser : FilterParser
     protected void CollectFiltersFromFilterRegion(IElement ul, List<Filter> filters)
     {
         string category = ul.PreviousElementSibling!.GetFirstChildTextContent();
-        IHtmlCollection<IElement>? lis = ul.GetIElements(_li);
+        List<IElement> lis = ul.GetElements(_li);
         if (lis == null)
             return;
 
-        for (int i = 1; i < lis.Length; i++)
+        for (int i = 1; i < lis.Count; i++)
             filters.Add(CreateFilterFromFilterRegion(lis[i], category));
     }
 

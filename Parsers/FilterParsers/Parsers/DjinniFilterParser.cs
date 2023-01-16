@@ -1,16 +1,14 @@
-﻿using AngleSharp.Common;
-using AngleSharp.Dom;
+﻿using AngleSharp.Dom;
 using Parsers.Constants;
 using Parsers.Extensions;
 using Parsers.Models;
-using Parsers.Utilities;
 
 namespace Parsers.FilterParsers.Parsers;
 
 
 internal class DjinniFilterParser : FilterParser
 {
-    protected override string UriToMainPage { get; } = Host.Https + Host.All[SiteType.Djinni] + "/jobs/";
+    protected override string UriToMainPage { get; } = UrlsToSites.GetFullUrlToSite(SiteType.Djinni, "/jobs/");
     protected override string SearchGetParamName { get; } = "keywords";
 
     protected HtmlElement _filterSet = new("jobs-filter__set");
@@ -25,7 +23,7 @@ internal class DjinniFilterParser : FilterParser
 
     protected void CollectFiltersFromSet(IElement set, List<Filter> filters)
     {       
-        IHtmlCollection<IElement>? filterElements = set.GetIElements(_filterLink);
+        List<IElement>? filterElements = set.GetElements(_filterLink);
         if (filterElements == null)
             return;
 

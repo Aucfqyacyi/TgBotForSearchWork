@@ -6,19 +6,33 @@ namespace Parsers.Extensions;
 
 internal static class IElementExtension
 {
+    public static string GetTextContent(this IElement element, HtmlElement htmlElement)
+    {
+        return element.GetElement(htmlElement)?.GetFirstChildTextContent() ?? string.Empty;
+    }
+
     public static string GetFirstChildTextContent(this IElement element)
     {
-        if (element.FirstElementChild is not null && element.FirstElementChild.TagName != "BR")
+        if (element?.FirstElementChild != null && element.FirstElementChild.TagName != "BR")
         {
             return element.FirstElementChild.GetFirstChildTextContent();
         }
-        return element.TextContent.Trim('\t', '\n', ' ').Replace("  ", string.Empty).Replace('_', ' ') + '\n';
+        return element!.TextContent.Trim('\t', '\n', ' ').Replace("  ", string.Empty).Replace('_', ' ') + '\n';
+    }
+
+    public static string GetNearestSiblingTextContent(this IElement element)
+    {
+        if (element.NextElementSibling != null)
+            return element.NextElementSibling.GetFirstChildTextContent();
+        if(element.PreviousElementSibling != null)
+            return element.PreviousElementSibling.GetFirstChildTextContent();
+        return element.GetFirstChildTextContent();
     }
 
     public static string GetHrefAttribute(this IElement element)
     {
         string? url = element.GetAttribute("href");
-        if (url is null)
+        if (url == null)
         {
             return string.Empty;
         }
@@ -28,7 +42,7 @@ internal static class IElementExtension
     public static string GetValueAttribute(this IElement element)
     {
         string? url = element.GetAttribute("value");
-        if (url is null)
+        if (url == null)
         {
             return string.Empty;
         }
@@ -46,27 +60,22 @@ internal static class IElementExtension
     public static string GetHrefAttribute(this IElement element, string host)
     {
         string? url = GetHrefAttribute(element);
-        if (url.StartsWith(Host.Https))
+        if (url.StartsWith(UrlsToSites.Https))
         {
             return url;
         }
-        return Host.Https + host + url;
+        return UrlsToSites.Https + host + url;
     }
 
-    public static string GetTextContent(this IElement vacancyElement, HtmlElement htmlElement)
+    public static IElement? GetElement(this IElement iElement, HtmlElement htmlElement)
     {
-        return vacancyElement.GetIElement(htmlElement)?.GetFirstChildTextContent() ?? string.Empty;
-    }
+        List<IElement> elements = iElement.GetElements(htmlElement);
 
-    public static IElement? GetIElement(this IElement vacancyElement, HtmlElement htmlElement)
-    {
-        IHtmlCollection<IElement>? elements = vacancyElement.GetIElements(htmlElement);
-
-        if (elements is not null)
+        if (elements.Count > 0)
         {
             foreach (var element in elements)
             {
-                if ((element.ClassName == htmlElement.CssClassName || string.IsNullOrEmpty(htmlElement.CssClassName)) &&
+                if ((element.ClassName!.Contains(htmlElement.CssClassName) || string.IsNullOrEmpty(htmlElement.CssClassName)) &&
                     (element.TagName == htmlElement.TagName || string.IsNullOrEmpty(htmlElement.TagName)))
                 {
                     return element;
@@ -77,16 +86,41 @@ internal static class IElementExtension
     }
 
 
-    public static IHtmlCollection<IElement>? GetIElements(this IElement vacancyElement, HtmlElement htmlElement)
+    public static List<IElement> GetElements(this IElement element, params HtmlElement[] htmlElements)
     {
-        IHtmlCollection<IElement>? elements = null;
-
-        if (htmlElement.CssClassName.IsNotNullOrEmpty())
-            elements = vacancyElement.GetElementsByClassName(htmlElement.CssClassName);
-
-        if (htmlElement.TagName.IsNotNullOrEmpty() && (elements is null || elements.Count() == 0))
-            elements = vacancyElement.GetElementsByTagName(htmlElement.TagName);
+        List<IElement> elements = new();
+        foreach (var htmlElement in htmlElements)
+        {
+            if (htmlElement.CssClassName.IsNotNullOrEmpty())
+                elements.AddRange(element.GetElementsByClassName(htmlElement.CssClassName));
+            else
+                elements.AddRange(element.GetElementsByTagName(htmlElement.TagName));
+        }        
         return elements;
+    }
+
+    public static List<IElement> GetElementsWithId(this IElement iElement, params HtmlElement[] htmlElements)
+    {
+        List<IElement> elementsWithId = new();
+        List<IElement> elements = iElement.GetElements(htmlElements);
+        if (elements != null)
+        {          
+            foreach (var element in elements)
+            {
+                if (element.Id.IsNotNullOrEmpty())
+                    elementsWithId.Add(element);
+                else
+                {
+                    IElement? elementChild = element.FirstElementChild;
+                    do
+                    {
+                        if(elementChild!.Id.IsNotNullOrEmpty())
+                            elementsWithId.Add(elementChild);
+                    } while ((elementChild = elementChild?.NextElementSibling) != null);
+                }
+            }
+        }     
+        return elementsWithId;
     }
 
 }

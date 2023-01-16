@@ -10,7 +10,7 @@ public interface IFilterParser
 
     public static async Task Test()
     {
-        DouFilterParser a = new();
+        WorkUaFilterParser a = new();
         await a.ParseAsync();
     }
 }
