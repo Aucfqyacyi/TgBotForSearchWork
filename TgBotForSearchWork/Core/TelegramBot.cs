@@ -47,7 +47,7 @@ public class TelegramBot
             }
             catch (TaskCanceledException)
             {
-                Log.Info($"Task canceled, cancellation is requested in main token = {_cancellationTokenSource.Token.IsCancellationRequested}.");
+                Log.Info($"Task canceled, IsCancellationRequested in main token = {_cancellationTokenSource.Token.IsCancellationRequested}.");
             }
             catch (Exception ex)
             {
@@ -57,15 +57,25 @@ public class TelegramBot
     }
 
     private async Task SendVacancyAsync(User user, CancellationToken cancellationToken = default)
-    {       
-        await SendVacancyAsync(user.ChatId, await _vacancyService.GetRelevantVacancies(user, cancellationToken), cancellationToken);
+    {
+        List<Vacancy> relevantVacancies = await _vacancyService.GetRelevantVacancies(user, cancellationToken);
         _userService.UpdateUser(user, cancellationToken);
+        await SendVacancyAsync(user.ChatId, relevantVacancies, cancellationToken);       
     }
 
     private async Task SendVacancyAsync(long chatId, IReadOnlyList<Vacancy> vacancies, CancellationToken cancellationToken = default)
     {
         for (int i = 0; i < vacancies.Count; i++)
-            await SendVacancyAsync(chatId, vacancies[i], cancellationToken);
+        {
+            try
+            {
+                await SendVacancyAsync(chatId, vacancies[i], cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Log.Info($"Exception was thrown at vacancy({vacancies[i].Url})#{i},error - {ex.Message}");
+            }
+        }            
     }
 
     private Task SendVacancyAsync(long chatId, Vacancy vacancy, CancellationToken cancellationToken = default)

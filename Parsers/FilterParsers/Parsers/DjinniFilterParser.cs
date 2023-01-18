@@ -8,7 +8,6 @@ namespace Parsers.FilterParsers.Parsers;
 
 internal class DjinniFilterParser : FilterParser
 {
-    protected override string UriToMainPage { get; } = UrlsToSites.GetFullUrlToSite(SiteType.Djinni, "/jobs/");
     protected override string SearchGetParamName { get; } = "keywords";
 
     protected HtmlElement _filterSet = new("jobs-filter__set");

@@ -1,6 +1,7 @@
 ﻿using AngleSharp.Dom;
 using Parsers.Constants;
 using Parsers.Models;
+using System.Text;
 
 namespace Parsers.Extensions;
 
@@ -17,7 +18,21 @@ internal static class IElementExtension
         {
             return element.FirstElementChild.GetFirstChildTextContent();
         }
-        return element!.TextContent.Trim('\t', '\n', ' ').Replace("  ", string.Empty).Replace('_', ' ') + '\n';
+        return element!.PrepareTextContent();
+    }
+
+    private static string PrepareTextContent(this IElement element)
+    {
+        string textContent = element!.TextContent.Trim('\t', '\n', ' ');
+        Dictionary<char, char> badSymbolsToCorrect = new() { { '`', '\'' }, { '_', ' ' } };
+        StringBuilder stringBuilder = new StringBuilder(textContent);
+        for (int i = 0; i < stringBuilder.Length; i++)
+        {
+            if (badSymbolsToCorrect.ContainsKey(stringBuilder[i]))
+                stringBuilder[i] = badSymbolsToCorrect[stringBuilder[i]];
+        }
+        stringBuilder.Append('\n');
+        return stringBuilder.ToString();
     }
 
     public static string GetNearestSiblingTextContent(this IElement element)
@@ -60,11 +75,11 @@ internal static class IElementExtension
     public static string GetHrefAttribute(this IElement element, string host)
     {
         string? url = GetHrefAttribute(element);
-        if (url.StartsWith(UrlsToSites.Https))
+        if (url.StartsWith(UrisToSites.Https))
         {
             return url;
         }
-        return UrlsToSites.Https + host + url;
+        return UrisToSites.Https + host + url;
     }
 
     public static IElement? GetElement(this IElement iElement, HtmlElement htmlElement)

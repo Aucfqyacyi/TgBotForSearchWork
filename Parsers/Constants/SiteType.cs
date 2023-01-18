@@ -1,6 +1,6 @@
 ﻿namespace Parsers.Constants;
 
-internal enum SiteType
+public enum SiteType
 {
     Dou,
     Djinni,

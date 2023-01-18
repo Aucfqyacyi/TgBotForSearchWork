@@ -9,7 +9,6 @@ namespace Parsers.FilterParsers.Parsers;
 internal class DouFilterParser : FilterParser
 {
     protected override string SearchGetParamName { get; } = "search";
-    protected override string UriToMainPage { get; } = UrlsToSites.GetFullUrlToSite(SiteType.Dou, @"/vacancies/");
 
     protected readonly HtmlElement _filterRegion = new("b-region-filter");
     protected readonly HtmlElement _ul = new(string.Empty, "ul");

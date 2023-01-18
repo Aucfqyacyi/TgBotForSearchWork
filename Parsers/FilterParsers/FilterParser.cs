@@ -8,13 +8,12 @@ namespace Parsers.FilterParsers;
 internal abstract class FilterParser : IFilterParser
 {
     protected abstract string SearchGetParamName { get; }
-    protected abstract string UriToMainPage { get; }
 
-    public async Task<List<Filter>> ParseAsync(CancellationToken cancellationToken = default)
+    public async Task<List<Filter>> ParseAsync(string url, CancellationToken cancellationToken = default)
     {
         List<Filter> filters = new();
         filters.Add(new("Пошук", string.Empty, SearchGetParamName, Enums.FilterType.Text));
-        using Stream response = await GlobalHttpClient.GetAsync(UriToMainPage, cancellationToken);
+        using Stream response = await GlobalHttpClient.GetAsync(url, cancellationToken);
         using IDocument doc = await HtmlDocument.CreateAsync(response, cancellationToken);
         CollectFilters(doc, filters);
         return filters;

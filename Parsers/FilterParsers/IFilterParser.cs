@@ -6,11 +6,5 @@ namespace Parsers.FilterParsers;
 
 public interface IFilterParser
 {
-    public Task<List<Filter>> ParseAsync(CancellationToken cancellationToken = default);
-
-    public static async Task Test()
-    {
-        WorkUaFilterParser a = new();
-        await a.ParseAsync();
-    }
+    public Task<List<Filter>> ParseAsync(string url, CancellationToken cancellationToken = default);
 }

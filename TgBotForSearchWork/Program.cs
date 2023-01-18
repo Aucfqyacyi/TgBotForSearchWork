@@ -10,8 +10,7 @@ if (CommandLineArgs.Token.IsNullOrEmpty())
     Console.WriteLine("Argument '--token' missed.");
     return;
 }
-await IFilterParser.Test();
-return;
+
 Log.Info("Application started.");
 UserService userManager = new();
 userManager.AddDefaultUser();

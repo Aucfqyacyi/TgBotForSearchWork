@@ -9,8 +9,6 @@ internal class WorkUaFilterParser : FilterParser
 {
     protected override string SearchGetParamName { get; } = "search";
 
-    protected override string UriToMainPage { get; } = UrlsToSites.GetFullUrlToSite(SiteType.WorkUa,  "/jobs/?advs=1");
-
     protected HtmlElement _filterLink = new("filter-link catlink");
     protected HtmlElement _filterGroup = new("form-group");
     protected HtmlElement _filterGroupTitle = new("h5");
