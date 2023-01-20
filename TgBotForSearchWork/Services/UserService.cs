@@ -1,5 +1,5 @@
 ﻿using MongoDB.Driver;
-using Newtonsoft.Json;
+using System.Text;
 using TgBotForSearchWork.Models;
 using TgBotForSearchWork.Utilities;
 
@@ -12,8 +12,7 @@ internal class UserService
         if (await GetUserOrDefaultAsync(chatId, cancellationToken) == null)
         {
             User user = new User(chatId, urls);
-            var str = JsonConvert.SerializeObject(user.Urls);
-            MongoDb.GetCollection<User>().InsertOne(user, null, cancellationToken);
+            MongoDb.UserCollection.InsertOne(user, null, cancellationToken);
         }
     }
 
@@ -33,21 +32,48 @@ internal class UserService
 
     public Task RemoveUserAsync(long chatId, CancellationToken cancellationToken)
     {
-        return MongoDb.GetCollection<User>().FindOneAndDeleteAsync(user => user.ChatId == chatId, null, cancellationToken);
+        return MongoDb.UserCollection.FindOneAndDeleteAsync(user => user.ChatId == chatId, null, cancellationToken);
     }
 
     public Task UpdateUserAsync(User user, CancellationToken cancellationToken)
     {
-        return MongoDb.GetCollection<User>().FindOneAndReplaceAsync(u => u.ChatId == user.ChatId, user, null, cancellationToken);
+        return MongoDb.UserCollection.FindOneAndReplaceAsync(u => u.ChatId == user.ChatId, user, null, cancellationToken);
     }
 
     public async Task<List<User>> GetAllUsersAsync(CancellationToken cancellationToken)
     {
-        return await (await MongoDb.GetCollection<User>().FindAsync(e=> e.ChatId != null, null, cancellationToken)).ToListAsync(cancellationToken);
+        return await (await MongoDb.UserCollection.FindAsync(e=> e.ChatId != null, null, cancellationToken))
+                                                  .ToListAsync(cancellationToken);
     }
 
-    public  async Task<User?> GetUserOrDefaultAsync(long chatId, CancellationToken cancellationToken)
+    public async Task<User?> GetUserOrDefaultAsync(long chatId, CancellationToken cancellationToken)
     {
-        return await (await MongoDb.GetCollection<User>().FindAsync(e => e.ChatId == chatId, null, cancellationToken)).FirstOrDefaultAsync(cancellationToken);
+        return await (await MongoDb.UserCollection.FindAsync(e => e.ChatId == chatId, null, cancellationToken))
+                                                  .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<List<string>> GetGroupedUrlsAsync(long chatId, CancellationToken cancellationToken)
+    {
+        User? user = await GetUserOrDefaultAsync(chatId, cancellationToken);       
+        if (user == null)
+            return new();
+        Dictionary<string, StringBuilder> hostsToGroupedUrls = new();
+        foreach (UrlToVacancies url in user.Urls)
+        {
+            StringBuilder? stringBuilder = hostsToGroupedUrls.GetValueOrDefault(url.Host);
+            if (stringBuilder == null)
+            {
+                stringBuilder = new();
+                stringBuilder.AppendLine(url.Host+'\n' + url.OriginalString);
+                hostsToGroupedUrls.Add(url.Host, stringBuilder);
+            }
+            else
+                stringBuilder.AppendLine(url.OriginalString);
+        }
+        return hostsToGroupedUrls.Values.Aggregate(new List<string>(), (strings, stringBuilder) =>
+        {
+            strings.Add(stringBuilder.ToString());
+            return strings;
+        });
     }
 }

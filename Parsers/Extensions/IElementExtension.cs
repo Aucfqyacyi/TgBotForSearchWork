@@ -32,7 +32,7 @@ internal static class IElementExtension
             if (badSymbolsToCorrect.ContainsKey(stringBuilder[i]))
                 stringBuilder[i] = badSymbolsToCorrect[stringBuilder[i]];
         }
-        stringBuilder.Append('\n');
+        stringBuilder.AppendLine();
         return stringBuilder.ToString();
     }
 

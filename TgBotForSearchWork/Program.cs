@@ -1,8 +1,7 @@
 ﻿using Parsers.Extensions;
-using Parsers.FilterParsers;
 using TgBotForSearchWork.Core;
-using TgBotForSearchWork.Services;
 using TgBotForSearchWork.Utilities;
+
 
 
 if (CommandLineArgs.Token.IsNullOrEmpty())
@@ -15,4 +14,3 @@ TelegramBot telegramBot = new(CommandLineArgs.Token, TimeSpan.FromSeconds(Comman
 Console.CancelKeyPress += telegramBot.StopEvent;
 await telegramBot.StartAsync();
 Log.Info("Application stopped.");
-

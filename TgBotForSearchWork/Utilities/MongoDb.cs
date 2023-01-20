@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using TgBotForSearchWork.Models;
 
 namespace TgBotForSearchWork.Utilities;
 
@@ -6,6 +7,8 @@ internal static class MongoDb
 {
     private static MongoClient _mongoClient;
     private static IMongoDatabase _database;
+
+    public static IMongoCollection<User> UserCollection { get => GetCollection<User>(); }
 
     static MongoDb()
     {

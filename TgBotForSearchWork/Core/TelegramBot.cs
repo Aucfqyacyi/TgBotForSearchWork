@@ -1,9 +1,12 @@
-﻿using Parsers.Models;
+﻿using AngleSharp.Dom;
+using Parsers.Models;
+using System;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using TgBotForSearchWork.Models;
 using TgBotForSearchWork.Services;
 using TgBotForSearchWork.Utilities;
@@ -36,8 +39,8 @@ internal class TelegramBot
         {
             try
             {
-                foreach (var user in await _userService.GetAllUsersAsync(_cancellationTokenSource.Token))
-                    await SendVacancyAsync(user, _cancellationTokenSource.Token);
+                /*foreach (var user in await _userService.GetAllUsersAsync(_cancellationTokenSource.Token))
+                    await SendVacancyAsync(user, _cancellationTokenSource.Token);*/
                 await Task.Delay(_timeOut, _cancellationTokenSource.Token);
             }
             catch (TaskCanceledException)
@@ -67,7 +70,7 @@ internal class TelegramBot
         List<Vacancy> relevantVacancies = await _vacancyService.GetRelevantVacancies(user, cancellationToken);
         await _userService.UpdateUserAsync(user, cancellationToken);
         await SendVacancyAsync(user.ChatId, relevantVacancies, cancellationToken);
-        Log.Info($"All vacancies to user({user.ChatId}) were sent successfully.");
+        Log.Info($"All vacancies for the user({user.ChatId}) were sent successfully.");
     }
 
     private async Task SendVacancyAsync(long chatId, IReadOnlyList<Vacancy> vacancies, CancellationToken cancellationToken)
@@ -118,7 +121,7 @@ internal class TelegramBot
             switch (update.Type)
             {
                 case UpdateType.Message:
-                    await OnMessage(botClient, update, cancellationToken);
+                    await OnMessageAsync(update, cancellationToken);
                     break;
             }       
         }
@@ -141,35 +144,77 @@ internal class TelegramBot
         return Task.CompletedTask;
     }
 
-    private async Task OnMessage(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+    private async Task OnMessageAsync(Update update, CancellationToken cancellationToken)
     {
         string messageText = update.Message!.Text!;
         long chatId = update.Message!.Chat.Id;
-        if (messageText.Contains(Command.ShowAllUrls))
-            await OnShowAllUrls(chatId, cancellationToken);
-        if (messageText.Contains(Command.Start))
-            await _userService.AddUserAsync(chatId, cancellationToken);
-        if (messageText.Contains(Command.Stop))
-            await _userService.RemoveUserAsync(chatId, cancellationToken);
-        if (messageText.Contains(Command.Test))
-        {
-            await botClient.SendTextMessageAsync(chatId, "Hello, I am friendly neighborhood bot <3.", cancellationToken: cancellationToken);
-            Log.Info($"Test command was called.");
-        }          
+        await OnMessageAsync(chatId, messageText, cancellationToken);
     }
 
-    private async Task OnShowAllUrls(long chatId, CancellationToken cancellationToken)
+    private async Task OnMessageAsync(long chatId, string messageText, CancellationToken cancellationToken)
+    {
+        switch (messageText)
+        {
+            
+            case Command.Start:
+                await _userService.AddUserAsync(chatId, cancellationToken);
+                break;
+            case Command.Stop:
+                await _userService.RemoveUserAsync(chatId, cancellationToken);
+                break;
+            case Command.ShowAllUrls:
+                await OnShowAllUrlsAsync(chatId, cancellationToken);
+                break;
+            case Command.GetAllUrls:
+                await OnGetAllUrlsAsync(chatId, cancellationToken);
+                break;
+            case Command.Test:
+                await OnTestCommandAsync(chatId, cancellationToken);
+                break;
+            default:
+                await OnIncorrectCommandAsync(chatId, cancellationToken);
+                break;
+        }
+    }
+
+    private async Task OnGetAllUrlsAsync(long chatId, CancellationToken cancellationToken)
+    {
+        foreach (var message in await _userService.GetGroupedUrlsAsync(chatId, cancellationToken))
+        {
+            await _telegramBotClient.SendTextMessageAsync(chatId,
+                                                          message,
+                                                          disableWebPagePreview: true,
+                                                          cancellationToken: cancellationToken);
+        }    
+    }
+
+    private async Task OnShowAllUrlsAsync(long chatId, CancellationToken cancellationToken)
     {
         User? user = await _userService.GetUserOrDefaultAsync(chatId, cancellationToken);
-        if (user is not null)
+        if (user == null)
+            return;
+        List<List<KeyboardButton>> keyboardButtons = new List<List<KeyboardButton>>();
+        for (int i = 0; i < user.Urls.Count; i++)
         {
-            foreach (UrlToVacancies url in user.Urls)
-            {
-                await _telegramBotClient.SendTextMessageAsync(chatId, 
-                                                              url.OriginalString, 
-                                                              disableWebPagePreview: true,
-                                                              cancellationToken: cancellationToken);
-            }
-        }      
+            if (i % 2 == 0)
+                keyboardButtons.Add(new List<KeyboardButton>());
+            keyboardButtons.Last().Add(new(user.Urls[i].WithOutHttps));
+        }
+
+        await _telegramBotClient.SendTextMessageAsync(chatId,
+                                                      "Ваші посилання",
+                                                      replyMarkup: new ResizedReplyKeyboardMarkup(keyboardButtons),
+                                                      cancellationToken: cancellationToken);
+    }
+
+    private async Task OnTestCommandAsync(long chatId, CancellationToken cancellationToken)
+    {
+        await _telegramBotClient.SendTextMessageAsync(chatId, "Тестовий визов.", cancellationToken: cancellationToken);
+        Log.Info($"Test command was called.");
+    }
+
+    private async Task OnIncorrectCommandAsync(long chatId, CancellationToken cancellationToken)
+    {
+        await _telegramBotClient.SendTextMessageAsync(chatId, "Будь ласка, виберіть команду з списку.", cancellationToken: cancellationToken);
     }
 }
