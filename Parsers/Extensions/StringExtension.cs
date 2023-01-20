@@ -15,6 +15,13 @@ public static class StringExtension
         return string.IsNullOrEmpty(str);
     }
 
+    public static bool NullableContains(this string? str, string value)
+    {
+        if(str == null)
+            return false;
+        return str.Contains(value);
+    }
+
     public static string GetMD5(this string text)
     {
         StringBuilder sb = new();

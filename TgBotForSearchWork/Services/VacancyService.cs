@@ -9,7 +9,7 @@ namespace TgBotForSearchWork.Services;
 internal class VacancyService
 {
 
-    public async Task<List<Vacancy>> GetRelevantVacancies(User user, CancellationToken cancellationToken = default)
+    public async Task<List<Vacancy>> GetRelevantVacancies(User user, CancellationToken cancellationToken)
     {
         List<Vacancy> allVacancies = new();
         foreach (var urlToVacancies in user.Urls)
@@ -28,7 +28,7 @@ internal class VacancyService
         return allVacancies;
     }
 
-    private async Task<List<Vacancy>> GetRelevantVacancies(UrlToVacancies urlToVacancies, CancellationToken cancellationToken = default)
+    private async Task<List<Vacancy>> GetRelevantVacancies(UrlToVacancies urlToVacancies, CancellationToken cancellationToken)
     {
         IVacancyParser vacancyParser = VacancyParserFactory.CreateVacancyParser(urlToVacancies.Uri);
         List<Vacancy> vacancies = await vacancyParser.ParseAsync(urlToVacancies.Uri, cancellationToken);

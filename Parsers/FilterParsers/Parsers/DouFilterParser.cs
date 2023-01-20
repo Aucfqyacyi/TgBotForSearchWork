@@ -15,15 +15,15 @@ internal class DouFilterParser : FilterParser
     protected readonly HtmlElement _li = new(string.Empty, "li");
     protected readonly HtmlElement _category = new("", "option");
 
-    protected override void CollectFilters(IDocument doc, List<Filter> filters)
+    protected override void CollectFilters(IDocument document, List<Filter> filters)
     {
-        CollectFiltersFromCategories(doc, filters);
-        CollectFiltersFromFilterRegion(doc, filters);
+        CollectFiltersFromCategories(document, filters);
+        CollectFiltersFromFilterRegion(document, filters);
     }
 
-    protected void CollectFiltersFromCategories(IDocument doc, List<Filter> filters)
+    protected void CollectFiltersFromCategories(IDocument document, List<Filter> filters)
     {
-        IHtmlCollection<IElement> categories = doc.GetElementsByTagName(_category.TagName);
+        IHtmlCollection<IElement> categories = document.GetElementsByTagName(_category.TagName);
         foreach (var categoryElement in categories)
             filters.Add(CreateFilterFromCategory(categoryElement));
     }
@@ -35,9 +35,9 @@ internal class DouFilterParser : FilterParser
         return new(filterName, "Категорії", "category=" + filterGetParamater, Enums.FilterType.CheckBox);
     }
 
-    protected void CollectFiltersFromFilterRegion(IDocument doc, List<Filter> filters)
+    protected void CollectFiltersFromFilterRegion(IDocument document, List<Filter> filters)
     {
-        IElement? filterRegion = doc.GetElementsByClassName(_filterRegion.CssClassName).FirstOrDefault();
+        IElement? filterRegion = document.GetElementsByClassName(_filterRegion.CssClassName).FirstOrDefault();
         if (filterRegion == null)
             return;
 

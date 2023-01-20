@@ -1,7 +1,8 @@
-﻿using AngleSharp.Dom;
+﻿using AngleSharp;
+using AngleSharp.Dom;
 using Parsers.Constants;
 using Parsers.Models;
-using Parsers.Utilities;
+using System;
 
 namespace Parsers.FilterParsers;
 
@@ -9,16 +10,17 @@ internal abstract class FilterParser : IFilterParser
 {
     protected abstract string SearchGetParamName { get; }
 
-    public async Task<List<Filter>> ParseAsync(string url, CancellationToken cancellationToken = default)
+    public async Task<List<Filter>> ParseAsync(Uri uri, CancellationToken cancellationToken = default)
     {
         List<Filter> filters = new();
         filters.Add(new("Пошук", string.Empty, SearchGetParamName, Enums.FilterType.Text));
-        using Stream response = await GlobalHttpClient.GetAsync(url, cancellationToken);
-        using IDocument doc = await HtmlDocument.CreateAsync(response, cancellationToken);
-        CollectFilters(doc, filters);
+        using Stream response = await GlobalHttpClient.GetAsync(uri, cancellationToken);
+        using IBrowsingContext browsingContext = BrowsingContext.New();
+        using IDocument document = await browsingContext.OpenAsync(req => req.Content(response), cancellationToken);
+        CollectFilters(document, filters);
         return filters;
     }
 
-    protected abstract void CollectFilters(IDocument doc, List<Filter> filters);
+    protected abstract void CollectFilters(IDocument document, List<Filter> filters);
 
 }

@@ -1,7 +1,9 @@
-﻿using AngleSharp.Dom;
+﻿using AngleSharp;
+using AngleSharp.Dom;
+using Parsers.Constants;
 using Parsers.Extensions;
 using Parsers.Models;
-using Parsers.Utilities;
+using System.IO;
 
 namespace Parsers.VacancyParsers;
 
@@ -18,8 +20,9 @@ internal abstract class VacancyParser : IVacancyParser
     public virtual async Task<List<Vacancy>> ParseAsync(Uri uri, CancellationToken cancellationToken = default)
     {
         using Stream response = await GlobalHttpClient.GetAsync(uri, cancellationToken);
-        using IDocument doc = await HtmlDocument.CreateAsync(response, cancellationToken);
-        IHtmlCollection<IElement> vacancyElements = doc.GetElementsByClassName(VacancyItem.CssClassName);
+        using IBrowsingContext browsingContext = BrowsingContext.New();
+        using IDocument document = await browsingContext.OpenAsync(req => req.Content(response), cancellationToken);
+        IHtmlCollection<IElement> vacancyElements = document.GetElementsByClassName(VacancyItem.CssClassName);
         List<Vacancy> vacancies = new();
         foreach (IElement vacancyElement in vacancyElements)
         {

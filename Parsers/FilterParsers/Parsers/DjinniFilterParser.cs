@@ -13,9 +13,9 @@ internal class DjinniFilterParser : FilterParser
     protected HtmlElement _filterSet = new("jobs-filter__set");
     protected HtmlElement _filterLink = new("jobs-filter__link", "a");
 
-    protected override void CollectFilters(IDocument doc, List<Filter> filters)
+    protected override void CollectFilters(IDocument document, List<Filter> filters)
     {
-        IHtmlCollection<IElement> sets = doc.GetElementsByClassName(_filterSet.CssClassName);
+        IHtmlCollection<IElement> sets = document.GetElementsByClassName(_filterSet.CssClassName);
         foreach (var set in sets)
             CollectFiltersFromSet(set, filters);
     }

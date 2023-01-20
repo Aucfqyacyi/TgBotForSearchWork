@@ -24,7 +24,8 @@ internal static class IElementExtension
     private static string PrepareTextContent(this IElement element)
     {
         string textContent = element!.TextContent.Trim('\t', '\n', ' ');
-        Dictionary<char, char> badSymbolsToCorrect = new() { { '`', '\'' }, { '_', ' ' } };
+        char space = ' ';
+        Dictionary<char, char> badSymbolsToCorrect = new() { { '`', '\'' }, { '_', space }, { '*', space } };
         StringBuilder stringBuilder = new StringBuilder(textContent);
         for (int i = 0; i < stringBuilder.Length; i++)
         {
@@ -75,11 +76,11 @@ internal static class IElementExtension
     public static string GetHrefAttribute(this IElement element, string host)
     {
         string? url = GetHrefAttribute(element);
-        if (url.StartsWith(UrisToSites.Https))
+        if (url.StartsWith(SiteTypesToUris.Https))
         {
             return url;
         }
-        return UrisToSites.Https + host + url;
+        return SiteTypesToUris.Https + host + url;
     }
 
     public static IElement? GetElement(this IElement iElement, HtmlElement htmlElement)
@@ -90,8 +91,8 @@ internal static class IElementExtension
         {
             foreach (var element in elements)
             {
-                if ((element.ClassName!.Contains(htmlElement.CssClassName) || string.IsNullOrEmpty(htmlElement.CssClassName)) &&
-                    (element.TagName == htmlElement.TagName || string.IsNullOrEmpty(htmlElement.TagName)))
+                if ((element.ClassName.NullableContains(htmlElement.CssClassName) || htmlElement.CssClassName.IsNullOrEmpty()) &&
+                    (element.TagName.NullableContains(htmlElement.TagName) || htmlElement.TagName.IsNullOrEmpty()))
                 {
                     return element;
                 }

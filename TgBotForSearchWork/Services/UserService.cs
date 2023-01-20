@@ -5,22 +5,15 @@ using TgBotForSearchWork.Utilities;
 
 namespace TgBotForSearchWork.Services;
 
-public class UserService
+internal class UserService
 {
-    private readonly IMongoCollection<User> _usersCollection;
-
-    public UserService()
+    public async Task AddUserAsync(long chatId, CancellationToken cancellationToken, IReadOnlyList<string>? urls = null)
     {
-        _usersCollection = MongoDb.GetCollection<User>();
-    }
-
-    public void AddUser(long chatId, IReadOnlyList<string>? urls = null, CancellationToken cancellationToken = default)
-    {
-        if (!_usersCollection.Find(u => u.ChatId == chatId).ToList().Any())
+        if (await GetUserOrDefaultAsync(chatId, cancellationToken) == null)
         {
             User user = new User(chatId, urls);
             var str = JsonConvert.SerializeObject(user.Urls);
-            _usersCollection.InsertOne(user, null, cancellationToken);
+            MongoDb.GetCollection<User>().InsertOne(user, null, cancellationToken);
         }
     }
 
@@ -35,26 +28,26 @@ public class UserService
         urls.Add(@"https://djinni.co/jobs/?primary_keyword=.NET&exp_level=1y&exp_level=2y&employment=remote");
         urls.Add(@"https://www.work.ua/ru/jobs-remote-.net+developer/");
         urls.Add(@"https://www.work.ua/ru/jobs-remote-c%2B%2B+developer/");
-        AddUser(chatId, urls);
+        AddUserAsync(chatId, default, urls).GetAwaiter().GetResult();
     }
 
-    public void RemoveUser(long chatId, CancellationToken cancellationToken = default)
+    public Task RemoveUserAsync(long chatId, CancellationToken cancellationToken)
     {
-        _usersCollection.FindOneAndDelete(user => user.ChatId == chatId, null, cancellationToken);
+        return MongoDb.GetCollection<User>().FindOneAndDeleteAsync(user => user.ChatId == chatId, null, cancellationToken);
     }
 
-    public void UpdateUser(User user, CancellationToken cancellationToken = default)
+    public Task UpdateUserAsync(User user, CancellationToken cancellationToken)
     {
-        _usersCollection.FindOneAndReplace(u => u.ChatId == user.ChatId, user, null, cancellationToken);
+        return MongoDb.GetCollection<User>().FindOneAndReplaceAsync(u => u.ChatId == user.ChatId, user, null, cancellationToken);
     }
 
-    public List<User> GetAllUsers(CancellationToken cancellationToken = default)
+    public async Task<List<User>> GetAllUsersAsync(CancellationToken cancellationToken)
     {
-        return _usersCollection.Find(e=> e.ChatId != null).ToList(cancellationToken);
+        return await (await MongoDb.GetCollection<User>().FindAsync(e=> e.ChatId != null, null, cancellationToken)).ToListAsync(cancellationToken);
     }
 
-    public User? GetUserOrDefault(long chatId, CancellationToken cancellationToken = default)
+    public  async Task<User?> GetUserOrDefaultAsync(long chatId, CancellationToken cancellationToken)
     {
-        return _usersCollection.Find(e => e.ChatId == chatId).ToList(cancellationToken).FirstOrDefault();
+        return await (await MongoDb.GetCollection<User>().FindAsync(e => e.ChatId == chatId, null, cancellationToken)).FirstOrDefaultAsync(cancellationToken);
     }
 }

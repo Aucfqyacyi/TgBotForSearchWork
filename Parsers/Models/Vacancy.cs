@@ -17,6 +17,6 @@ public class Vacancy
 
     public string Present()
     {
-        return $"[{Title}]({Url}){ShortDescription}";
+        return $"[{Title}]({Url}) {ShortDescription}";
     }
 }

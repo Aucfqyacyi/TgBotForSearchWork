@@ -11,37 +11,32 @@ using User = TgBotForSearchWork.Models.User;
 
 namespace TgBotForSearchWork.Core;
 
-public class TelegramBot
+internal class TelegramBot
 {
 	private readonly TelegramBotClient _telegramBotClient;
     private readonly VacancyService _vacancyService = new();
+    private readonly FilterService _filterService = new();
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private readonly ReceiverOptions _receiverOptions;
-    private readonly UserService _userService;
+    private readonly UserService _userService = new();
     private readonly TimeSpan _timeOut;
 
-    public TelegramBot(string token, TimeSpan timeOut, UserService userManager, ReceiverOptions? receiverOptions = null)
+    public TelegramBot(string token, TimeSpan timeOut, ReceiverOptions? receiverOptions = null)
     {
         _telegramBotClient = new(token, GlobalHttpClient.Client);
         receiverOptions ??= new ReceiverOptions { AllowedUpdates = Array.Empty<UpdateType>() };
         _receiverOptions = receiverOptions;
-        _userService = userManager;
         _timeOut = timeOut;
     }
 
     public async Task StartAsync()
     {
-        _telegramBotClient.StartReceiving(
-                    updateHandler: HandleUpdateAsync,
-                    pollingErrorHandler: HandlePollingErrorAsync,
-                    receiverOptions: _receiverOptions,
-                    cancellationToken: _cancellationTokenSource.Token);
-
+        await PrepareAsync();
         while (_cancellationTokenSource.Token.IsCancellationRequested is false)
         {
             try
             {
-                foreach (var user in _userService.GetAllUsers(_cancellationTokenSource.Token))
+                foreach (var user in await _userService.GetAllUsersAsync(_cancellationTokenSource.Token))
                     await SendVacancyAsync(user, _cancellationTokenSource.Token);
                 await Task.Delay(_timeOut, _cancellationTokenSource.Token);
             }
@@ -56,20 +51,36 @@ public class TelegramBot
         }            
     }
 
-    private async Task SendVacancyAsync(User user, CancellationToken cancellationToken = default)
+    private async Task PrepareAsync()
     {
-        List<Vacancy> relevantVacancies = await _vacancyService.GetRelevantVacancies(user, cancellationToken);
-        _userService.UpdateUser(user, cancellationToken);
-        await SendVacancyAsync(user.ChatId, relevantVacancies, cancellationToken);       
+        _userService.AddDefaultUser();
+        await _filterService.CollectFiltersAsync(_cancellationTokenSource.Token);
+        _telegramBotClient.StartReceiving(
+                    updateHandler: HandleUpdateAsync,
+                    pollingErrorHandler: HandlePollingErrorAsync,
+                    receiverOptions: _receiverOptions,
+                    cancellationToken: _cancellationTokenSource.Token);
     }
 
-    private async Task SendVacancyAsync(long chatId, IReadOnlyList<Vacancy> vacancies, CancellationToken cancellationToken = default)
+    private async Task SendVacancyAsync(User user, CancellationToken cancellationToken)
+    {
+        List<Vacancy> relevantVacancies = await _vacancyService.GetRelevantVacancies(user, cancellationToken);
+        await _userService.UpdateUserAsync(user, cancellationToken);
+        await SendVacancyAsync(user.ChatId, relevantVacancies, cancellationToken);
+        Log.Info($"All vacancies to user({user.ChatId}) were sent successfully.");
+    }
+
+    private async Task SendVacancyAsync(long chatId, IReadOnlyList<Vacancy> vacancies, CancellationToken cancellationToken)
     {
         for (int i = 0; i < vacancies.Count; i++)
         {
             try
             {
                 await SendVacancyAsync(chatId, vacancies[i], cancellationToken);
+            }
+            catch (TaskCanceledException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
@@ -78,13 +89,18 @@ public class TelegramBot
         }            
     }
 
-    private Task SendVacancyAsync(long chatId, Vacancy vacancy, CancellationToken cancellationToken = default)
+    private Task SendVacancyAsync(long chatId, Vacancy vacancy, CancellationToken cancellationToken)
     {
         return _telegramBotClient.SendTextMessageAsync(chatId, 
                                                       vacancy.Present(), 
                                                       ParseMode.Markdown,
                                                       disableWebPagePreview: true,
                                                       cancellationToken: cancellationToken);
+    }
+
+    public void StopEvent(object? sender, ConsoleCancelEventArgs e)
+    {
+        Stop();
     }
 
     public void Stop()
@@ -95,7 +111,7 @@ public class TelegramBot
         }
     }
 
-    private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken = default)
+    private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {      
         try
         {
@@ -112,7 +128,7 @@ public class TelegramBot
         }
     }
 
-    private Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken = default)
+    private Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
     {
         string errorMessage = exception switch
         {
@@ -125,16 +141,16 @@ public class TelegramBot
         return Task.CompletedTask;
     }
 
-    private async Task OnMessage(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken = default)
+    private async Task OnMessage(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
         string messageText = update.Message!.Text!;
         long chatId = update.Message!.Chat.Id;
         if (messageText.Contains(Command.ShowAllUrls))
             await OnShowAllUrls(chatId, cancellationToken);
         if (messageText.Contains(Command.Start))
-            _userService.AddUser(chatId, null, cancellationToken);
+            await _userService.AddUserAsync(chatId, cancellationToken);
         if (messageText.Contains(Command.Stop))
-            _userService.RemoveUser(chatId, cancellationToken);
+            await _userService.RemoveUserAsync(chatId, cancellationToken);
         if (messageText.Contains(Command.Test))
         {
             await botClient.SendTextMessageAsync(chatId, "Hello, I am friendly neighborhood bot <3.", cancellationToken: cancellationToken);
@@ -142,9 +158,9 @@ public class TelegramBot
         }          
     }
 
-    private async Task OnShowAllUrls(long chatId, CancellationToken cancellationToken = default)
+    private async Task OnShowAllUrls(long chatId, CancellationToken cancellationToken)
     {
-        User? user = _userService.GetUserOrDefault(chatId, cancellationToken);
+        User? user = await _userService.GetUserOrDefaultAsync(chatId, cancellationToken);
         if (user is not null)
         {
             foreach (UrlToVacancies url in user.Urls)

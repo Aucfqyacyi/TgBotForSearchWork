@@ -6,5 +6,5 @@ namespace Parsers.FilterParsers;
 
 public interface IFilterParser
 {
-    public Task<List<Filter>> ParseAsync(string url, CancellationToken cancellationToken = default);
+    public Task<List<Filter>> ParseAsync(Uri url, CancellationToken cancellationToken = default);
 }

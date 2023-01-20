@@ -1,4 +1,6 @@
 ﻿
+using AngleSharp.Dom;
+
 public static class GlobalHttpClient
 {
     public static HttpClient Client { get; }
@@ -12,12 +14,7 @@ public static class GlobalHttpClient
 
     public static async Task<Stream> GetAsync(Uri uri, CancellationToken cancellationToken = default)
     {
-        return await GetAsync(uri.OriginalString, cancellationToken);
-    }
-
-    public static async Task<Stream> GetAsync(string url, CancellationToken cancellationToken = default)
-    {
-        var response = await Client.GetAsync(url, cancellationToken);
+        var response = await Client.GetAsync(uri, cancellationToken);
         return await response.Content.ReadAsStreamAsync(cancellationToken);
     }
 }

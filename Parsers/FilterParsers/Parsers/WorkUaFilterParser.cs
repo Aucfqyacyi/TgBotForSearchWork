@@ -17,10 +17,10 @@ internal class WorkUaFilterParser : FilterParser
     protected HtmlElement _div = new(string.Empty, "div");
     protected string _textToCut = "_selection";
 
-    protected override void CollectFilters(IDocument doc, List<Filter> filters)
+    protected override void CollectFilters(IDocument document, List<Filter> filters)
     {
         CollectFiltersFromCities(filters);
-        IHtmlCollection<IElement> filtersGroup = doc.GetElementsByClassName(_filterGroup.CssClassName);
+        IHtmlCollection<IElement> filtersGroup = document.GetElementsByClassName(_filterGroup.CssClassName);
         for (int i = 1; i < filtersGroup.Length; i++)
         {
             CollectFiltersFromFilterGroup(filtersGroup[i], filters, _input, _option);
