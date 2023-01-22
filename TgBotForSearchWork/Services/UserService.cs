@@ -7,9 +7,9 @@ namespace TgBotForSearchWork.Services;
 
 internal class UserService
 {
-    public async Task AddUserAsync(long chatId, CancellationToken cancellationToken, IReadOnlyList<string>? urls = null)
+    public void AddUser(long chatId, CancellationToken cancellationToken, IReadOnlyList<string>? urls = null)
     {
-        if (await GetUserOrDefaultAsync(chatId, cancellationToken) == null)
+        if (GetUserOrDefault(chatId, cancellationToken) == null)
         {
             User user = new User(chatId, urls);
             MongoDb.UserCollection.InsertOne(user, null, cancellationToken);
@@ -27,34 +27,39 @@ internal class UserService
         urls.Add(@"https://djinni.co/jobs/?primary_keyword=.NET&exp_level=1y&exp_level=2y&employment=remote");
         urls.Add(@"https://www.work.ua/ru/jobs-remote-.net+developer/");
         urls.Add(@"https://www.work.ua/ru/jobs-remote-c%2B%2B+developer/");
-        AddUserAsync(chatId, default, urls).GetAwaiter().GetResult();
+        AddUser(chatId, default, urls);
     }
 
-    public Task RemoveUserAsync(long chatId, CancellationToken cancellationToken)
+    public void RemoveUser(long chatId, CancellationToken cancellationToken)
     {
-        return MongoDb.UserCollection.FindOneAndDeleteAsync(user => user.ChatId == chatId, null, cancellationToken);
+        MongoDb.UserCollection.DeleteOne(user => user.ChatId == chatId, null, cancellationToken);
     }
 
-    public Task UpdateUserAsync(User user, CancellationToken cancellationToken)
+    public User UpdateUser(User user, CancellationToken cancellationToken)
     {
-        return MongoDb.UserCollection.FindOneAndReplaceAsync(u => u.ChatId == user.ChatId, user, null, cancellationToken);
+        return MongoDb.UserCollection.FindOneAndReplace(u => u.ChatId == user.ChatId, user, null, cancellationToken);
     }
 
-    public async Task<List<User>> GetAllUsersAsync(CancellationToken cancellationToken)
+    public List<User> GetAllUsers(CancellationToken cancellationToken)
     {
-        return await (await MongoDb.UserCollection.FindAsync(e=> e.ChatId != null, null, cancellationToken))
-                                                  .ToListAsync(cancellationToken);
+        return MongoDb.UserCollection.FindSync(e=> e.ChatId != null, null, cancellationToken)
+                                     .ToList(cancellationToken);
     }
 
-    public async Task<User?> GetUserOrDefaultAsync(long chatId, CancellationToken cancellationToken)
+    public User? GetUserOrDefault(long chatId, CancellationToken cancellationToken)
     {
-        return await (await MongoDb.UserCollection.FindAsync(e => e.ChatId == chatId, null, cancellationToken))
-                                                  .FirstOrDefaultAsync(cancellationToken);
+        return MongoDb.UserCollection.FindSync(e => e.ChatId == chatId, null, cancellationToken)
+                                     .FirstOrDefault(cancellationToken);
+    }
+    public void UpdateLastCommandFieldInUser(long chatId, string command, CancellationToken cancellationToken)
+    {
+        var userUpdateDefinition = Builders<User>.Update.Set(user => user.LastCommand, command);
+        MongoDb.UserCollection.UpdateOne(user => user.ChatId == chatId, userUpdateDefinition, null, cancellationToken);
     }
 
-    public async Task<List<string>> GetGroupedUrlsAsync(long chatId, CancellationToken cancellationToken)
+    public List<string> GetGroupedUrls(long chatId, CancellationToken cancellationToken)
     {
-        User? user = await GetUserOrDefaultAsync(chatId, cancellationToken);       
+        User? user = GetUserOrDefault(chatId, cancellationToken);       
         if (user == null)
             return new();
         Dictionary<string, StringBuilder> hostsToGroupedUrls = new();

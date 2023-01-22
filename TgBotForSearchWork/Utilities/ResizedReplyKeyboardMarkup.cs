@@ -1,10 +1,10 @@
-﻿using Telegram.Bot.Types.ReplyMarkups;
+﻿using Parsers.Constants;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace TgBotForSearchWork.Utilities;
 
 internal class ResizedReplyKeyboardMarkup : ReplyKeyboardMarkup
 {
-
     public ResizedReplyKeyboardMarkup(KeyboardButton button) : base(button)
     {
         SetResizeKeyboard();
@@ -23,5 +23,15 @@ internal class ResizedReplyKeyboardMarkup : ReplyKeyboardMarkup
     private void SetResizeKeyboard()
     {
         ResizeKeyboard = true;
+    }
+
+    public static ResizedReplyKeyboardMarkup MakeList(IEnumerable<string> strings)
+    {
+        List<List<KeyboardButton>> keyboardButtons = new List<List<KeyboardButton>>();
+        foreach (var @string in strings)
+        {
+            keyboardButtons.Add(new() { "|", @string, "|" });
+        }
+        return new ResizedReplyKeyboardMarkup(keyboardButtons);
     }
 }

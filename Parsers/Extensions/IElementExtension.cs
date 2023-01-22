@@ -25,12 +25,14 @@ internal static class IElementExtension
     {
         string textContent = element!.TextContent.Trim('\t', '\n', ' ');
         char space = ' ';
-        Dictionary<char, char> badSymbolsToCorrect = new() { { '`', '\'' }, { '_', space }, { '*', space } };
+        Dictionary<char, char> badSymbolsToCorrect = new() { { '`', '\'' }, { '_', space }, { '*', space }};
         StringBuilder stringBuilder = new StringBuilder(textContent);
         for (int i = 0; i < stringBuilder.Length; i++)
         {
             if (badSymbolsToCorrect.ContainsKey(stringBuilder[i]))
                 stringBuilder[i] = badSymbolsToCorrect[stringBuilder[i]];
+            if (stringBuilder[i] == space && stringBuilder[i + 1] == space)
+                stringBuilder.Remove(i, 1);
         }
         stringBuilder.AppendLine();
         return stringBuilder.ToString();
