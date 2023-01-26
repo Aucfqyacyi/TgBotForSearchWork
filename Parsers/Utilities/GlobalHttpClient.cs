@@ -1,5 +1,6 @@
 ﻿
 using AngleSharp.Dom;
+using System.Net;
 
 public static class GlobalHttpClient
 {

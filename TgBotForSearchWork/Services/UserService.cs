@@ -51,11 +51,6 @@ internal class UserService
         return MongoDb.UserCollection.FindSync(e => e.ChatId == chatId, null, cancellationToken)
                                      .FirstOrDefault(cancellationToken);
     }
-    public void UpdateLastCommandFieldInUser(long chatId, string command, CancellationToken cancellationToken)
-    {
-        var userUpdateDefinition = Builders<User>.Update.Set(user => user.LastCommand, command);
-        MongoDb.UserCollection.UpdateOne(user => user.ChatId == chatId, userUpdateDefinition, null, cancellationToken);
-    }
 
     public List<string> GetGroupedUrls(long chatId, CancellationToken cancellationToken)
     {

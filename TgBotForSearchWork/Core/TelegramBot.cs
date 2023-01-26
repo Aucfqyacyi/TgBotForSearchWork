@@ -17,13 +17,14 @@ internal class TelegramBot
     private readonly CommandHandler _commandHandler;
     private readonly VacancySender _vacancySender;
 
-    public TelegramBot(string token, TimeSpan timeOut, UserService userService, ReceiverOptions? receiverOptions = null)
+    public TelegramBot(string token, TimeSpan timeOut, VacancySender vacancySender, 
+                        CommandHandler commandHandler, ReceiverOptions ? receiverOptions = null)
     {
         _telegramBotClient = new(token, GlobalHttpClient.Client);
         _receiverOptions = receiverOptions ?? new ReceiverOptions { AllowedUpdates = Array.Empty<UpdateType>() };
         _timeOut = timeOut;
-        _commandHandler = new(_telegramBotClient, userService);
-        _vacancySender = new(_telegramBotClient, userService);
+        _vacancySender = vacancySender;
+        _commandHandler = commandHandler;
     }
 
     private void PrepareAsync()
@@ -47,7 +48,7 @@ internal class TelegramBot
         PrepareAsync();
         while (_cancellationTokenSource.Token.IsCancellationRequested is false)
         {
-            await _vacancySender.SendVacancyAsync(_timeOut, _cancellationTokenSource.Token);
+            await _vacancySender.SendVacancyAsync(_telegramBotClient, _timeOut, _cancellationTokenSource.Token);
         }            
     }
 
@@ -74,7 +75,7 @@ internal class TelegramBot
             switch (update.Type)
             {
                 case UpdateType.Message:
-                    await _commandHandler.OnMessageAsync(update, cancellationToken);
+                    await _commandHandler.OnMessageAsync(botClient, update, cancellationToken);
                     break;
             }       
         }

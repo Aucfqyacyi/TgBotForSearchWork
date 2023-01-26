@@ -17,4 +17,9 @@ public class Filter
         CategoryName = categoryName;
     }
 
+    public override string ToString()
+    {
+        return Name;
+    }
+
 }

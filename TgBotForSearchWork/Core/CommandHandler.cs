@@ -1,7 +1,9 @@
-﻿using Parsers.Constants;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+using TgBotForSearchWork.Constants;
+using TgBotForSearchWork.Core.CommandHandlers;
+using TgBotForSearchWork.Models;
 using TgBotForSearchWork.Services;
 using TgBotForSearchWork.Utilities;
 using User = TgBotForSearchWork.Models.User;
@@ -10,93 +12,67 @@ namespace TgBotForSearchWork.Core;
 
 internal class CommandHandler
 {
-    private readonly ITelegramBotClient _telegramBotClient;
     private readonly UserService _userService;
+    private readonly BuildUrlCommandHandler _buildUrlCommandHandler;
 
-    public CommandHandler(ITelegramBotClient telegramBotClient, UserService userService)
+    public CommandHandler(UserService userService, BuildUrlCommandHandler buildUrlCommandHandler)
     {
         _userService = userService;
-        _telegramBotClient = telegramBotClient;
+        _buildUrlCommandHandler = buildUrlCommandHandler;
     }
 
-    public async Task OnMessageAsync(Update update, CancellationToken cancellationToken)
+    public async Task OnMessageAsync(ITelegramBotClient telegramBotClient, Update update, CancellationToken cancellationToken)
     {
         string messageText = update.Message!.Text!;
         long chatId = update.Message!.Chat.Id;
-        await OnMessageAsync(chatId, messageText, cancellationToken);
+        await OnMessageAsync(new(chatId, telegramBotClient, cancellationToken), messageText);
     }
 
-    private async Task OnMessageAsync(long chatId, string messageText, CancellationToken cancellationToken)
+    private async Task OnMessageAsync(TelegramEntity telegramEntity, string messageText)
     {
-        bool wasIncorrectCommand = false;
         switch (messageText)
         {
             case Command.Start:
-                _userService.AddUser(chatId, cancellationToken);
+                _userService.AddUser(telegramEntity.ChatId, telegramEntity.CancellationToken);
                 break;
             case Command.Stop:
-                _userService.RemoveUser(chatId, cancellationToken);
+                _userService.RemoveUser(telegramEntity.ChatId, telegramEntity.CancellationToken);
                 break;
             case Command.ShowAllUrls:
-                await OnShowAllUrlsAsync(chatId, cancellationToken);
+                await OnShowAllUrlsAsync(telegramEntity);
                 break;
             case Command.GetAllUrls:
-                await OnGetAllUrlsAsync(chatId, cancellationToken);
+                await OnGetAllUrlsAsync(telegramEntity);
                 break;
             case Command.BuildUrl:
-                await OnBuildUrlAsync(chatId, cancellationToken);
+                await _buildUrlCommandHandler.OnBuildUrlAsync(telegramEntity);
                 break;
             case Command.Test:
-                await OnTestCommandAsync(chatId, cancellationToken);
+                await OnTestCommandAsync(telegramEntity);
                 break;
             default:
-                wasIncorrectCommand = true;
+                if (messageText.StartsWith(KeyboardButtonPrefix.WhenBuildingUrl))
+                    await _buildUrlCommandHandler.OnBuildingUrlAsync(telegramEntity, messageText);
+                else
+                    await OnIncorrectCommandAsync(telegramEntity);
                 break;
-        }
-
-        if (SiteTypesToUris.TheirHosts.Values.Contains(messageText))
-            OnChooseHostDuringBuildingUrl(messageText);
-
-        if (!wasIncorrectCommand)
-            _userService.UpdateLastCommandFieldInUser(chatId, messageText, cancellationToken);
-        else
-            await OnIncorrectCommandAsync(chatId, cancellationToken);
+        }      
     }
 
-    private async Task OnGetAllUrlsAsync(long chatId, CancellationToken cancellationToken)
+    private async Task OnGetAllUrlsAsync(TelegramEntity telegramEntity)
     {
-        foreach (var message in _userService.GetGroupedUrls(chatId, cancellationToken))
+        foreach (var message in _userService.GetGroupedUrls(telegramEntity.ChatId, telegramEntity.CancellationToken))
         {
-            await _telegramBotClient.SendTextMessageAsync(chatId,
+            await telegramEntity.TelegramBotClient.SendTextMessageAsync(telegramEntity.ChatId,
                                                           message,
                                                           disableWebPagePreview: true,
-                                                          cancellationToken: cancellationToken);
+                                                          cancellationToken: telegramEntity.CancellationToken);
         }
     }
 
-    private void OnChooseHostDuringBuildingUrl(string host)
+    private async Task OnShowAllUrlsAsync(TelegramEntity telegramEntity)
     {
-
-
-    }
-
-    private Task OnBuildUrlAsync(long chatId, CancellationToken cancellationToken)
-    {
-        return OnBuildUrlAsync(chatId, ResizedReplyKeyboardMarkup.MakeList(SiteTypesToUris.TheirHosts.Values), cancellationToken);
-    }
-
-    private Task OnBuildUrlAsync(long chatId, ResizedReplyKeyboardMarkup keyboard, CancellationToken cancellationToken)
-    {
-        return _telegramBotClient.SendTextMessageAsync(chatId,
-                                                      "Зробить вибір.",
-                                                      disableWebPagePreview: true,
-                                                      replyMarkup: keyboard,
-                                                      cancellationToken: cancellationToken);
-    }
-
-    private async Task OnShowAllUrlsAsync(long chatId, CancellationToken cancellationToken)
-    {
-        User? user = _userService.GetUserOrDefault(chatId, cancellationToken);
+        User? user = _userService.GetUserOrDefault(telegramEntity.ChatId, telegramEntity.CancellationToken);
         if (user == null)
             return;
         List<List<KeyboardButton>> keyboardButtons = new List<List<KeyboardButton>>();
@@ -107,20 +83,22 @@ internal class CommandHandler
             keyboardButtons.Last().Add(new(user.Urls[i].WithOutHttps));
         }
 
-        await _telegramBotClient.SendTextMessageAsync(chatId,
+        await telegramEntity.TelegramBotClient.SendTextMessageAsync(telegramEntity.ChatId,
                                                       "Ваші посилання",
-                                                      replyMarkup: new ResizedReplyKeyboardMarkup(keyboardButtons),
-                                                      cancellationToken: cancellationToken);
+                                                      replyMarkup: new ResizedKeyboardMarkup(keyboardButtons),
+                                                      cancellationToken: telegramEntity.CancellationToken);
     }
 
-    private Task OnTestCommandAsync(long chatId, CancellationToken cancellationToken)
+    private Task OnTestCommandAsync(TelegramEntity telegramEntity)
     {
         Log.Info($"Test command was called.");
-        return _telegramBotClient.SendTextMessageAsync(chatId, "Тестовий визов.", cancellationToken: cancellationToken);
+        return telegramEntity.TelegramBotClient.SendTextMessageAsync(telegramEntity.ChatId, $"Тестовий визов.", 
+                                                        cancellationToken: telegramEntity.CancellationToken);
     }
 
-    private Task OnIncorrectCommandAsync(long chatId, CancellationToken cancellationToken)
+    private Task OnIncorrectCommandAsync(TelegramEntity telegramEntity)
     {
-        return _telegramBotClient.SendTextMessageAsync(chatId, "Будь ласка, виберіть команду з списку.", cancellationToken: cancellationToken);
+        return telegramEntity.TelegramBotClient.SendTextMessageAsync(telegramEntity.ChatId, "Будь ласка, виберіть команду з списку.", 
+                                                        cancellationToken: telegramEntity.CancellationToken);
     }
 }

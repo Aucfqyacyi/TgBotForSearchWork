@@ -11,10 +11,10 @@ public static class SiteTypesToUris
     public const string Https = @"https://";
 
     static SiteTypesToUris()
-    {
+    {      
         AddUri(SiteType.WorkUa, new Uri(Https + "www.work.ua/jobs/?advs=1"));
         AddUri(SiteType.Djinni, new Uri(Https + "djinni.co/jobs/"));
-        AddUri(SiteType.Dou, new Uri(Https + "jobs.dou.ua/vacancies/"));
+        AddUri(SiteType.Dou, new Uri(Https + "jobs.dou.ua/vacancies/"));        
     }
 
     private static void AddUri(SiteType siteType, Uri uri)

@@ -10,21 +10,19 @@ namespace TgBotForSearchWork.Core;
 internal class VacancySender
 {
     private readonly VacancyService _vacancyService = new();
-    private readonly ITelegramBotClient _telegramBotClient;  
     private readonly UserService _userService;
 
-    public VacancySender(ITelegramBotClient telegramBotClient, UserService userService)
+    public VacancySender(UserService userService)
     {
         _userService = userService;
-        _telegramBotClient = telegramBotClient;
     }
 
-    public async Task SendVacancyAsync(TimeSpan timeOut, CancellationToken cancellationToken)
+    public async Task SendVacancyAsync(ITelegramBotClient telegramBotClient, TimeSpan timeOut, CancellationToken cancellationToken)
     {
         try
         {
-            foreach (var user in _userService.GetAllUsers(cancellationToken))
-                await SendVacancyAsync(user, cancellationToken);
+            /*foreach (var user in _userService.GetAllUsers(cancellationToken))
+                await SendVacancyAsync(telegramBotClient, user, cancellationToken);*/
             await Task.Delay(timeOut, cancellationToken);
         }
         catch (Exception ex)
@@ -33,21 +31,21 @@ internal class VacancySender
         }
     }
 
-    private async Task SendVacancyAsync(User user, CancellationToken cancellationToken)
+    private async Task SendVacancyAsync(ITelegramBotClient telegramBotClient, User user, CancellationToken cancellationToken)
     {
         List<Vacancy> relevantVacancies = await _vacancyService.GetRelevantVacancies(user, cancellationToken);
         _userService.UpdateUser(user, cancellationToken);
-        await SendVacancyAsync(user.ChatId, relevantVacancies, cancellationToken);
+        await SendVacancyAsync(new(user.ChatId, telegramBotClient, cancellationToken), relevantVacancies);
         Log.Info($"All vacancies for the user({user.ChatId}) were sent successfully.");
     }
 
-    private async Task SendVacancyAsync(long chatId, IReadOnlyList<Vacancy> vacancies, CancellationToken cancellationToken)
+    private async Task SendVacancyAsync(TelegramEntity telegramEntity, IReadOnlyList<Vacancy> vacancies)
     {
         for (int i = 0; i < vacancies.Count; i++)
         {
             try
             {
-                await SendVacancyAsync(chatId, vacancies[i], cancellationToken);
+                await SendVacancyAsync(telegramEntity, vacancies[i]);
             }
             catch (TaskCanceledException)
             {
@@ -60,12 +58,12 @@ internal class VacancySender
         }
     }
 
-    private Task SendVacancyAsync(long chatId, Vacancy vacancy, CancellationToken cancellationToken)
+    private Task SendVacancyAsync(TelegramEntity telegramEntity, Vacancy vacancy)
     {
-        return _telegramBotClient.SendTextMessageAsync(chatId,
+        return telegramEntity.TelegramBotClient.SendTextMessageAsync(telegramEntity.ChatId,
                                                       vacancy.Present(),
                                                       ParseMode.Markdown,
                                                       disableWebPagePreview: true,
-                                                      cancellationToken: cancellationToken);
+                                                      cancellationToken: telegramEntity.CancellationToken);
     }
 }

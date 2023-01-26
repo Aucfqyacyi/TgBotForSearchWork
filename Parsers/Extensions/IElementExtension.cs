@@ -23,9 +23,9 @@ internal static class IElementExtension
 
     private static string PrepareTextContent(this IElement element)
     {
-        string textContent = element!.TextContent.Trim('\t', '\n', ' ');
+        string textContent = element!.TextContent.Trim('\t', '\n', '\r',' ');
         char space = ' ';
-        Dictionary<char, char> badSymbolsToCorrect = new() { { '`', '\'' }, { '_', space }, { '*', space }};
+        Dictionary<char, char> badSymbolsToCorrect = new() { { '`', '\'' }, { '_', space }, { '*', space }, { '\n', space }, { '\r', space } };
         StringBuilder stringBuilder = new StringBuilder(textContent);
         for (int i = 0; i < stringBuilder.Length; i++)
         {
@@ -35,7 +35,7 @@ internal static class IElementExtension
                 stringBuilder.Remove(i, 1);
         }
         stringBuilder.AppendLine();
-        return stringBuilder.ToString();
+        return stringBuilder.ToString().TrimEnd();
     }
 
     public static string GetNearestSiblingTextContent(this IElement element)

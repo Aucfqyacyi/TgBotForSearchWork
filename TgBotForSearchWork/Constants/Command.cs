@@ -1,4 +1,6 @@
-﻿namespace TgBotForSearchWork.Core;
+﻿using System.Text;
+
+namespace TgBotForSearchWork.Constants;
 
 internal static class Command
 {
@@ -8,4 +10,5 @@ internal static class Command
     public const string Stop = "/stop";
     public const string Test = "/test";
     public const string BuildUrl = "/build_url";
+
 }

@@ -6,7 +6,7 @@ namespace Parsers.FilterParsers;
 public class FilterParserFactory
 {
     private readonly static Dictionary<SiteType, IFilterParser> _cache = new();
-
+    private readonly static object _lock = new object();
     public static IFilterParser CreateFilterParser(SiteType site)
     {
         switch (site)
@@ -24,12 +24,16 @@ public class FilterParserFactory
     private static IFilterParser CreateFilterParser<TParser>(SiteType site)
                                                 where TParser : class, IFilterParser, new()
     {
-        IFilterParser? filterParser = _cache.GetValueOrDefault(site);
-        if (filterParser is null)
+        IFilterParser? filterParser = null;
+        lock (_lock)
         {
-            filterParser = new TParser();
-            _cache.Add(site, filterParser);
-        }
+            filterParser = _cache.GetValueOrDefault(site);
+            if (filterParser is null)
+            {
+                filterParser = new TParser();
+                _cache.Add(site, filterParser);
+            }
+        }      
         return filterParser;
     }
 }
