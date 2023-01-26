@@ -5,9 +5,6 @@ namespace TgBotForSearchWork.Models;
 public partial class User
 {
     [BsonIgnore] public IReadOnlyList<UrlToVacancies> Urls { get => _urls; }
-    [BsonIgnore] public UrlToVacancies? UrlToBuild { get => _urls.Find(url => url.IsBuildState); }
-    [BsonIgnore] public bool IsBuildState { get => UrlToBuild != null; }
-
 
     public User()
     { }

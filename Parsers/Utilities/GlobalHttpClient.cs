@@ -1,8 +1,4 @@
-﻿
-using AngleSharp.Dom;
-using System.Net;
-
-public static class GlobalHttpClient
+﻿public static class GlobalHttpClient
 {
     public static HttpClient Client { get; }
 
@@ -10,7 +6,6 @@ public static class GlobalHttpClient
     {
         Client = new HttpClient();
         Client.Timeout = TimeSpan.FromMinutes(2);
-        Client.DefaultRequestHeaders.Add("User-Agent", "TgBotForSearchWork");
     }
 
     public static async Task<Stream> GetAsync(Uri uri, CancellationToken cancellationToken = default)

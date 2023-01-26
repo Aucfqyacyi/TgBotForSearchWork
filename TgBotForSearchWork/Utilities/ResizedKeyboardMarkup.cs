@@ -1,7 +1,4 @@
-﻿using System.Reflection.PortableExecutable;
-using Telegram.Bot.Types.ReplyMarkups;
-using TgBotForSearchWork.Constants;
-using TgBotForSearchWork.Extensions;
+﻿using Telegram.Bot.Types.ReplyMarkups;
 
 namespace TgBotForSearchWork.Utilities;
 
@@ -25,16 +22,5 @@ internal class ResizedKeyboardMarkup : ReplyKeyboardMarkup
     private void SetResizeKeyboard()
     {
         ResizeKeyboard = true;
-    }
-
-    public static ResizedKeyboardMarkup MakeList(IEnumerable<object> strings, char prefix, 
-                                                              int prefixCount = 0, int? siteId = null)
-    {
-        List<List<KeyboardButton>> keyboardButtons = new List<List<KeyboardButton>>();
-        foreach (var @string in strings)
-        {
-            keyboardButtons.Add(new() { "|", prefix.Multiply(prefixCount) + siteId + ": " + @string, "|" });          
-        }
-        return new ResizedKeyboardMarkup(keyboardButtons);
     }
 }

@@ -1,9 +1,5 @@
-﻿using Parsers.Constants;
-using Parsers.Extensions;
-using System.Diagnostics;
-using System.Text;
+﻿using Parsers.Extensions;
 using TgBotForSearchWork.Core;
-using TgBotForSearchWork.Core.CommandHandlers;
 using TgBotForSearchWork.Services;
 using TgBotForSearchWork.Utilities;
 
@@ -20,10 +16,7 @@ Log.Info("Application started.");
 UserService userService = new();
 userService.AddDefaultUser();
 
-FilterService filterService = new();
-await filterService.CollectFiltersAsync();
-BuildUrlCommandHandler buildUrlCommandHandler = new(filterService);
-CommandHandler commandHandler = new(userService, buildUrlCommandHandler);
+CommandHandler commandHandler = new(userService);
 VacancySender vacancySender = new(userService);
 
 TelegramBot telegramBot = new(CommandLineArgs.Token, TimeSpan.FromSeconds(CommandLineArgs.Time), vacancySender, commandHandler);

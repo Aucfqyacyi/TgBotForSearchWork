@@ -2,7 +2,6 @@
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 using TgBotForSearchWork.Constants;
-using TgBotForSearchWork.Core.CommandHandlers;
 using TgBotForSearchWork.Models;
 using TgBotForSearchWork.Services;
 using TgBotForSearchWork.Utilities;
@@ -13,12 +12,10 @@ namespace TgBotForSearchWork.Core;
 internal class CommandHandler
 {
     private readonly UserService _userService;
-    private readonly BuildUrlCommandHandler _buildUrlCommandHandler;
 
-    public CommandHandler(UserService userService, BuildUrlCommandHandler buildUrlCommandHandler)
+    public CommandHandler(UserService userService)
     {
         _userService = userService;
-        _buildUrlCommandHandler = buildUrlCommandHandler;
     }
 
     public async Task OnMessageAsync(ITelegramBotClient telegramBotClient, Update update, CancellationToken cancellationToken)
@@ -44,16 +41,16 @@ internal class CommandHandler
             case Command.GetAllUrls:
                 await OnGetAllUrlsAsync(telegramEntity);
                 break;
-            case Command.BuildUrl:
+            /*case Command.BuildUrl:
                 await _buildUrlCommandHandler.OnBuildUrlAsync(telegramEntity);
-                break;
+                break;*/
             case Command.Test:
                 await OnTestCommandAsync(telegramEntity);
                 break;
             default:
-                if (messageText.StartsWith(KeyboardButtonPrefix.WhenBuildingUrl))
+/*                if (messageText.StartsWith(KeyboardButtonPrefix.WhenBuildingUrl))
                     await _buildUrlCommandHandler.OnBuildingUrlAsync(telegramEntity, messageText);
-                else
+                else*/
                     await OnIncorrectCommandAsync(telegramEntity);
                 break;
         }      

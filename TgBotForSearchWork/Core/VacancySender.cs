@@ -21,8 +21,8 @@ internal class VacancySender
     {
         try
         {
-            /*foreach (var user in _userService.GetAllUsers(cancellationToken))
-                await SendVacancyAsync(telegramBotClient, user, cancellationToken);*/
+            foreach (var user in _userService.GetAllUsers(cancellationToken))
+                await SendVacancyAsync(telegramBotClient, user, cancellationToken);
             await Task.Delay(timeOut, cancellationToken);
         }
         catch (Exception ex)
