@@ -33,7 +33,7 @@ internal class VacancySender
 
     private async Task SendVacancyAsync(ITelegramBotClient telegramBotClient, User user, CancellationToken cancellationToken)
     {
-        List<Vacancy> relevantVacancies = await _vacancyService.GetRelevantVacancies(user, cancellationToken);
+        List<Vacancy> relevantVacancies = await _vacancyService.GetRelevantVacanciesAsync(user, cancellationToken);
         _userService.UpdateUser(user, cancellationToken);
         await SendVacancyAsync(new(user.ChatId, telegramBotClient, cancellationToken), relevantVacancies);
         Log.Info($"All vacancies for the user({user.ChatId}) were sent successfully.");

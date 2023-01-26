@@ -8,27 +8,28 @@ namespace TgBotForSearchWork.Services;
 
 internal class VacancyService
 {
-
-    public async Task<List<Vacancy>> GetRelevantVacancies(User user, CancellationToken cancellationToken)
+    public async Task<List<Vacancy>> GetRelevantVacanciesAsync(User user, CancellationToken cancellationToken)
     {
-        List<Vacancy> allVacancies = new();
-        foreach (var urlToVacancies in user.Urls)
+        List<Vacancy> vacancies = new();
+        await Parallel.ForEachAsync(user.Urls, cancellationToken, (UrlToVacancies urlToVacancies, CancellationToken cancellationToken) =>
         {
-            if (!urlToVacancies.IsOff)
-            {
-                List<Vacancy> relevantVacancies = await GetRelevantVacancies(urlToVacancies, cancellationToken);
-                if (relevantVacancies.Count != 0)
-                {                   
-                    urlToVacancies.LastVacanciesIds = relevantVacancies.Select(e => e.Id).ToList();
-                }
-                Log.Info($"{urlToVacancies.Host} has number of vacancies {relevantVacancies.Count}");
-                allVacancies.AddRange(relevantVacancies);
-            }
-        }
-        return allVacancies;
+            return GetRelevantVacanciesAsync(urlToVacancies, vacancies, cancellationToken);
+        });
+        return vacancies;
     }
 
-    private async Task<List<Vacancy>> GetRelevantVacancies(UrlToVacancies urlToVacancies, CancellationToken cancellationToken)
+    private async ValueTask GetRelevantVacanciesAsync(UrlToVacancies urlToVacancies, List<Vacancy> vacancies, CancellationToken cancellationToken)
+    {
+        List<Vacancy> relevantVacancies = await GetRelevantVacanciesAsync(urlToVacancies, cancellationToken);
+        Log.Info($"{urlToVacancies.Host} has number of vacancies {relevantVacancies.Count}");
+        if (relevantVacancies.Count == 0)
+            return;
+        urlToVacancies.LastVacanciesIds = relevantVacancies.Select(e => e.Id).ToList();        
+        lock (this)
+            vacancies.AddRange(relevantVacancies);
+    }
+
+    private async Task<List<Vacancy>> GetRelevantVacanciesAsync(UrlToVacancies urlToVacancies, CancellationToken cancellationToken)
     {
         IVacancyParser vacancyParser = VacancyParserFactory.CreateVacancyParser(urlToVacancies.Uri);
         List<Vacancy> vacancies = await vacancyParser.ParseAsync(urlToVacancies.Uri, cancellationToken);
@@ -46,4 +47,6 @@ internal class VacancyService
         }
         return vacancies;
     }
+
+
 }

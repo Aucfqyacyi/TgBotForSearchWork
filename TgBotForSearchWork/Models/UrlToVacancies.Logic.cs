@@ -9,9 +9,8 @@ public partial class UrlToVacancies
     [BsonIgnore] public string WithOutHttps { get => Uri.Host + Uri.PathAndQuery; }
     [BsonIgnore] public string Host { get => Uri.Host; }
 
-    public UrlToVacancies(string url, bool isOff = false)
+    public UrlToVacancies(string url)
     {
         Uri = new(url);
-        IsOff = isOff;
     }
 }
