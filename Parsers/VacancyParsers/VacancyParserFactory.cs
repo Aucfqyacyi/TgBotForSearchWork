@@ -6,6 +6,7 @@ namespace Parsers.VacancyParsers;
 public static class VacancyParserFactory
 {
     private readonly static Dictionary<SiteType, IVacancyParser> _cache = new();
+    private readonly static object _lock = new object();
 
     public static IVacancyParser CreateVacancyParser(Uri uri)
     {
@@ -21,12 +22,16 @@ public static class VacancyParserFactory
     private static IVacancyParser CreateVacancyParser<TParser>(SiteType site) 
                                                 where TParser : class, IVacancyParser, new()
     {
-        IVacancyParser? vacancyParser = _cache.GetValueOrDefault(site);
-        if (vacancyParser is null)
+        IVacancyParser? vacancyParser = null;
+        lock (_lock)
         {
-            vacancyParser = new TParser();
-            _cache.Add(site, vacancyParser);
-        }          
+            vacancyParser = _cache.GetValueOrDefault(site);
+            if (vacancyParser is null)
+            {
+                vacancyParser = new TParser();
+                _cache.Add(site, vacancyParser);
+            }
+        }            
         return vacancyParser;
     }
 }

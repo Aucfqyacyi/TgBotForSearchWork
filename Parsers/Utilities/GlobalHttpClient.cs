@@ -1,10 +1,13 @@
-﻿public static class GlobalHttpClient
+﻿using FlareSolverrSharp;
+
+public static class GlobalHttpClient
 {
     public static HttpClient Client { get; }
 
     static GlobalHttpClient()
     {
-        Client = new HttpClient();
+        HttpMessageHandler handler = new ClearanceHandler("http://localhost:8191/") { ProxyUrl = "http://127.0.0.1:8888" };
+        Client = new HttpClient(handler);
         Client.Timeout = TimeSpan.FromMinutes(2);
     }
 

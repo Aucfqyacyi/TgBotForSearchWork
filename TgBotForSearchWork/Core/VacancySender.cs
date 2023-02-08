@@ -10,18 +10,18 @@ namespace TgBotForSearchWork.Core;
 internal class VacancySender
 {
     private readonly VacancyService _vacancyService = new();
-    private readonly UserService _userService;
+    private readonly MongoDbService _mongoDbService;
 
-    public VacancySender(UserService userService)
+    public VacancySender(MongoDbService mongoDbService)
     {
-        _userService = userService;
+        _mongoDbService = mongoDbService;
     }
 
     public async Task SendVacancyAsync(ITelegramBotClient telegramBotClient, TimeSpan timeOut, CancellationToken cancellationToken)
     {
         try
         {
-            foreach (var user in _userService.GetAllUsers(cancellationToken))
+            foreach (var user in _mongoDbService.GetAllUsers(cancellationToken))
                 await SendVacancyAsync(telegramBotClient, user, cancellationToken);
             await Task.Delay(timeOut, cancellationToken);
         }
@@ -34,7 +34,7 @@ internal class VacancySender
     private async Task SendVacancyAsync(ITelegramBotClient telegramBotClient, User user, CancellationToken cancellationToken)
     {
         List<Vacancy> relevantVacancies = await _vacancyService.GetRelevantVacanciesAsync(user, cancellationToken);
-        _userService.UpdateUser(user, cancellationToken);
+        _mongoDbService.UpdateUser(user, cancellationToken);
         await SendVacancyAsync(new(user.ChatId, telegramBotClient, cancellationToken), relevantVacancies);
         Log.Info($"All vacancies for the user({user.ChatId}) were sent successfully.");
     }

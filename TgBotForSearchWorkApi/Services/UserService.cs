@@ -3,7 +3,7 @@ using TgBotForSearchWork.Models;
 
 namespace TgBotForSearchWork.Services;
 
-internal class UserService
+public class UserService
 {
     public List<string> GetGroupedUrls(User user)
     {

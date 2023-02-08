@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TgBotForSearchWork", "TgBotForSearchWork\TgBotForSearchWork.csproj", "{15A90AC3-0F98-42AF-AF5E-DA2346648143}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Parsers", "Parsers\Parsers.csproj", "{86700888-20F9-4C61-A7B6-B3FFD2C07E97}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TgBotForSearchWorkApi", "TgBotForSearchWorkApi\TgBotForSearchWorkApi.csproj", "{AD9A1895-60F5-4DC4-B87F-553BE4E45B1A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{15A90AC3-0F98-42AF-AF5E-DA2346648143}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{15A90AC3-0F98-42AF-AF5E-DA2346648143}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{15A90AC3-0F98-42AF-AF5E-DA2346648143}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{15A90AC3-0F98-42AF-AF5E-DA2346648143}.Release|Any CPU.Build.0 = Release|Any CPU
 		{86700888-20F9-4C61-A7B6-B3FFD2C07E97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{86700888-20F9-4C61-A7B6-B3FFD2C07E97}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86700888-20F9-4C61-A7B6-B3FFD2C07E97}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86700888-20F9-4C61-A7B6-B3FFD2C07E97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD9A1895-60F5-4DC4-B87F-553BE4E45B1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD9A1895-60F5-4DC4-B87F-553BE4E45B1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD9A1895-60F5-4DC4-B87F-553BE4E45B1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD9A1895-60F5-4DC4-B87F-553BE4E45B1A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

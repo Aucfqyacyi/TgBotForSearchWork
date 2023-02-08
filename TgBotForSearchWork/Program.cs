@@ -14,10 +14,11 @@ if (CommandLineArgs.Token.IsNullOrEmpty())
 Log.Info("Application started.");
 
 UserService userService = new();
-userService.AddDefaultUser();
+MongoDbService mongoDbService = new();
+mongoDbService.AddDefaultUser();
 
-CommandHandler commandHandler = new(userService);
-VacancySender vacancySender = new(userService);
+CommandHandler commandHandler = new(mongoDbService, userService);
+VacancySender vacancySender = new(mongoDbService);
 
 TelegramBot telegramBot = new(CommandLineArgs.Token, TimeSpan.FromSeconds(CommandLineArgs.Time), vacancySender, commandHandler);
 Console.CancelKeyPress += telegramBot.StopEvent;

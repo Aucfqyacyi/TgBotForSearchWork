@@ -1,0 +1,24 @@
+﻿{
+  "profiles": {
+    "Test": {
+      "commandName": "Project",
+      "hotReloadProfile": "aspnetcore",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5043",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Test"
+      }
+    },
+    "Release": {
+      "commandName": "Project",
+      "hotReloadProfile": "aspnetcore",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5043",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Release"
+      }
+    }
+  }
+}
