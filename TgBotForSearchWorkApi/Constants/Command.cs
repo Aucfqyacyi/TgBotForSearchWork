@@ -1,10 +1,9 @@
-﻿using System.Text;
-
-namespace TgBotForSearchWork.Core;
+﻿namespace TgBotForSearchWork.Constants;
 
 public static class Command
 {
-    public const string GetAllUrls = "/get_all_urls";
+    public const string ShowUrls = "/get_url";
+    public const string RemoveUrl = "/remove_url";
     public const string Start = "/start";
     public const string Stop = "/stop";
     public const string Test = "/test";

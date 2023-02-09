@@ -1,29 +1,50 @@
-﻿using System.Text;
+﻿using Parsers.Constants;
+using System.Text;
 using TgBotForSearchWork.Models;
+using TgBotForSearchWorkApi.Utilities.Attributes;
 
 namespace TgBotForSearchWork.Services;
 
+[SingletonService]
 public class UserService
 {
-    public List<string> GetGroupedUrls(User user)
+    private readonly UserRepository _userRepository;
+
+    public UserService(UserRepository userRepository)
     {
-        Dictionary<string, StringBuilder> hostsToGroupedUrls = new();
-        foreach (UrlToVacancies url in user.Urls)
+        _userRepository = userRepository;
+    }
+
+    public Dictionary<int, UrlToVacancies> GetUserUrlsToVacancies(long chatId, int siteType, CancellationToken cancellationToken)
+    {
+        User user = _userRepository.Get(chatId, cancellationToken);
+        string host = SiteTypesToUris.All[(SiteType)siteType].Host;
+        var indexsToUrls = new Dictionary<int, UrlToVacancies>();
+        for (int i = 0; i < user.Urls.Count; i++)
         {
-            StringBuilder? stringBuilder = hostsToGroupedUrls.GetValueOrDefault(url.Host);
-            if (stringBuilder == null)
-            {
-                stringBuilder = new();
-                stringBuilder.AppendLine(url.Host + '\n' + url.OriginalString);
-                hostsToGroupedUrls.Add(url.Host, stringBuilder);
-            }
-            else
-                stringBuilder.AppendLine(url.OriginalString);
+            if (user.Urls[i].Host == host)
+                indexsToUrls.Add(i, user.Urls[i]);
         }
-        return hostsToGroupedUrls.Values.Aggregate(new List<string>(), (strings, stringBuilder) =>
-        {
-            strings.Add(stringBuilder.ToString());
-            return strings;
-        });
+        return indexsToUrls;
+    }
+
+    public UrlToVacancies GetUserUrlToVacancies(long chatId, int index, CancellationToken cancellationToken)
+    {
+        User user = _userRepository.Get(chatId, cancellationToken);
+        return user.Urls[index];
+    }
+
+    public void AddUrlToVacancyToUser(long chatId, UrlToVacancies urlToVacancies, CancellationToken cancellationToken)
+    {
+        User user = _userRepository.Get(chatId, cancellationToken);
+        user.AddUrlToVacancias(urlToVacancies);
+        _userRepository.Update(user, cancellationToken);
+    }
+
+    public void RemoveUrlToVacancyAtUser(long chatId, int index, CancellationToken cancellationToken)
+    {
+        User user = _userRepository.Get(chatId, cancellationToken);
+        user.RemoveUrlToVacancias(index);
+        _userRepository.Update(user, cancellationToken);
     }
 }

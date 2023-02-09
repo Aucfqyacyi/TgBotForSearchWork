@@ -1,5 +1,5 @@
 ﻿using Deployf.Botf;
-using TgBotForSearchWork.Core;
+using TgBotForSearchWork.Constants;
 using TgBotForSearchWork.Services;
 using TgBotForSearchWorkApi.Constants;
 
@@ -17,14 +17,14 @@ public class UserController : BaseController
     [Action(Command.Start, CommandDescription.Empty)]
     public void Start()
     {
-        _userRepository.AddUser(ChatId, CancelToken);
+        _userRepository.Add(ChatId, CancelToken);
         Send("Вітання!");
     }
 
     [Action(Command.Stop, CommandDescription.Empty)]
     public void Stop()
     {
-        _userRepository.RemoveUser(ChatId, CancelToken);
+        _userRepository.Remove(ChatId, CancelToken);
         Send("До побачення!");
     }
 

@@ -23,9 +23,25 @@ public partial class User
 
     public void AddUrlToVacancias(UrlToVacancies? urlToVacancies)
     {
-        if (urlToVacancies == null)
+        if (urlToVacancies is null)
             return;
 
         _urls.Add(urlToVacancies);
+    }
+
+    public void RemoveUrlToVacancias(UrlToVacancies? urlToVacancies)
+    {
+        if (urlToVacancies is null)
+            return;
+
+        _urls.Remove(urlToVacancies);
+    }
+
+    public void RemoveUrlToVacancias(int? index)
+    {
+        if (index is null)
+            return;
+
+        _urls.RemoveAt(index.Value);
     }
 }

@@ -27,7 +27,7 @@ public class VacancyBackgroundService : BackgroundService
     {
         try
         {
-            foreach (var user in _userRepository.GetAllUsers(cancellationToken))
+            foreach (var user in _userRepository.GetAll(cancellationToken))
                 await SendVacancyAsync(user, cancellationToken);
             await Task.Delay(_timeOut, cancellationToken);
         }
@@ -39,7 +39,7 @@ public class VacancyBackgroundService : BackgroundService
     private async Task SendVacancyAsync(User user, CancellationToken cancellationToken)
     {
         List<Vacancy> relevantVacancies = await _vacancyService.GetRelevantVacanciesAsync(user, cancellationToken);
-        _userRepository.UpdateUser(user, cancellationToken);
+        _userRepository.Update(user, cancellationToken);
         await SendVacancyAsync(user.ChatId, relevantVacancies, cancellationToken);
         Log.Info($"All vacancies for the user({user.ChatId}) were sent successfully.");
     }
