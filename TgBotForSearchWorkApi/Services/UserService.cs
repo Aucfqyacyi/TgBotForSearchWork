@@ -1,4 +1,5 @@
-﻿using Parsers.Constants;
+﻿using Deployf.Botf;
+using Parsers.Constants;
 using Parsers.VacancyParsers;
 using System.Text;
 using TgBotForSearchWork.Models;
@@ -40,6 +41,8 @@ public class UserService
     {       
         try
         {
+            if (url.IsUrl() is false)
+                return default;
             Uri uri = new Uri(url);
             IVacancyParser vacancyParser = VacancyParserFactory.CreateVacancyParser(uri);
             if (await vacancyParser.IsCorrectUrlAsync(uri, cancellationToken))

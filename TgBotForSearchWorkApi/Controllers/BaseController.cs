@@ -2,6 +2,7 @@
 using Telegram.Bot.Types.Enums;
 using TgBotForSearchWork.Utilities;
 
+#pragma warning disable CS4014 
 namespace TgBotForSearchWorkApi.Controllers;
 
 public class BaseController : BotController

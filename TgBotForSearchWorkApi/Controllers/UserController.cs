@@ -3,6 +3,7 @@ using TgBotForSearchWork.Constants;
 using TgBotForSearchWork.Services;
 using TgBotForSearchWorkApi.Constants;
 
+#pragma warning disable CS4014 
 namespace TgBotForSearchWorkApi.Controllers;
 
 public class UserController : BaseController

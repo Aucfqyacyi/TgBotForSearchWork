@@ -6,6 +6,7 @@ using TgBotForSearchWork.Services;
 using TgBotForSearchWorkApi.Constants;
 using TgBotForSearchWorkApi.Models.States;
 using TgBotForSearchWorkApi.Utilities;
+#pragma warning disable CS4014 
 
 namespace TgBotForSearchWorkApi.Controllers;
 
@@ -78,7 +79,7 @@ public class UrlToVacanciesController : BaseController
         Dictionary<int, UrlToVacancies> indexsToUrls = _userService.GetUrlsToVacancies(ChatId, siteType, CancelToken);
         var pager = new PagingService();
         var query = indexsToUrls.AsQueryable();
-        var pageModel = pager.Paging(query, new PaginationFilter(page));
+        var pageModel = pager.Paging(query, new PageFilter(page));
         Pager(pageModel, indexToUrl => (indexToUrl.Value.WithOutHttps, Q(next, indexToUrl.Key)), 
                                         Q(ShowUrlsToVacancies, "{0}", siteType, next), 1);
         Send();
@@ -92,8 +93,7 @@ public class UrlToVacanciesController : BaseController
             RowButton("Дезактивувати", Q(ActivateUrl, index, false));
         else
             RowButton("Активувати", Q(ActivateUrl, index, true));        
-        Push(urlToVacancies.OriginalString);
-        Send();
+        Send(urlToVacancies.OriginalString, new() { DisableWebPagePreview = true});
     }
 
     [Action]

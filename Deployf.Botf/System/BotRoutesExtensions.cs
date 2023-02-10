@@ -28,13 +28,13 @@ public static class BotRoutesExtensions
 
     public static string? GetActionDescription(this MethodInfo method)
     {
-        var action = method.GetCustomAttributes<ActionAttribute>().FirstOrDefault(c => c.Desc != null);
+        var action = method.GetCustomAttributes<ActionAttribute>().FirstOrDefault(c => c.Description != null);
         if (action == null)
         {
             return null;
         }
 
-        return action.Desc;
+        return action.Description;
     }
 
     public static string Truncate(this string str, int length)

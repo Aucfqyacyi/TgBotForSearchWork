@@ -9,18 +9,6 @@ public class BotfProgram : BotController
         Action<IApplicationBuilder, IConfiguration>? onRun = null,
         BotfOptions? options = null)
     {
-        if (!skipHello)
-        {
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("===");
-            Console.WriteLine("  DEPLOY-F BotF");
-            Console.WriteLine("  Botf is a telegram bot framework with asp.net-like architecture");
-            Console.WriteLine("  For more information visit https://github.com/deploy-f/botf");
-            Console.WriteLine("===");
-            Console.WriteLine("");
-            Console.ResetColor();
-        }
-
         var builder = WebApplication.CreateBuilder(args);
 
         var botOptions = options;

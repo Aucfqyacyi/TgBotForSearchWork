@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using Deployf.Botf.System;
+using System.Linq.Expressions;
 using Telegram.Bot;
 using Telegram.Bot.Framework.Abstractions;
 using Telegram.Bot.Types;
@@ -135,7 +136,7 @@ public abstract class BotController
         }
     }
 
-    protected async Task<Message> Send(string text, ParseMode mode)
+    protected async Task<Message> Send(string text, ParseMode mode, SendMessageOptions? sendMessageOptions = null)
     {
         IsDirty = false;
         Message message;
@@ -144,10 +145,15 @@ public abstract class BotController
             message = await Client.SendTextMessageAsync(
                 ChatId == 0 ? Context!.GetSafeChatId()! : ChatId,
                 text,
-                ParseMode.Html,
-                replyMarkup: Message.Markup,
-                cancellationToken: CancelToken,
-                replyToMessageId: Message.ReplyToMessageId);
+                mode,
+                null,
+                sendMessageOptions?.DisableWebPagePreview,
+                sendMessageOptions?.DisableNotification,
+                sendMessageOptions?.ProtectCotent,
+                Message.ReplyToMessageId,
+                sendMessageOptions?.AllowSendingWithoutReply,
+                Message.Markup,
+                CancelToken);
         }
         else
         {
@@ -155,7 +161,7 @@ public abstract class BotController
                 ChatId == 0 ? Context!.GetSafeChatId()! : ChatId,
                 Message.PhotoUrl,
                 text,
-                ParseMode.Html,
+                mode,
                 replyMarkup: Message.Markup,
                 cancellationToken: CancelToken,
                 replyToMessageId: Message.ReplyToMessageId);
@@ -193,9 +199,9 @@ public abstract class BotController
         return message;
     }
 
-    protected async Task<Message> Send(string text)
+    protected async Task<Message> Send(string text, SendMessageOptions? sendMessageOptions = null)
     {
-        return await Send(text, ParseMode.Html);
+        return await Send(text, ParseMode.Html, sendMessageOptions);
     }
 
     protected async Task AnswerCallback(string? text = null)
@@ -205,12 +211,12 @@ public abstract class BotController
             cancellationToken: CancelToken);
     }
 
-    public async Task<Message?> Send()
+    public async Task<Message?> Send(SendMessageOptions? sendMessageOptions = null)
     {
         var text = Message.Message;
-        if (text != null)
+        if (string.IsNullOrEmpty(text) is false)
         {
-            return await Send(text);
+            return await Send(text, sendMessageOptions);
         }
 
         return null;

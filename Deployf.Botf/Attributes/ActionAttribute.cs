@@ -1,18 +1,17 @@
-﻿using Telegram.Bot.Types.Enums;
-
-namespace Deployf.Botf;
+﻿namespace Deployf.Botf;
 
 [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
-public sealed class ActionAttribute : Attribute
+public class ActionAttribute : Attribute
 {
-    public readonly string? Template;
-    public readonly string? Desc;
-//    public readonly UpdateType[] UpdateTypes;
-//    public readonly MessageType[] MessageTypes;
+    protected string? _template;
+    protected string? _description;
 
-    public ActionAttribute(string? template = null, string? desc = null)
+    public string? Template { get => _template; }
+    public string? Description { get => _description; }
+
+    public ActionAttribute(string? template = null, string? description = null)
     {
-        Template = template;
-        Desc = desc;
+        _template = template;
+        _description = description;
     }
 }
