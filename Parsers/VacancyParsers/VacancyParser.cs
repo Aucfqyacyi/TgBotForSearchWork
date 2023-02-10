@@ -1,9 +1,7 @@
 ﻿using AngleSharp;
 using AngleSharp.Dom;
-using Parsers.Constants;
 using Parsers.Extensions;
 using Parsers.Models;
-using System.IO;
 
 namespace Parsers.VacancyParsers;
 
@@ -19,10 +17,7 @@ internal abstract class VacancyParser : IVacancyParser
 
     public virtual async Task<List<Vacancy>> ParseAsync(Uri uri, CancellationToken cancellationToken = default)
     {
-        using Stream response = await GlobalHttpClient.GetAsync(uri, cancellationToken);
-        using IBrowsingContext browsingContext = BrowsingContext.New();
-        using IDocument document = await browsingContext.OpenAsync(req => req.Content(response), cancellationToken);
-        IHtmlCollection<IElement> vacancyElements = document.GetElementsByClassName(VacancyItem.CssClassName);
+        IHtmlCollection<IElement> vacancyElements = await GetVacancyElementsAsync(uri, cancellationToken);
         List<Vacancy> vacancies = new();
         foreach (IElement vacancyElement in vacancyElements)
         {
@@ -40,13 +35,22 @@ internal abstract class VacancyParser : IVacancyParser
         return new(id, title, url, shortDescription);
     }
 
-    private Task<Vacancy> CreateVacancyAsync(IElement element, string host)
-    {
-        return Task.Run(() => CreateVacancy(element, host));
-    }
-
     protected ulong GetId(string url)
     {
         return ulong.Parse(url.Split('/')[IdPositionInUrl].Split(SymbolAfterId).First());       
+    }
+
+    public async Task<bool> IsCorrectUrlAsync(Uri uri, CancellationToken cancellationToken)
+    {
+        IHtmlCollection<IElement> vacancyElements = await GetVacancyElementsAsync(uri, cancellationToken);
+        return vacancyElements.Length > 0;
+    }
+
+    private async Task<IHtmlCollection<IElement>> GetVacancyElementsAsync(Uri uri, CancellationToken cancellationToken)
+    {
+        using Stream response = await GlobalHttpClient.GetAsync(uri, cancellationToken);
+        using IBrowsingContext browsingContext = BrowsingContext.New();
+        using IDocument document = await browsingContext.OpenAsync(req => req.Content(response), cancellationToken);
+        return document.GetElementsByClassName(VacancyItem.CssClassName);
     }
 }

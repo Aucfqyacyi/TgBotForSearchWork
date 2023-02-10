@@ -27,13 +27,21 @@ public class BaseController : BotController
         if (messageId != _lastExceptionMessageId)
         {
             _lastExceptionMessageId = messageId;
-            Log.Info($"Unhandled exception - {exception.Message}");
-            if (Context.Update.Type == UpdateType.CallbackQuery)
+            try
             {
-                return AnswerCallback("Error");
+                Log.Info($"Unhandled exception - {exception.Message}");
+                if (Context.Update.Type == UpdateType.CallbackQuery)
+                {
+                    return AnswerCallback("Error");
+                }
+                ClearMessage();
+                Send($"Вибачте, сталася помилка.");
             }
-            ClearMessage();
-            Send($"Вибачте, сталася помилка.");
+            catch (Exception ex)
+            {
+                Log.Info($"Exception in {nameof(OnExceptionAsync)} method - {ex.Message}");
+            }
+            
         }           
         return Task.CompletedTask;
     }
