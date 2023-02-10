@@ -5,7 +5,9 @@ VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Parsers", "Parsers\Parsers.csproj", "{86700888-20F9-4C61-A7B6-B3FFD2C07E97}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TgBotForSearchWorkApi", "TgBotForSearchWorkApi\TgBotForSearchWorkApi.csproj", "{AD9A1895-60F5-4DC4-B87F-553BE4E45B1A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TgBotForSearchWorkApi", "TgBotForSearchWorkApi\TgBotForSearchWorkApi.csproj", "{AD9A1895-60F5-4DC4-B87F-553BE4E45B1A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deployf.Botf", "Deployf.Botf\Deployf.Botf.csproj", "{93728193-805F-46B4-8B76-2E4D5E8A4EB5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{AD9A1895-60F5-4DC4-B87F-553BE4E45B1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD9A1895-60F5-4DC4-B87F-553BE4E45B1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD9A1895-60F5-4DC4-B87F-553BE4E45B1A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93728193-805F-46B4-8B76-2E4D5E8A4EB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93728193-805F-46B4-8B76-2E4D5E8A4EB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93728193-805F-46B4-8B76-2E4D5E8A4EB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93728193-805F-46B4-8B76-2E4D5E8A4EB5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

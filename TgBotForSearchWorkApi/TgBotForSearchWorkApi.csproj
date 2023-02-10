@@ -7,12 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Deployf.Botf" Version="0.16.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.2" />
     <PackageReference Include="MongoDB.Driver" Version="2.19.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Deployf.Botf\Deployf.Botf.csproj" />
     <ProjectReference Include="..\Parsers\Parsers.csproj" />
   </ItemGroup>
 
