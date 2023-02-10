@@ -17,7 +17,7 @@ public class UserService
         _userRepository = userRepository;
     }
 
-    public Dictionary<int, UrlToVacancies> GetUserUrlsToVacancies(long chatId, SiteType siteType, CancellationToken cancellationToken)
+    public Dictionary<int, UrlToVacancies> GetUrlsToVacancies(long chatId, SiteType siteType, CancellationToken cancellationToken)
     {
         User user = _userRepository.Get(chatId, cancellationToken);
         string host = SiteTypesToUris.All[siteType].Host;
@@ -30,13 +30,13 @@ public class UserService
         return indexsToUrls;
     }
 
-    public UrlToVacancies GetUserUrlToVacancies(long chatId, int index, CancellationToken cancellationToken)
+    public UrlToVacancies GetUrlToVacancies(long chatId, int index, CancellationToken cancellationToken)
     {
         User user = _userRepository.Get(chatId, cancellationToken);
         return user.Urls[index];
     }
 
-    public async Task<bool> AddUrlToVacancyToUserAsync(long chatId, string url, CancellationToken cancellationToken)
+    public async Task<int> AddUrlToVacancyAsync(long chatId, string url, CancellationToken cancellationToken)
     {       
         try
         {
@@ -47,20 +47,29 @@ public class UserService
                 User user = _userRepository.Get(chatId, cancellationToken);
                 user.AddUrlToVacancias(new(uri));
                 _userRepository.Update(user, cancellationToken);
-                return true;
+                return user.Urls.Count - 1;
             }          
         }
         catch (Exception ex)
         {
             Log.Info(ex.Message);
         }
-        return false;
+        return default;
     }
 
-    public void RemoveUrlToVacancyAtUser(long chatId, int index, CancellationToken cancellationToken)
+    public void RemoveUrlToVacancy(long chatId, int index, CancellationToken cancellationToken)
     {
         User user = _userRepository.Get(chatId, cancellationToken);
         user.RemoveUrlToVacancias(index);
         _userRepository.Update(user, cancellationToken);
     }
+
+    public void ActivateUrlToVacancy(long chatId, int index, bool isActivate, CancellationToken cancellationToken)
+    {
+        User user = _userRepository.Get(chatId, cancellationToken);
+        user.Urls[index].IsActivate = isActivate;
+        _userRepository.Update(user, cancellationToken);
+    }
+
+
 }

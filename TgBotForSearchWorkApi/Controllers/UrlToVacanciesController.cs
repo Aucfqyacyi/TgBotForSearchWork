@@ -40,21 +40,24 @@ public class UrlToVacanciesController : BaseController
     [State]
     private async Task HandleAddingUrl(AddUrlState state)
     {
-        bool result = await _userService.AddUrlToVacancyToUserAsync(ChatId, Context.GetSafeTextPayload()!, CancelToken);
-        if (result)
+        int index = await _userService.AddUrlToVacancyAsync(ChatId, Context.GetSafeTextPayload()!, CancelToken);
+        if (index != default)
         {
-            Push("Посилання було добавленно, бажаєте його активувати?");
-            RowButton("Так", Q(ActivateUrl));
-            RowButton("Ні", Q(ActivateUrl));
+            Push("Посилання було добавленно.");
+            RowButton("Aктивувати", Q(ActivateUrl, index, true));
         }
         else
             Push("Посилання не корректне, або не містить жодної вакансії.");
     }
 
     [Action]
-    private void ActivateUrl()
+    private void ActivateUrl(int index, bool isActivate)
     {
-
+        _userService.ActivateUrlToVacancy(ChatId, index, isActivate, CancelToken);
+        if(isActivate)
+            Send("Посилання активоване.");
+        else
+            Send("Посилання дезактивоване.");
     }
 
     [Action]
@@ -65,30 +68,38 @@ public class UrlToVacanciesController : BaseController
         {
             RowButton(siteType.ToString(), Q(ShowUrlsToVacancies, 0, siteType, next));
         }
+        Send();
     }
 
     [Action]
     private void ShowUrlsToVacancies(int page, SiteType siteType, Delegate next)
     {
         Push($"Виберіть, потрібне посилання");
-        Dictionary<int, UrlToVacancies> indexsToUrls = _userService.GetUserUrlsToVacancies(ChatId, siteType, CancelToken);
+        Dictionary<int, UrlToVacancies> indexsToUrls = _userService.GetUrlsToVacancies(ChatId, siteType, CancelToken);
         var pager = new PagingService();
         var query = indexsToUrls.AsQueryable();
         var pageModel = pager.Paging(query, new PaginationFilter(page));
         Pager(pageModel, indexToUrl => (indexToUrl.Value.WithOutHttps, Q(next, indexToUrl.Key)), 
                                         Q(ShowUrlsToVacancies, "{0}", siteType, next), 1);
+        Send();
     }
 
     [Action]
     private void GetUrlToVacancies(int index)
     {
-        Send(_userService.GetUserUrlToVacancies(ChatId, index, CancelToken).OriginalString);
+        UrlToVacancies urlToVacancies = _userService.GetUrlToVacancies(ChatId, index, CancelToken);
+        if(urlToVacancies.IsActivate)
+            RowButton("Дезактивувати", Q(ActivateUrl, index, false));
+        else
+            RowButton("Активувати", Q(ActivateUrl, index, true));        
+        Push(urlToVacancies.OriginalString);
+        Send();
     }
 
     [Action]
     private void RemoveUrlToVacancies(int index)
     {
-        _userService.RemoveUrlToVacancyAtUser(ChatId, index, CancelToken);
+        _userService.RemoveUrlToVacancy(ChatId, index, CancelToken);
         Send("Посилання видалено.");
     }
 }

@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
+using Telegram.Bot.Types;
 
 namespace TgBotForSearchWork.Models;
 
@@ -37,11 +38,19 @@ public partial class User
         _urls.Remove(urlToVacancies);
     }
 
-    public void RemoveUrlToVacancias(int? index)
+    public void RemoveUrlToVacancias(int index)
     {
-        if (index is null)
+        if (index == default)
             return;
 
-        _urls.RemoveAt(index.Value);
+        _urls.RemoveAt(index);
+    }
+
+    public void ActivateUrlToVacancias(int index)
+    {
+        if (index == default)
+            return;
+
+        Urls[index].IsActivate = true;
     }
 }

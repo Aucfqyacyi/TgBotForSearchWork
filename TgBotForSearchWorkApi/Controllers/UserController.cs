@@ -21,6 +21,12 @@ public class UserController : BaseController
         Send("Вітання!");
     }
 
+    [Action("/adu")]
+    public void AddDefaultUser()
+    {
+        _userRepository.AddDefaultUser();
+    }
+
     [Action(Command.Stop, CommandDescription.Empty)]
     public void Stop()
     {

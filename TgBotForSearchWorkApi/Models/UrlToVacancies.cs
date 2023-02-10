@@ -8,6 +8,8 @@ public partial class UrlToVacancies
     private ulong[] _lastVacanciesIds = new ulong[_lastVacanciesIdsSize];
 
     [BsonElement] public Uri Uri { get; set; }
+    [BsonElement] public bool IsActivate {get; set;} = false;
+
     [BsonElement] public IList<ulong> LastVacanciesIds
     {
         get => _lastVacanciesIds;

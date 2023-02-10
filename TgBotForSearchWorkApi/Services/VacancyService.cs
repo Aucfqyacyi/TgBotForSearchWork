@@ -12,7 +12,8 @@ public class VacancyService
     public async Task<List<Vacancy>> GetRelevantVacanciesAsync(User user, CancellationToken cancellationToken)
     {
         List<Vacancy> vacancies = new();
-        await Parallel.ForEachAsync(user.Urls, cancellationToken, (UrlToVacancies urlToVacancies, CancellationToken cancellationToken) =>
+        var activatedUrls = user.Urls.Where(url => url.IsActivate);
+        await Parallel.ForEachAsync(activatedUrls, cancellationToken, (UrlToVacancies urlToVacancies, CancellationToken cancellationToken) =>
         {
             return GetRelevantVacanciesAsync(urlToVacancies, vacancies, cancellationToken);
         });

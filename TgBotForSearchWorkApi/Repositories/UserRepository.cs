@@ -55,7 +55,7 @@ public class UserRepository
 
     public List<User> GetAll(CancellationToken cancellationToken)
     {
-        return _mongoContext.UserCollection.FindSync(e=> e.ChatId != null, null, cancellationToken)
+        return _mongoContext.UserCollection.FindSync(e => e.ChatId != null, null, cancellationToken)
                                      .ToList(cancellationToken);
     }
 
