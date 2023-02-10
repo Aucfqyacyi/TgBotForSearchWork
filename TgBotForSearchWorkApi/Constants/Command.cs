@@ -1,4 +1,4 @@
-﻿namespace TgBotForSearchWork.Constants;
+﻿namespace TgBotForSearchWorkApi.Constants;
 
 public static class Command
 {

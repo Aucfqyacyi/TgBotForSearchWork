@@ -1,6 +1,6 @@
 ﻿using Deployf.Botf;
-using TgBotForSearchWork.Constants;
-using TgBotForSearchWork.Services;
+using TgBotForSearchWorkApi.Constants;
+using TgBotForSearchWorkApi.Services;
 using TgBotForSearchWorkApi.Constants;
 
 #pragma warning disable CS4014 

@@ -1,8 +1,8 @@
 ﻿using Deployf.Botf;
 using Parsers.Constants;
-using TgBotForSearchWork.Constants;
-using TgBotForSearchWork.Models;
-using TgBotForSearchWork.Services;
+using TgBotForSearchWorkApi.Constants;
+using TgBotForSearchWorkApi.Models;
+using TgBotForSearchWorkApi.Services;
 using TgBotForSearchWorkApi.Constants;
 using TgBotForSearchWorkApi.Models.States;
 using TgBotForSearchWorkApi.Utilities;

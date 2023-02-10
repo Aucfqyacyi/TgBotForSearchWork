@@ -1,7 +1,10 @@
 using Deployf.Botf;
 using MongoDB.Driver;
 using TgBotForSearchWorkApi.Extensions;
+using TgBotForSearchWorkApi.Services;
 
+FilterService filterService = new();
+filterService.CollectFiltersAsync();
 
 BotfProgram.StartBot(args, onConfigure: (services, congif) =>
 {
@@ -15,7 +18,8 @@ BotfProgram.StartBot(args, onConfigure: (services, congif) =>
 
     services.AddSingleton(mongoClient)
             .AddSingleton(mongoClient.GetDatabase(MongoDatabaseName))
-            .AddServices()
+            .AddSingleton(filterService)
+            .AddServices()           
             /*.AddHostedService<VacancyBackgroundService>()*/;
 
 }, onRun: (app, congif) =>

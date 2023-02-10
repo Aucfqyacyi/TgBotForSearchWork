@@ -1,6 +1,6 @@
 ﻿using Deployf.Botf;
 using Telegram.Bot.Types.Enums;
-using TgBotForSearchWork.Utilities;
+using TgBotForSearchWorkApi.Utilities;
 
 #pragma warning disable CS4014 
 namespace TgBotForSearchWorkApi.Controllers;

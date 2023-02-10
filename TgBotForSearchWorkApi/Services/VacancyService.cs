@@ -1,10 +1,10 @@
 ﻿using Parsers.Models;
 using Parsers.VacancyParsers;
-using TgBotForSearchWork.Models;
-using TgBotForSearchWork.Utilities;
+using TgBotForSearchWorkApi.Models;
+using TgBotForSearchWorkApi.Utilities;
 using TgBotForSearchWorkApi.Utilities.Attributes;
 
-namespace TgBotForSearchWork.Services;
+namespace TgBotForSearchWorkApi.Services;
 
 [SingletonService]
 public class VacancyService

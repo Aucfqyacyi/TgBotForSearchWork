@@ -1,6 +1,6 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 
-namespace TgBotForSearchWork.Models;
+namespace TgBotForSearchWorkApi.Models;
 
 public partial class User
 {

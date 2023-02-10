@@ -1,12 +1,11 @@
 ﻿using Deployf.Botf;
 using Parsers.Constants;
 using Parsers.VacancyParsers;
-using System.Text;
-using TgBotForSearchWork.Models;
-using TgBotForSearchWork.Utilities;
+using TgBotForSearchWorkApi.Models;
+using TgBotForSearchWorkApi.Utilities;
 using TgBotForSearchWorkApi.Utilities.Attributes;
 
-namespace TgBotForSearchWork.Services;
+namespace TgBotForSearchWorkApi.Services;
 
 [SingletonService]
 public class UserService

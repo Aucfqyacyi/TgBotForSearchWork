@@ -1,4 +1,4 @@
-﻿namespace TgBotForSearchWork.Utilities;
+﻿namespace TgBotForSearchWorkApi.Utilities;
 
 internal static class Log
 {

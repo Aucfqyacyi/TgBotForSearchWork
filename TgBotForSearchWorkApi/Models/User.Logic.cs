@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using Telegram.Bot.Types;
 
-namespace TgBotForSearchWork.Models;
+namespace TgBotForSearchWorkApi.Models;
 
 public partial class User
 {

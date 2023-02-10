@@ -1,5 +1,5 @@
 ﻿using MongoDB.Driver;
-using TgBotForSearchWork.Models;
+using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Utilities.Attributes;
 
 namespace TgBotForSearchWorkApi.Utilities;

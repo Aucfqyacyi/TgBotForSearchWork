@@ -1,9 +1,9 @@
 ﻿using Parsers.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
-using TgBotForSearchWork.Models;
-using TgBotForSearchWork.Services;
-using TgBotForSearchWork.Utilities;
+using TgBotForSearchWorkApi.Models;
+using TgBotForSearchWorkApi.Services;
+using TgBotForSearchWorkApi.Utilities;
 
 namespace TgBotForSearchWorkApi.Services;
 

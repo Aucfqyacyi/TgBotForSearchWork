@@ -1,9 +1,9 @@
 ﻿using MongoDB.Driver;
-using TgBotForSearchWork.Models;
+using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Utilities;
 using TgBotForSearchWorkApi.Utilities.Attributes;
 
-namespace TgBotForSearchWork.Services;
+namespace TgBotForSearchWorkApi.Services;
 
 [SingletonService]
 public class UserRepository
