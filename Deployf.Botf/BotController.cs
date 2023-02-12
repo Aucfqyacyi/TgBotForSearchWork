@@ -1,4 +1,5 @@
 ﻿using Deployf.Botf.System;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Linq.Expressions;
 using Telegram.Bot;
 using Telegram.Bot.Framework.Abstractions;
@@ -206,9 +207,12 @@ public abstract class BotController
 
     protected async Task AnswerCallback(string? text = null)
     {
-        await Client.AnswerCallbackQueryAsync(Context!.GetCallbackQuery().Id,
+        if (Context.GetCallbackQuery() is not null)
+        {
+            await Client.AnswerCallbackQueryAsync(Context!.GetCallbackQuery().Id,
             text,
             cancellationToken: CancelToken);
+        }        
     }
 
     public async Task<Message?> Send(SendMessageOptions? sendMessageOptions = null)
@@ -376,6 +380,14 @@ public abstract class BotController
     public void Pager<T>(Paging<T> page, Func<T, (string text, string data)> row, string format, int buttonsInRow = 2)
     {
         Message.Pager(page, row, format, buttonsInRow);
+    }
+
+    public void Pager<T>(IEnumerable<T> entities, int page, Func<T, (string text, string data)> row, string format, int buttonsInRow = 2)
+    {
+        var pager = new PagingService();
+        var query = entities.AsQueryable();
+        var pageModel = pager.Paging(query, new(page));
+        Message.Pager(pageModel, row, format, buttonsInRow);
     }
 
     public void Reply(int? messageId = default)

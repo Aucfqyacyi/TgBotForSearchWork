@@ -1,6 +1,8 @@
 ﻿using Deployf.Botf;
 using Parsers.Constants;
+using Parsers.Models;
 using Parsers.VacancyParsers;
+using System.Web;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Utilities;
 using TgBotForSearchWorkApi.Utilities.Attributes;
@@ -57,6 +59,25 @@ public class UserService
             Log.Info(ex.Message);
         }
         return default;
+    }
+
+    public int CreateOrUpdateUrlToVacancies(long chatId, int urlIndex, SiteType siteType, Filter filter, CancellationToken cancellationToken)
+    {
+        User user = _userRepository.Get(chatId, cancellationToken);
+        if (urlIndex == 0)
+        {
+            user.AddUrlToVacancias(new(SiteTypesToUris.All[siteType]));
+            urlIndex = user.Urls.Count - 1;
+        }
+        UrlToVacancies urlToVacancies = user.Urls[urlIndex];
+        UriBuilder uriBuilder = new(urlToVacancies.Uri);
+        var query = HttpUtility.ParseQueryString(uriBuilder.Query);
+        query.Add(filter.GetParametrName, filter.GetParametrValue);
+        uriBuilder.Query = query.ToString();
+        urlToVacancies.Uri = uriBuilder.Uri;
+        urlToVacancies.IsActivate = false;
+        _userRepository.Update(user, cancellationToken);
+        return urlIndex;
     }
 
     public void RemoveUrlToVacancy(long chatId, int index, CancellationToken cancellationToken)

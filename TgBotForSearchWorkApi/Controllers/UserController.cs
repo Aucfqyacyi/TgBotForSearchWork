@@ -1,12 +1,11 @@
 ﻿using Deployf.Botf;
 using TgBotForSearchWorkApi.Constants;
 using TgBotForSearchWorkApi.Services;
-using TgBotForSearchWorkApi.Constants;
 
-#pragma warning disable CS4014 
+
 namespace TgBotForSearchWorkApi.Controllers;
 
-public class UserController : BaseController
+public class UserController : BotController
 {
     private readonly UserRepository _userRepository;
 
@@ -16,10 +15,10 @@ public class UserController : BaseController
     }
 
     [Action(Command.Start, CommandDescription.Empty)]
-    public void Start()
+    public async Task Start()
     {
         _userRepository.Add(ChatId, CancelToken);
-        Send("Вітання!");
+        await Send("Вітання!");
     }
 
     [Action("/adu")]
@@ -29,15 +28,15 @@ public class UserController : BaseController
     }
 
     [Action(Command.Stop, CommandDescription.Empty)]
-    public void Stop()
+    public async Task Stop()
     {
         _userRepository.Remove(ChatId, CancelToken);
-        Send("До побачення!");
+        await Send("До побачення!");
     }
 
-    [Action(Command.Test, CommandDescription.Empty)]
-    public void Test()
+    [Action(Command.Test)]
+    public async Task Test()
     {
-        Send($"Тестовий визов.");
+        await Send($"Тестовий визов.");
     }
 }

@@ -67,14 +67,6 @@ internal static class IElementExtension
         return url;
     }
 
-    public static string GetParametersFromHrefAttribute(this IElement element)
-    {
-        string hrefAttribute = GetHrefAttribute(element);
-        if(hrefAttribute.IsNullOrEmpty())
-            return string.Empty;
-        return hrefAttribute.Split('?')[1];
-    }
-
     public static string GetHrefAttribute(this IElement element, string host)
     {
         string? url = GetHrefAttribute(element);

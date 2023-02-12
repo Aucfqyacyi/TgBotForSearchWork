@@ -25,14 +25,21 @@ internal class DouFilterParser : FilterParser
     {
         IHtmlCollection<IElement> categories = document.GetElementsByTagName(_category.TagName);
         foreach (var categoryElement in categories)
-            filters.Add(CreateFilterFromCategory(categoryElement));
+        {
+            Filter? filter = CreateFilterFromCategory(categoryElement);
+            if(filter is not null)
+                filters.Add(filter);
+        }
+            
     }
 
-    protected Filter CreateFilterFromCategory(IElement filterElement)
+    protected Filter? CreateFilterFromCategory(IElement filterElement)
     {
         string filterName = filterElement.GetFirstChildTextContent();
         string filterGetParamater = filterElement.GetValueAttribute();
-        return new(filterName, "Категорії", "category=" + filterGetParamater, FilterType.CheckBox);
+        if (filterGetParamater.IsNullOrEmpty())
+            return null;
+        return new(filterName, "Категорії", "category", filterGetParamater, FilterType.CheckBox);
     }
 
     protected void CollectFiltersFromFilterRegion(IDocument document, List<Filter> filters)
@@ -63,8 +70,8 @@ internal class DouFilterParser : FilterParser
     protected Filter CreateFilterFromFilterRegion(IElement filterElement, string category)
     {
         string filterName = filterElement.GetFirstChildTextContent();
-        string filterGetParamater = filterElement.FirstElementChild!.GetParametersFromHrefAttribute();
-        return new(filterName, category, filterGetParamater, FilterType.CheckBox);
+        string[] splitedGetParamater = filterElement.FirstElementChild!.GetHrefAttribute().Split('?').Last().Split('=');
+        return new(filterName, category, splitedGetParamater.First(), splitedGetParamater.Last(), FilterType.CheckBox);
     }
 
 

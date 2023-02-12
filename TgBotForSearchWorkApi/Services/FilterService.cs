@@ -7,9 +7,11 @@ namespace TgBotForSearchWorkApi.Services;
 
 public class FilterService
 {
-    public IReadOnlyDictionary<SiteType, List<Filter>> SiteTypeToFilters { get => _siteTypeToFilters; }
-    private SortedDictionary<SiteType, List<Filter>> _siteTypeToFilters = new();
-    private object _lock = new object();
+    private SortedDictionary<SiteType, SortedDictionary<string, List<Filter>>> _siteTypeTo_CategoriesToFilters = new();
+    public IReadOnlyDictionary<SiteType, SortedDictionary<string, List<Filter>>> SiteTypeTo_CategoriesToFilters
+    {
+        get => _siteTypeTo_CategoriesToFilters;
+    }
 
     public Task CollectFiltersAsync(CancellationToken cancellationToken = default)
     {
@@ -20,25 +22,28 @@ public class FilterService
     {
         IFilterParser filterParser = FilterParserFactory.CreateFilterParser(siteTypeToUri.Key);
         List<Filter> filters = await filterParser.ParseAsync(siteTypeToUri.Value, cancellationToken);
-        lock (_lock)
+        SortedDictionary<string, List<Filter>> categoriesToFilters = new();
+        foreach (Filter filter in filters)
         {
-            _siteTypeToFilters.Add(siteTypeToUri.Key, filters);
+            List<Filter>? filteredFilters = categoriesToFilters.GetValueOrDefault(filter.CategoryName);
+            if (filteredFilters is null)
+            {
+                filteredFilters= new List<Filter>();
+                categoriesToFilters.Add(filter.CategoryName, filteredFilters);
+            }
+            filteredFilters.Add(filter);
         }
+        lock (this)
+            _siteTypeTo_CategoriesToFilters.Add(siteTypeToUri.Key, categoriesToFilters);
     }
 
-    public List<string> GetFilterCategories(string siteType)
+    public Dictionary<int, Filter> GetIndexInListToFilters(SiteType siteType, string category) 
     {
-        return GetFilterCategories(Enum.Parse<SiteType>(siteType));
-    }
-
-    public List<string> GetFilterCategories(SiteType siteType)
-    {
-        return _siteTypeToFilters[siteType].Aggregate(new List<string>(), (categoryNames, filters) =>
+        int i = 0;
+        return SiteTypeTo_CategoriesToFilters[siteType][category].Aggregate(new Dictionary<int, Filter>(), (indexsToFilters, filter) =>
         {
-            if(!categoryNames.Contains(filters.CategoryName))
-                categoryNames.Add(filters.CategoryName);
-            return categoryNames;
+            indexsToFilters.Add(i++, filter);
+            return indexsToFilters;
         });
     }
-
 }

@@ -55,7 +55,7 @@ public class UserRepository
 
     public List<User> GetAll(CancellationToken cancellationToken)
     {
-        return _mongoContext.UserCollection.FindSync(e => true, null, cancellationToken)
+        return _mongoContext.UserCollection.FindSync(Builders<User>.Filter.Empty, null, cancellationToken)
                                      .ToList(cancellationToken);
     }
 

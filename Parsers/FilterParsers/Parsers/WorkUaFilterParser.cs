@@ -46,14 +46,14 @@ internal class WorkUaFilterParser : FilterParser
     protected Filter CreateFilter(string category, IElement input, IElement elementWithId)
     {
         string filterName = input.GetNearestSiblingTextContent();
-        string filterGetParam = elementWithId.Id!.Replace(_textToCut, string.Empty) + "=" + input.GetValueAttribute();
-        return new(filterName, category, filterGetParam, FilterType.CheckBox);    
+        string filterGetParam = elementWithId.Id!.Replace(_textToCut, string.Empty);
+        return new(filterName, category, filterGetParam, input.GetValueAttribute(), FilterType.CheckBox);    
     }
 
     protected void CollectFiltersFromCities(List<Filter> filters)
     {
         string category = "Міста";
-        string getParamName = "region=";
+        string getParamName = "region";
         string[] cities = { "Вінниця" , "Дніпро", "Донецьк", "Житомир", "Запоріжжя", "Івано-Франківськ","Київ",
                             "Кропивницький", "Сімферополь", "Луганськ", "Луцьк", "Львів",  "Миколаїв", "Одеса",
                             "Полтава","Рівне","Суми", "Тернопіль", "Ужгород", "Харків","Херсон", "Хмельницький",
@@ -61,7 +61,7 @@ internal class WorkUaFilterParser : FilterParser
         int id = 60;
         for (int i = cities.Length - 1; i >=  0; i--, id--)
         {
-            filters.Add(new(cities[i], category, getParamName + id, FilterType.CheckBox));
+            filters.Add(new(cities[i], category, getParamName, id.ToString(), FilterType.CheckBox));
         }
 
     }
