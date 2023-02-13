@@ -1,4 +1,5 @@
-﻿using Parsers.Constants;
+﻿using AngleSharp.Io;
+using Parsers.Constants;
 using Parsers.VacancyParsers.Parsers;
 
 namespace Parsers.VacancyParsers;
@@ -10,13 +11,21 @@ public static class VacancyParserFactory
 
     public static IVacancyParser CreateVacancyParser(Uri uri)
     {
-        if (SiteTypesToUris.All[SiteType.Dou].Host == uri.Host)
-            return CreateVacancyParser<DouVacancyParser>(SiteType.Dou);
-        if (SiteTypesToUris.All[SiteType.Djinni].Host == uri.Host)
-            return CreateVacancyParser<DjinniVacancyParser>(SiteType.Djinni);
-        if (SiteTypesToUris.All[SiteType.WorkUa].Host == uri.Host)
-            return CreateVacancyParser<WorkUaVacancyParser>(SiteType.WorkUa);
-        throw new Exception($"Host({uri.Host}) was not found");
+        return CreateVacancyParser(SiteTypesToUris.HostsToSiteTypes[uri.Host]);
+    }
+
+    public static IVacancyParser CreateVacancyParser(SiteType  siteType)
+    {
+        switch (siteType)
+        {
+            case SiteType.Dou:
+                return CreateVacancyParser<DouVacancyParser>(siteType);
+            case SiteType.Djinni:
+                return CreateVacancyParser<DjinniVacancyParser>(siteType);
+            case SiteType.WorkUa:
+                return CreateVacancyParser<WorkUaVacancyParser>(siteType);
+        }
+        throw new Exception($"Parser with sitetype({siteType}) was not found.");
     }
 
     private static IVacancyParser CreateVacancyParser<TParser>(SiteType site) 

@@ -1,9 +1,10 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace TgBotForSearchWorkApi.Models;
 
 public partial class User
 {
-    [BsonId] public long ChatId { get; set; }
-    [BsonElement(nameof(Urls))] public List<UrlToVacancies> _urls = new();
+    [BsonId] public long Id { get; set; }
+    [BsonElement] public List<ObjectId> UrlIds = new();
 }

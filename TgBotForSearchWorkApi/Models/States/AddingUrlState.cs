@@ -1,5 +1,5 @@
 ﻿namespace TgBotForSearchWorkApi.Models.States;
 
-public struct AddUrlState
+public struct AddingUrlState
 {
 }

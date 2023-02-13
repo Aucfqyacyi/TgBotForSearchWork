@@ -29,7 +29,10 @@ internal class WorkUaFilterParser : FilterParser
 
     protected void CollectFiltersFromFilterGroup(IElement filterGroup, List<Filter> filters, params HtmlElement[] tags)
     {
-        string category = filterGroup.GetElement(_filterGroupTitle)?.GetFirstChildTextContent() ?? string.Empty;       
+        string? categoryName = filterGroup.GetElement(_filterGroupTitle)?.GetFirstChildTextContent();
+        if (categoryName is null)
+            return;
+        FilterCategory category = new(categoryName);
         List<IElement> elementsWithId = filterGroup.GetElementsWithId(_div);
         foreach (var elementWithId in elementsWithId)
         {
@@ -43,16 +46,17 @@ internal class WorkUaFilterParser : FilterParser
         }
     }
 
-    protected Filter CreateFilter(string category, IElement input, IElement elementWithId)
+    protected Filter CreateFilter(FilterCategory category, IElement input, IElement elementWithId)
     {
         string filterName = input.GetNearestSiblingTextContent();
-        string filterGetParam = elementWithId.Id!.Replace(_textToCut, string.Empty);
-        return new(filterName, category, filterGetParam, input.GetValueAttribute(), FilterType.CheckBox);    
+        string getParamName = elementWithId.Id!.Replace(_textToCut, string.Empty);
+        GetParametr getParametr = new(getParamName, input.GetValueAttribute());
+        return new(filterName, category, getParametr, FilterType.CheckBox);    
     }
 
     protected void CollectFiltersFromCities(List<Filter> filters)
     {
-        string category = "Міста";
+        FilterCategory category = new("Міста");
         string getParamName = "region";
         string[] cities = { "Вінниця" , "Дніпро", "Донецьк", "Житомир", "Запоріжжя", "Івано-Франківськ","Київ",
                             "Кропивницький", "Сімферополь", "Луганськ", "Луцьк", "Львів",  "Миколаїв", "Одеса",
@@ -61,7 +65,8 @@ internal class WorkUaFilterParser : FilterParser
         int id = 60;
         for (int i = cities.Length - 1; i >=  0; i--, id--)
         {
-            filters.Add(new(cities[i], category, getParamName, id.ToString(), FilterType.CheckBox));
+            GetParametr getParametr = new(getParamName, id.ToString());
+            filters.Add(new(cities[i], category, getParametr, FilterType.CheckBox));
         }
 
     }

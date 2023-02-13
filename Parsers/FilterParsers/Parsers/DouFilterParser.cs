@@ -17,39 +17,41 @@ internal class DouFilterParser : FilterParser
 
     protected override void CollectFilters(IDocument document, List<Filter> filters)
     {
-        CollectFiltersFromCategories(document, filters);
+        FilterCategory category = new("Категорії");
+        CollectFiltersFromCategories(document, filters, category);
         CollectFiltersFromFilterRegion(document, filters);
     }
 
-    protected void CollectFiltersFromCategories(IDocument document, List<Filter> filters)
+    protected void CollectFiltersFromCategories(IDocument document, List<Filter> filters, FilterCategory category)
     {
         IHtmlCollection<IElement> categories = document.GetElementsByTagName(_category.TagName);
         foreach (var categoryElement in categories)
         {
-            Filter? filter = CreateFilterFromCategory(categoryElement);
+            Filter? filter = CreateFilterFromCategory(categoryElement, category);
             if(filter is not null)
                 filters.Add(filter);
         }
             
     }
 
-    protected Filter? CreateFilterFromCategory(IElement filterElement)
+    protected Filter? CreateFilterFromCategory(IElement filterElement, FilterCategory category)
     {
         string filterName = filterElement.GetFirstChildTextContent();
         string filterGetParamater = filterElement.GetValueAttribute();
         if (filterGetParamater.IsNullOrEmpty())
             return null;
-        return new(filterName, "Категорії", "category", filterGetParamater, FilterType.CheckBox);
+        GetParametr getParametr = new("category", filterGetParamater);
+        return new(filterName, category, getParametr, FilterType.CheckBox);
     }
 
     protected void CollectFiltersFromFilterRegion(IDocument document, List<Filter> filters)
     {
         IElement? filterRegion = document.GetElementsByClassName(_filterRegion.CssClassName).FirstOrDefault();
-        if (filterRegion == null)
+        if (filterRegion is null)
             return;
 
         List<IElement> uls = filterRegion.GetElements(_ul);
-        if (uls == null)
+        if (uls is null)
             return;
 
         foreach (var ul in uls)
@@ -58,20 +60,24 @@ internal class DouFilterParser : FilterParser
 
     protected void CollectFiltersFromFilterRegion(IElement ul, List<Filter> filters)
     {
-        string category = ul.PreviousElementSibling!.GetFirstChildTextContent();
+        string? categoryName = ul.PreviousElementSibling?.GetFirstChildTextContent();
+        if (categoryName is null)
+            return;
+        FilterCategory category = new(categoryName);
         List<IElement> lis = ul.GetElements(_li);
-        if (lis == null)
+        if (lis is null)
             return;
 
         for (int i = 1; i < lis.Count; i++)
             filters.Add(CreateFilterFromFilterRegion(lis[i], category));
     }
 
-    protected Filter CreateFilterFromFilterRegion(IElement filterElement, string category)
+    protected Filter CreateFilterFromFilterRegion(IElement filterElement, FilterCategory category)
     {
         string filterName = filterElement.GetFirstChildTextContent();
         string[] splitedGetParamater = filterElement.FirstElementChild!.GetHrefAttribute().Split('?').Last().Split('=');
-        return new(filterName, category, splitedGetParamater.First(), splitedGetParamater.Last(), FilterType.CheckBox);
+        GetParametr getParametr = new(splitedGetParamater.First(), splitedGetParamater.Last());
+        return new(filterName, category, getParametr, FilterType.CheckBox);
     }
 
 

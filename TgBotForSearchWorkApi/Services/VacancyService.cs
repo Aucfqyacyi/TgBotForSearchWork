@@ -12,18 +12,18 @@ public class VacancyService
     public async Task<List<Vacancy>> GetRelevantVacanciesAsync(User user, CancellationToken cancellationToken)
     {
         List<Vacancy> vacancies = new();
-        var activatedUrls = user.Urls.Where(url => url.IsActivate);
+/*        var activatedUrls = user.UrlIds.Where(url => url.IsActivate);
         await Parallel.ForEachAsync(activatedUrls, cancellationToken, (UrlToVacancies urlToVacancies, CancellationToken cancellationToken) =>
         {
             return GetRelevantVacanciesAsync(urlToVacancies, vacancies, cancellationToken);
-        });
+        });*/
         return vacancies;
     }
 
     private async ValueTask GetRelevantVacanciesAsync(UrlToVacancies urlToVacancies, List<Vacancy> vacancies, CancellationToken cancellationToken)
     {
         List<Vacancy> relevantVacancies = await GetRelevantVacanciesAsync(urlToVacancies, cancellationToken);
-        Log.Info($"{urlToVacancies.Host} has number of vacancies {relevantVacancies.Count}");
+        Log.Info($"{urlToVacancies.Uri.Host} has number of vacancies {relevantVacancies.Count}");
         if (relevantVacancies.Count == 0)
             return;
         urlToVacancies.LastVacanciesIds = relevantVacancies.Select(e => e.Id).ToList();        

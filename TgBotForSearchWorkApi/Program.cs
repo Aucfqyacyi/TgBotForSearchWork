@@ -4,7 +4,7 @@ using TgBotForSearchWorkApi.Extensions;
 using TgBotForSearchWorkApi.Services;
 
 FilterService filterService = new();
-filterService.CollectFiltersAsync();
+filterService.CollectFiltersAsync().ConfigureAwait(false);
 
 BotfProgram.StartBot(args, onConfigure: (services, congif) =>
 {

@@ -1,17 +1,19 @@
 ﻿using Deployf.Botf;
+using MongoDB.Bson;
 using TgBotForSearchWorkApi.Constants;
 using TgBotForSearchWorkApi.Services;
-
 
 namespace TgBotForSearchWorkApi.Controllers;
 
 public class UserController : BotController
 {
     private readonly UserRepository _userRepository;
+    private readonly DefaultUserService _defaultUserService;
 
-    public UserController(UserRepository userRepository)
+    public UserController(UserRepository userRepository, DefaultUserService defaultUserService)
     {
         _userRepository = userRepository;
+        _defaultUserService = defaultUserService;
     }
 
     [Action(Command.Start, CommandDescription.Empty)]
@@ -24,7 +26,7 @@ public class UserController : BotController
     [Action("/adu")]
     public void AddDefaultUser()
     {
-        _userRepository.AddDefaultUser();
+        _defaultUserService.AddDefaultUser();
     }
 
     [Action(Command.Stop, CommandDescription.Empty)]

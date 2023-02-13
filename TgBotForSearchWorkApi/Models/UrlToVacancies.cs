@@ -1,4 +1,7 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using Parsers.Constants;
+using TgBotForSearchWorkApi.Extensions;
 
 namespace TgBotForSearchWorkApi.Models;
 
@@ -7,8 +10,12 @@ public partial class UrlToVacancies
     private const int _lastVacanciesIdsSize = 5;
     private ulong[] _lastVacanciesIds = new ulong[_lastVacanciesIdsSize];
 
+    [BsonId] public ObjectId Id { get; set; }
+    [BsonElement] public HashSet<long> UserIds { get; set; } = new();
     [BsonElement] public Uri Uri { get; set; }
+    [BsonElement] public string HashedUrl { get => Uri.OriginalString.GetMD5(); }
     [BsonElement] public bool IsActivate {get; set;} = false;
+    [BsonElement] public SiteType SiteType { get; set; }
 
     [BsonElement] public IList<ulong> LastVacanciesIds
     {

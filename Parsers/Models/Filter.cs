@@ -1,27 +1,23 @@
 ﻿using Parsers.Constants;
+using Parsers.Utilities;
 
 namespace Parsers.Models;
 
 public class Filter
 {
+    public int Id { get; set; }
     public string Name { get; set; }
-    public string CategoryName { get; set; }
-    public string GetParametrName { get; set; }
-    public string GetParametrValue { get; set; }
+    public FilterCategory Category { get; set; }
+    public GetParametr GetParametr { get; set; }
     public FilterType FilterType { get; set; }
 
-    public Filter(string name, string categoryName, string getParametrName, string getParametrValue, FilterType filterType)
+    public Filter(string name, FilterCategory category, GetParametr getParametr, FilterType filterType)
     {
+        Id = UniqueIntGenerator.Generate();
         Name = name;
-        GetParametrName = getParametrName;
-        GetParametrValue = getParametrValue;
+        GetParametr = getParametr;
         FilterType = filterType;
-        CategoryName = categoryName;
-    }
-
-    public override string ToString()
-    {
-        return Name;
+        Category = category;
     }
 
 }

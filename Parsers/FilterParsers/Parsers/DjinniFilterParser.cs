@@ -26,15 +26,19 @@ internal class DjinniFilterParser : FilterParser
         if (filterElements == null)
             return;
 
-        string category = set.PreviousElementSibling?.GetFirstChildTextContent() ?? string.Empty;
+        string? categoryName = set.PreviousElementSibling?.GetFirstChildTextContent();
+        if (categoryName is null)
+            return;
+        FilterCategory filterCategory = new(categoryName);
         foreach (var filterElement in filterElements)
-            filters.Add(CreateFilter(filterElement, category));
+            filters.Add(CreateFilter(filterElement, filterCategory));
     }
 
-    protected Filter CreateFilter(IElement filterElement, string category)
+    protected Filter CreateFilter(IElement filterElement, FilterCategory category)
     {
         string filterName = filterElement.GetFirstChildTextContent();
         string[] splitedGetParamater = filterElement.GetHrefAttribute().TrimStart('?').Split('=');
-        return new(filterName, category, splitedGetParamater.First(), splitedGetParamater.Last(), FilterType.CheckBox);
+        GetParametr getParametr = new(splitedGetParamater.First(), splitedGetParamater.Last());
+        return new(filterName, category, getParametr, FilterType.CheckBox);
     }
 }

@@ -1,12 +1,10 @@
 ﻿using Deployf.Botf;
+using MongoDB.Bson;
 using Parsers.Constants;
-using Parsers.Extensions;
 using Parsers.Models;
-using System;
-using Telegram.Bot.Types;
 using TgBotForSearchWorkApi.Constants;
+using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Models.States;
-using TgBotForSearchWorkApi.Services;
 
 
 namespace TgBotForSearchWorkApi.Controllers;
@@ -16,71 +14,78 @@ public partial class UrlToVacanciesController
     [Action(Command.CreateUrl, CommandDescription.Empty)]
     public void CreateUrl()
     {
-        ShowSiteNamesThenShowFilterCategories(0);
+        GetSiteNamesThenGetFilterCategories(null);
     }
 
     [Action]
-    private void ShowSiteNamesThenShowFilterCategories(int urlIndex)
+    private void GetSiteNamesThenGetFilterCategories(ObjectId? urlId)
     {
-        ShowSiteNames(siteType => Q(ShowFilterCategories, 0, urlIndex, siteType));
+        GetSiteNames(siteType => Q(GetFilterCategories, 0, urlId, siteType));
     }
 
     [Action]
-    private void ShowFilterCategories(int page, int urlIndex, SiteType siteType)
+    private void GetFilterCategories(int page, ObjectId? urlId, SiteType siteType)
     {
         Push($"Виберіть, потрібну категорію для фільтра.");
-        var categories = _filterService.SiteTypeTo_CategoriesToFilters[siteType].Keys;
-        Pager(categories, page, category => (category, Q(ShowFilters, 0, urlIndex, siteType, category)),
-                                        Q(ShowFilterCategories, FirstPage, urlIndex, siteType), 1);
-        RowButton(Back, Q(CreateUrl));
+        var categories = _filterService.SiteTypeToCategoriesToFilters[siteType].Keys;
+        Pager(categories, page, category => (category.Name, Q(GetFilters, 0, urlId, siteType, category.Id)),
+                                        Q(GetFilterCategories, FirstPage, urlId, siteType), 1);
+        //AddExtraButtonsToList(urlIndex, siteType);
+        RowButton(Back, Q(GetSiteNamesThenGetFilterCategories, urlId));
     }
 
     [Action]
-    private async Task ShowFilters(int page, int urlIndex, SiteType siteType, string category)
+    private void GetFilters(int page, ObjectId? urlId, SiteType siteType, int categoryId)
     {
         Push($"Виберіть, потрібний фільтр.");
-        Dictionary<int, Filter> indexsToFilters = _filterService.GetIndexInListToFilters(siteType, category);
-        if(indexsToFilters.Count == 1 && indexsToFilters.First().Value.FilterType == FilterType.Text)
-        {
-            await AddFilterToUrlAsync(urlIndex, siteType, category, indexsToFilters.First().Key);
-            return;
-        }
-        string format = Q(ShowFilters, FirstPage, urlIndex, siteType, category);
-        Pager(indexsToFilters, page, indexsToFilters =>
-                        (indexsToFilters.Value.Name, Q(AddFilterToUrlAsync, urlIndex, siteType, category, indexsToFilters.Key)),
+        var idsToFilters = _filterService.SiteTypeToCategoriesToFilters[siteType][categoryId];
+        string format = Q(GetFilters, FirstPage, urlId, siteType, categoryId);
+        Pager(idsToFilters, page, idToFilter =>
+                        (idToFilter.Value.Name, Q(AddFilterToUrlAsync, urlId, siteType, categoryId, idToFilter.Key)),
                         format);
-        if(urlIndex != 0)
+        //AddExtraButtonsToList(urlId, siteType);
+        RowButton(Back, Q(GetFilterCategories, 0, urlId, siteType));
+    }
+
+    private void AddExtraButtonsToList(int urlIndex, SiteType siteType)
+    {
+        if (urlIndex != 0)
             RowButton("Aктивувати нове посилання", Q(ActivateUrl, urlIndex, true));
-        RowButton(Back, Q(ShowFilterCategories, 0, urlIndex, siteType));
+
     }
 
     [Action]
-    private async Task AddFilterToUrlAsync(int urlIndex, SiteType siteType, string category, int filterIndex)
+    private async Task AddFilterToUrlAsync(ObjectId? urlId, SiteType siteType, int categoryId, int filterId)
     {
-        Filter filter = _filterService.SiteTypeTo_CategoriesToFilters[siteType][category][filterIndex];
+        Filter filter = _filterService.SiteTypeToCategoriesToFilters[siteType][categoryId][filterId];
         if (filter.FilterType == FilterType.CheckBox)
         {
-            CreateOrUpdateUrlToVacanciesAsync(urlIndex, siteType, filter);
+            await CreateOrUpdateUrlToVacanciesAsync(urlId, siteType, filter.GetParametr);
         }
         else
         {
-            await State(new AddGetParametrValueState(urlIndex, filter, siteType));
+            await State(new AddingSearchFilterToUrlState(urlId, filter.GetParametr.Name, siteType));
             await Send("Введіть пошуковий запит.");
         }
             
     }
 
     [State]
-    private void AddSearchFilterToUrl(AddGetParametrValueState state)
-    {
-        state.Filter.GetParametrValue = Context.GetSafeTextPayload()!;
-        CreateOrUpdateUrlToVacanciesAsync(state.UrlIndex, state.SiteType, state.Filter);
+    private async Task AddSearchFilterToUrlAsync(AddingSearchFilterToUrlState state)
+    {        
+        string getParametrValue = Context.GetSafeTextPayload()!;
+        GetParametr getParametr = new(state.GetParametrName, getParametrValue);
+        await CreateOrUpdateUrlToVacanciesAsync(state.UrlId, state.SiteType, getParametr);
     }
 
-    [Action]
-    private void CreateOrUpdateUrlToVacanciesAsync(int urlIndex, SiteType siteType, Filter filter)
+    private async Task CreateOrUpdateUrlToVacanciesAsync(ObjectId? urlId, SiteType siteType, GetParametr getParametr)
     {
-        int index = _userService.CreateOrUpdateUrlToVacancies(ChatId, urlIndex, siteType, filter, CancelToken);
-        ShowFilterCategories(0, index, siteType);
+        UrlToVacancies? urlToVacancies = null;
+        if (urlId is null)
+            urlToVacancies = _urlToVacanciesService.Create(ChatId, siteType, getParametr, CancelToken);
+        else
+            urlToVacancies = _urlToVacanciesService.Update(ChatId, urlId.Value, getParametr, CancelToken);
+        GetFilterCategories(0, urlToVacancies.Id, siteType);
+        await AnswerCallback("Ok");
     }
 }

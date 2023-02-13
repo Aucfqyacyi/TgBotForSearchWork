@@ -4,7 +4,7 @@ using TgBotForSearchWorkApi.Constants;
 using TgBotForSearchWorkApi.Models.States;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Services;
-
+using MongoDB.Bson;
 
 namespace TgBotForSearchWorkApi.Controllers;
 
@@ -13,73 +13,73 @@ public partial class UrlToVacanciesController : BotController
     protected readonly string Back = "Назад";
     protected readonly string FirstPage = "{0}";
 
-    protected readonly UserService _userService;
+    protected readonly UrlToVacanciesService _urlToVacanciesService;
     protected readonly FilterService _filterService;
+    protected readonly UserService _userService;
 
-    public UrlToVacanciesController(UserService userService, FilterService filterService)
+    public UrlToVacanciesController(FilterService filterService, UrlToVacanciesService urlToVacanciesService, UserService userService)
     {
-        _userService = userService;
         _filterService = filterService;
+        _urlToVacanciesService = urlToVacanciesService;
+        _userService = userService;
     }
 
     [Action(Command.GetUrl, CommandDescription.Empty)]
     public void GetUrl()
     {
-        ShowSiteNamesThenShowUrlsToVacancies(GetUrlToVacancies);
+        GetSiteNamesThenGetUrlsToVacancies(GetUrlToVacancies);
     }
 
     [Action(Command.RemoveUrl, CommandDescription.Empty)]
     public void RemoveUrl()
     {
-        ShowSiteNamesThenShowUrlsToVacancies(RemoveUrlToVacancies);
+        GetSiteNamesThenGetUrlsToVacancies(RemoveUrlToVacancies);
     }
 
     [Action(Command.AddUrl, CommandDescription.Empty)]
     public void AddUrl()
     {
-        State(new AddUrlState());
+        State(new AddingUrlState());
         Push("Напишіть посилання у повному форматі, яке бажаєте додати.");
     }
 
     [Action]
-    private void ShowSiteNamesThenShowUrlsToVacancies(Delegate next)
+    private void GetSiteNamesThenGetUrlsToVacancies(Delegate next)
     {
-        ShowSiteNames(siteType => Q(ShowUrlsToVacancies, 0, siteType, next));
+        GetSiteNames(siteType => Q(GetUrlsToVacancies, 0, siteType, next));
     }
 
     [Action]
-    private void ShowUrlsToVacancies(int page, SiteType siteType, Delegate next)
+    private void GetUrlsToVacancies(int page, SiteType siteType, Delegate next)
     {
         Push($"Виберіть, потрібне посилання.");
-        Dictionary<int, UrlToVacancies> indexsToUrls = _userService.GetUrlsToVacancies(ChatId, siteType, CancelToken);
-        Pager(indexsToUrls, page, indexToUrl => (indexToUrl.Value.WithOutHttps, Q(next, indexToUrl.Key)),
-                                        Q(ShowUrlsToVacancies, FirstPage, siteType, next), 1);
-        RowButton(Back, Q(ShowSiteNamesThenShowUrlsToVacancies, next));
+        List<UrlToVacancies> indexsToUrls = _urlToVacanciesService.GetAll(ChatId, siteType, CancelToken);
+        Pager(indexsToUrls, page, indexToUrl => (indexToUrl.WithoutHttps, Q(next, indexToUrl.Id)),
+                                        Q(GetUrlsToVacancies, FirstPage, siteType, next), 1);
+        RowButton(Back, Q(GetSiteNamesThenGetUrlsToVacancies, next));
     }
 
     [Action]
-    private async Task GetUrlToVacancies(int index)
+    private async Task GetUrlToVacancies(ObjectId urlId)
     {
         await AnswerCallback();
-        UrlToVacancies urlToVacancies = _userService.GetUrlToVacancies(ChatId, index, CancelToken);
-        if (urlToVacancies.IsActivate)
-            RowButton("Дезактивувати", Q(ActivateUrl, index, false));
-        else
-            RowButton("Активувати", Q(ActivateUrl, index, true));
+        UrlToVacancies urlToVacancies = _urlToVacanciesService.Get(urlId, CancelToken);
+        string activatePhrase = urlToVacancies.IsActivate? "Дезактивувати" : "Активувати";
+        RowButton(activatePhrase, Q(ActivateUrl, 0, !urlToVacancies.IsActivate));
         await Send(urlToVacancies.OriginalString, new() { DisableWebPagePreview = true });
     }
 
     [Action]
     private async Task RemoveUrlToVacancies(int index)
     {
-        _userService.RemoveUrlToVacancy(ChatId, index, CancelToken);
+        //_userService.RemoveUrlToVacancy(ChatId, index, CancelToken);
         await Send("Посилання видалено.");
     }
 
     [State]
-    private async Task HandleAddingUrlAsync(AddUrlState state)
+    private async Task HandleAddingUrlAsync(AddingUrlState state)
     {
-        int index = await _userService.AddUrlToVacancyAsync(ChatId, Context.GetSafeTextPayload()!, CancelToken);
+        int index = 0;//await _userService.AddUrlToVacancyAsync(ChatId, Context.GetSafeTextPayload()!, CancelToken);
         if (index != default)
         {
             Push("Посилання було добавленно.");
@@ -90,7 +90,7 @@ public partial class UrlToVacanciesController : BotController
     }
 
     [Action]
-    protected void ShowSiteNames(Func<SiteType, string> q)
+    private void GetSiteNames(Func<SiteType, string> q)
     {
         Push("Виберіть, назву сайту.");
         foreach (var siteType in Enum.GetValues<SiteType>())
@@ -100,10 +100,10 @@ public partial class UrlToVacanciesController : BotController
     }
 
     [Action]
-    protected async Task ActivateUrl(int index, bool isActivate)
+    private async Task ActivateUrl(int index, bool isActivate)
     {
         await AnswerCallback();
-        _userService.ActivateUrlToVacancy(ChatId, index, isActivate, CancelToken);
+        //_userService.ActivateUrlToVacancy(ChatId, index, isActivate, CancelToken);
         if (isActivate)
             await Send("Посилання активоване.");
         else

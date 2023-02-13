@@ -13,7 +13,7 @@ internal abstract class FilterParser : IFilterParser
     {
         List<Filter> filters = new()
         {
-            new(string.Empty, "Пошук", SearchGetParamName, string.Empty, FilterType.Text)
+            new("Пошук", new("Пошук"), new(SearchGetParamName, string.Empty), FilterType.Text)
         };
         using Stream response = await GlobalHttpClient.GetAsync(uri, cancellationToken);
         using IBrowsingContext browsingContext = BrowsingContext.New();

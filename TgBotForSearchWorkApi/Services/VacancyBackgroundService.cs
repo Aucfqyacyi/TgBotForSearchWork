@@ -39,9 +39,9 @@ public class VacancyBackgroundService : BackgroundService
     private async Task SendVacancyAsync(User user, CancellationToken cancellationToken)
     {
         List<Vacancy> relevantVacancies = await _vacancyService.GetRelevantVacanciesAsync(user, cancellationToken);
-        _userRepository.Update(user, cancellationToken);
-        await SendVacancyAsync(user.ChatId, relevantVacancies, cancellationToken);
-        Log.Info($"All vacancies for the user({user.ChatId}) were sent successfully.");
+        _userRepository.Replace(user, cancellationToken);
+        await SendVacancyAsync(user.Id, relevantVacancies, cancellationToken);
+        Log.Info($"All vacancies for the user({user.Id}) were sent successfully.");
     }
 
     private async Task SendVacancyAsync(long chatId, IReadOnlyList<Vacancy> vacancies, CancellationToken cancellationToken)

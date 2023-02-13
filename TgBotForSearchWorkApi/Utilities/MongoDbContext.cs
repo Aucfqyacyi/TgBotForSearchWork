@@ -10,14 +10,15 @@ public class MongoDbContext
     private readonly IMongoDatabase _database;
 
     public IMongoCollection<User> UserCollection { get => GetCollection<User>(); }
+    public IMongoCollection<UrlToVacancies> UrlToVacanciesCollection { get => GetCollection<UrlToVacancies>("UrlsToVacancies"); }
 
     public MongoDbContext(IMongoDatabase database)
     {
         _database = database;
     }
 
-    public IMongoCollection<TDocument> GetCollection<TDocument>(MongoCollectionSettings? settings = null)
+    public IMongoCollection<TDocument> GetCollection<TDocument>(string? name = null, MongoCollectionSettings? settings = null)
     {
-        return _database.GetCollection<TDocument>(typeof(TDocument).Name + 's', settings);
+        return _database.GetCollection<TDocument>(name ?? typeof(TDocument).Name + 's', settings);
     }
 }
