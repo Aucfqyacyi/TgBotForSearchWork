@@ -5,7 +5,7 @@ using TgBotForSearchWorkApi.Models;
 
 namespace TgBotForSearchWorkApi.Controllers;
 
-public partial class UrlToVacanciesController
+public partial class UriToVacanciesController
 {
     [Action(Command.AddUrl, CommandDescription.Empty)]
     public void AddUrl()
@@ -17,9 +17,9 @@ public partial class UrlToVacanciesController
     [State]
     private async Task HandleAddingUrlAsync(AddingUrlState state)
     {
-        UrlToVacancies? urlToVacancies = await _userService.AddUrlToVacancyAsync(ChatId, Context.GetSafeTextPayload()!, CancelToken);
-        ActivateRowButton(urlToVacancies?.Id, urlToVacancies?.IsActivate);
-        if (urlToVacancies is not null)
+        UriToVacancies? uriToVacancies = await _userService.AddUrlToVacancyAsync(ChatId, Context.GetSafeTextPayload()!, CancelToken);
+        ActivateRowButton(uriToVacancies?.Id, uriToVacancies?.IsActivate);
+        if (uriToVacancies is not null)
             Push("Посилання було добавленно.");
         else
             Push("Посилання не корректне, або не містить жодної вакансії, або вже добавленно.");

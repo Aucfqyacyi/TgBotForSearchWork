@@ -5,20 +5,20 @@ using TgBotForSearchWorkApi.Constants;
 
 namespace TgBotForSearchWorkApi.Controllers;
 
-public partial class UrlToVacanciesController
+public partial class UriToVacanciesController
 {
     [Action(Command.RemoveUrl, CommandDescription.Empty)]
     public void RemoveUrl()
     {
-        GetSiteNamesThenGetUrlsToVacancies(RemoveUrlToVacancies);
+        GetSiteNamesThenGetUrlsToVacancies(RemoveUriToVacancies);
     }
 
     [Action]
-    private async Task RemoveUrlToVacancies(ObjectId urlId, SiteType siteType)
+    private async Task RemoveUriToVacancies(ObjectId urlId, SiteType siteType)
     {
         _userService.RemoveUrlToVacancy(ChatId, urlId, CancelToken);
-        _urlToVacanciesService.RemoveUserId(urlId, ChatId, CancelToken);
+        _uriToVacanciesService.RemoveUserId(urlId, ChatId, CancelToken);
         await AnswerOkCallback();
-        await GetUrlsToVacanciesAsync(0, siteType, RemoveUrlToVacancies);
+        await GetUrlsToVacanciesAsync(0, siteType, RemoveUriToVacancies);
     }
 }

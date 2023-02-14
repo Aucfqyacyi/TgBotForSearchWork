@@ -8,11 +8,11 @@ namespace TgBotForSearchWorkApi.Services;
 public class DefaultUserService
 {
     private readonly UserRepository _userRepository;
-    private readonly UrlToVacanciesRepository _urlToVacanciesRepository;
+    private readonly UriToVacanciesRepository _uriToVacanciesRepository;
 
-    public DefaultUserService(UrlToVacanciesRepository urlToVacanciesRepository, UserRepository userRepository)
+    public DefaultUserService(UriToVacanciesRepository uriToVacanciesRepository, UserRepository userRepository)
     {
-        _urlToVacanciesRepository = urlToVacanciesRepository;
+        _uriToVacanciesRepository = uriToVacanciesRepository;
         _userRepository = userRepository;
     }
 
@@ -22,7 +22,7 @@ public class DefaultUserService
         User user = _userRepository.Add(chatId, default);
         if (user.UrlIds.Count > 0)
             return;
-        List<UrlToVacancies> urlToVacancies = new()
+        List<UriToVacancies> uriToVacancies = new()
         {
             new(user.Id, "https://jobs.dou.ua/vacancies/?remote&category=.NET&exp=1-3"),
             new(user.Id, "https://jobs.dou.ua/vacancies/?remote&category=C%2B%2B&exp=1-3"),
@@ -31,8 +31,8 @@ public class DefaultUserService
             new(user.Id, "https://djinni.co/jobs/?primary_keyword=.NET&exp_level=1y&exp_level=2y&employment=remote"),
             new(user.Id, "https://www.work.ua/ru/jobs-remote-c%2B%2B+developer/")
         };
-        user.UrlIds.AddRange(urlToVacancies.Select(e => e.Id));
-        _urlToVacanciesRepository.InsertMany(urlToVacancies, default);
+        user.UrlIds.AddRange(uriToVacancies.Select(e => e.Id));
+        _uriToVacanciesRepository.InsertMany(uriToVacancies, default);
         _userRepository.Replace(user, default);
     }
 }

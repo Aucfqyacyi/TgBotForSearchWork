@@ -6,19 +6,19 @@ using TgBotForSearchWorkApi.Services;
 
 namespace TgBotForSearchWorkApi.Controllers;
 
-public partial class UrlToVacanciesController : BotController
+public partial class UriToVacanciesController : BotController
 {
     protected readonly string Back = "Назад";
     protected readonly string FirstPage = "{0}";
 
-    protected readonly UrlToVacanciesService _urlToVacanciesService;
+    protected readonly UriToVacanciesService _uriToVacanciesService;
     protected readonly FilterService _filterService;
     protected readonly UserService _userService;
 
-    public UrlToVacanciesController(FilterService filterService, UrlToVacanciesService urlToVacanciesService, UserService userService)
+    public UriToVacanciesController(FilterService filterService, UriToVacanciesService uriToVacanciesService, UserService userService)
     {
         _filterService = filterService;
-        _urlToVacanciesService = urlToVacanciesService;
+        _uriToVacanciesService = uriToVacanciesService;
         _userService = userService;
     }
 
@@ -42,7 +42,7 @@ public partial class UrlToVacanciesController : BotController
     [Action]
     protected async Task ActivateUrl(ObjectId urlId, bool isActivate, bool sendNewMessage, Delegate? @delegate = null, params object[] args)
     {
-        _urlToVacanciesService.Activate(urlId, isActivate, CancelToken);
+        _uriToVacanciesService.Activate(urlId, isActivate, CancelToken);
         string activatePhrase = "Посилання " + (isActivate ?  "активоване." : "дезактивоване.");
         if (sendNewMessage)
         {

@@ -6,13 +6,13 @@ using TgBotForSearchWorkApi.Models;
 
 namespace TgBotForSearchWorkApi.Controllers;
 
-public partial class UrlToVacanciesController
+public partial class UriToVacanciesController
 {
 
     [Action(Command.GetUrl, CommandDescription.Empty)]
     public void GetUrl()
     {
-        GetSiteNamesThenGetUrlsToVacancies(GetUrlToVacancies);
+        GetSiteNamesThenGetUrlsToVacancies(GetUriToVacancies);
     }
 
     [Action]
@@ -25,7 +25,7 @@ public partial class UrlToVacanciesController
     protected async Task GetUrlsToVacanciesAsync(int page, SiteType siteType, Delegate next)
     {
 
-        List<UrlToVacancies> urlsToVacancies = _urlToVacanciesService.GetAll(ChatId, siteType, CancelToken);
+        List<UriToVacancies> urlsToVacancies = _uriToVacanciesService.GetAll(ChatId, siteType, CancelToken);
         if (urlsToVacancies.Count <= 0)
         {
             await Send("У вас немає посилань.");
@@ -38,12 +38,12 @@ public partial class UrlToVacanciesController
     }
 
     [Action]
-    private async Task GetUrlToVacancies(ObjectId urlId, SiteType siteType)
+    private async Task GetUriToVacancies(ObjectId urlId, SiteType siteType)
     {
         await AnswerCallback();
-        UrlToVacancies urlToVacancies = _urlToVacanciesService.Get(urlId, CancelToken);
-        ActivateRowButton(urlToVacancies.Id, urlToVacancies.IsActivate);
-        await Send(urlToVacancies.OriginalString, new() { DisableWebPagePreview = true });
+        UriToVacancies uriToVacancies = _uriToVacanciesService.Get(urlId, CancelToken);
+        ActivateRowButton(uriToVacancies.Id, uriToVacancies.IsActivate);
+        await Send(uriToVacancies.OriginalString, new() { DisableWebPagePreview = true });
     }
 
 }

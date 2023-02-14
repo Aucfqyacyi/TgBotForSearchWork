@@ -10,7 +10,7 @@ public class MongoDbContext
     private readonly IMongoDatabase _database;
 
     public IMongoCollection<User> UserCollection { get => GetCollection<User>(); }
-    public IMongoCollection<UrlToVacancies> UrlToVacanciesCollection { get => GetCollection<UrlToVacancies>("UrlsToVacancies"); }
+    public IMongoCollection<UriToVacancies> UriToVacanciesCollection { get => GetCollection<UriToVacancies>("UrisToVacancies"); }
 
     public MongoDbContext(IMongoDatabase database)
     {

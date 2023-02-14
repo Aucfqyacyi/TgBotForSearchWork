@@ -12,15 +12,15 @@ namespace TgBotForSearchWorkApi.Services;
 public class UserService
 {
     private readonly UserRepository _userRepository;
-    private readonly UrlToVacanciesRepository _urlToVacanciesRepository;
+    private readonly UriToVacanciesRepository _uriToVacanciesRepository;
 
-    public UserService(UserRepository userRepository, UrlToVacanciesRepository urlToVacanciesRepository)
+    public UserService(UserRepository userRepository, UriToVacanciesRepository uriToVacanciesRepository)
     {
         _userRepository = userRepository;
-        _urlToVacanciesRepository = urlToVacanciesRepository;
+        _uriToVacanciesRepository = uriToVacanciesRepository;
     }
 
-    public async Task<UrlToVacancies?> AddUrlToVacancyAsync(long userId, string url, CancellationToken cancellationToken)
+    public async Task<UriToVacancies?> AddUrlToVacancyAsync(long userId, string url, CancellationToken cancellationToken)
     {
         try
         {
@@ -30,10 +30,10 @@ public class UserService
             IVacancyParser vacancyParser = VacancyParserFactory.CreateVacancyParser(uri);
             if (await vacancyParser.IsCorrectUrlAsync(uri, cancellationToken) is false)
                 return null;
-            UrlToVacancies urlToVacancies = _urlToVacanciesRepository.InsertOrUpdate(userId, new(userId, uri), cancellationToken);
-            bool result = _userRepository.AddUrlToVacancies(userId, urlToVacancies.Id, cancellationToken);
+            UriToVacancies uriToVacancies = _uriToVacanciesRepository.InsertOrUpdate(userId, new(userId, uri), cancellationToken);
+            bool result = _userRepository.AddUriToVacancies(userId, uriToVacancies.Id, cancellationToken);
             if (result)
-                return urlToVacancies;
+                return uriToVacancies;
         }
         catch (Exception ex)
         {
@@ -44,7 +44,7 @@ public class UserService
 
     public void RemoveUrlToVacancy(long userId, ObjectId urlId, CancellationToken cancellationToken)
     {
-        _userRepository.RemoveUrlToVacancies(userId, urlId, cancellationToken);
+        _userRepository.RemoveUriToVacancies(userId, urlId, cancellationToken);
     }
 
 }

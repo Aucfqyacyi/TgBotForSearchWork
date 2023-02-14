@@ -59,14 +59,14 @@ public class UserRepository
         return user;
     }
 
-    public bool AddUrlToVacancies(long userId, ObjectId urlId, CancellationToken cancellationToken)
+    public bool AddUriToVacancies(long userId, ObjectId urlId, CancellationToken cancellationToken)
     {
         var update = Builders<User>.Update.AddToSet(user => user.UrlIds, urlId);
         var result = _mongoContext.UserCollection.UpdateOne(user => user.Id == userId, update, null, cancellationToken);
         return result.ModifiedCount > 0;
     }
 
-    public void RemoveUrlToVacancies(long userId, ObjectId urlId, CancellationToken cancellationToken)
+    public void RemoveUriToVacancies(long userId, ObjectId urlId, CancellationToken cancellationToken)
     {
         var update = Builders<User>.Update.Pull(user => user.UrlIds, urlId);
         _mongoContext.UserCollection.UpdateOne(user => user.Id == userId, update, null, cancellationToken);

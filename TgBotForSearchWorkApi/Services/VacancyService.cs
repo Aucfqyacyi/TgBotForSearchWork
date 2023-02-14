@@ -13,33 +13,33 @@ public class VacancyService
     {
         List<Vacancy> vacancies = new();
 /*        var activatedUrls = user.UrlIds.Where(url => url.IsActivate);
-        await Parallel.ForEachAsync(activatedUrls, cancellationToken, (UrlToVacancies urlToVacancies, CancellationToken cancellationToken) =>
+        await Parallel.ForEachAsync(activatedUrls, cancellationToken, (UriToVacancies uriToVacancies, CancellationToken cancellationToken) =>
         {
-            return GetRelevantVacanciesAsync(urlToVacancies, vacancies, cancellationToken);
+            return GetRelevantVacanciesAsync(uriToVacancies, vacancies, cancellationToken);
         });*/
         return vacancies;
     }
 
-    private async ValueTask GetRelevantVacanciesAsync(UrlToVacancies urlToVacancies, List<Vacancy> vacancies, CancellationToken cancellationToken)
+    private async ValueTask GetRelevantVacanciesAsync(UriToVacancies uriToVacancies, List<Vacancy> vacancies, CancellationToken cancellationToken)
     {
-        List<Vacancy> relevantVacancies = await GetRelevantVacanciesAsync(urlToVacancies, cancellationToken);
-        Log.Info($"{urlToVacancies.Uri.Host} has number of vacancies {relevantVacancies.Count}");
+        List<Vacancy> relevantVacancies = await GetRelevantVacanciesAsync(uriToVacancies, cancellationToken);
+        Log.Info($"{uriToVacancies.Uri.Host} has number of vacancies {relevantVacancies.Count}");
         if (relevantVacancies.Count == 0)
             return;
-        urlToVacancies.LastVacanciesIds = relevantVacancies.Select(e => e.Id).ToList();        
+        uriToVacancies.LastVacanciesIds = relevantVacancies.Select(e => e.Id).ToList();        
         lock (this)
             vacancies.AddRange(relevantVacancies);
     }
 
-    private async Task<List<Vacancy>> GetRelevantVacanciesAsync(UrlToVacancies urlToVacancies, CancellationToken cancellationToken)
+    private async Task<List<Vacancy>> GetRelevantVacanciesAsync(UriToVacancies uriToVacancies, CancellationToken cancellationToken)
     {
-        IVacancyParser vacancyParser = VacancyParserFactory.CreateVacancyParser(urlToVacancies.Uri);
-        List<Vacancy> vacancies = await vacancyParser.ParseAsync(urlToVacancies.Uri, cancellationToken);
-        for (int i = 0; i < Math.Min(vacancies.Count, urlToVacancies.LastVacanciesIds.Count); i++)
+        IVacancyParser vacancyParser = VacancyParserFactory.CreateVacancyParser(uriToVacancies.Uri);
+        List<Vacancy> vacancies = await vacancyParser.ParseAsync(uriToVacancies.Uri, cancellationToken);
+        for (int i = 0; i < Math.Min(vacancies.Count, uriToVacancies.LastVacanciesIds.Count); i++)
         {
-            if (urlToVacancies.LastVacanciesIds[i] == 0)
+            if (uriToVacancies.LastVacanciesIds[i] == 0)
                 break;
-            if (vacancies[i].Id == urlToVacancies.LastVacanciesIds[i])
+            if (vacancies[i].Id == uriToVacancies.LastVacanciesIds[i])
             {
                 if (i == 0)
                     return new();

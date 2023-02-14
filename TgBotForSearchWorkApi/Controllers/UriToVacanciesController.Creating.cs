@@ -8,7 +8,7 @@ using TgBotForSearchWorkApi.Models;
 
 namespace TgBotForSearchWorkApi.Controllers;
 
-public partial class UrlToVacanciesController
+public partial class UriToVacanciesController
 {
     [Action(Command.CreateUrl, CommandDescription.Empty)]
     public void CreateUrl()
@@ -53,7 +53,7 @@ public partial class UrlToVacanciesController
         Filter filter = _filterService.SiteTypeToCategoriesToFilters[siteType][categoryId][filterId];
         if (filter.FilterType == FilterType.CheckBox)
         {
-            await CreateOrUpdateUrlToVacanciesAsync(urlId, siteType, filter.GetParametr);
+            await CreateOrUpdateUriToVacanciesAsync(urlId, siteType, filter.GetParametr);
         }
         else
         {
@@ -67,17 +67,17 @@ public partial class UrlToVacanciesController
     {
         string getParametrValue = Context.GetSafeTextPayload()!;
         GetParametr getParametr = new(state.GetParametrName, getParametrValue);
-        await CreateOrUpdateUrlToVacanciesAsync(state.UrlId, state.SiteType, getParametr);
+        await CreateOrUpdateUriToVacanciesAsync(state.UrlId, state.SiteType, getParametr);
     }
 
-    private async Task CreateOrUpdateUrlToVacanciesAsync(ObjectId? urlId, SiteType siteType, GetParametr getParametr)
+    private async Task CreateOrUpdateUriToVacanciesAsync(ObjectId? urlId, SiteType siteType, GetParametr getParametr)
     {
-        UrlToVacancies? urlToVacancies = null;
+        UriToVacancies? uriToVacancies = null;
         if (urlId is null)
-            urlToVacancies = _urlToVacanciesService.Create(ChatId, siteType, getParametr, CancelToken);
+            uriToVacancies = _uriToVacanciesService.Create(ChatId, siteType, getParametr, CancelToken);
         else
-            urlToVacancies = _urlToVacanciesService.Update(ChatId, urlId.Value, getParametr, CancelToken);
-        GetFilterCategories(0, urlToVacancies.Id, siteType, urlToVacancies.IsActivate);
+            uriToVacancies = _uriToVacanciesService.Update(ChatId, urlId.Value, getParametr, CancelToken);
+        GetFilterCategories(0, uriToVacancies.Id, siteType, uriToVacancies.IsActivate);
         await AnswerOkCallback();
     }
 }

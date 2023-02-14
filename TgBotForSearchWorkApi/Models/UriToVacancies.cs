@@ -5,7 +5,7 @@ using TgBotForSearchWorkApi.Extensions;
 
 namespace TgBotForSearchWorkApi.Models;
 
-public partial class UrlToVacancies
+public partial class UriToVacancies
 {
     private const int _lastVacanciesIdsSize = 5;
     private ulong[] _lastVacanciesIds = new ulong[_lastVacanciesIdsSize];
