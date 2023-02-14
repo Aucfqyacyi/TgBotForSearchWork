@@ -47,4 +47,8 @@ public class UrlToVacanciesService
         _urlToVacanciesRepository.Activate(urlId, isActivate, cancellationToken);
     }
 
+    public void RemoveUserId(ObjectId urlId, long userId, CancellationToken cancellationToken)
+    {
+        _urlToVacanciesRepository.RemoveUserId(urlId, userId, cancellationToken);
+    }
 }

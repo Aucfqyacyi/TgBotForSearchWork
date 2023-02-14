@@ -3,9 +3,8 @@ using MongoDB.Bson;
 using Parsers.Constants;
 using Parsers.Models;
 using TgBotForSearchWorkApi.Constants;
-using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Models.States;
-
+using TgBotForSearchWorkApi.Models;
 
 namespace TgBotForSearchWorkApi.Controllers;
 
@@ -31,7 +30,7 @@ public partial class UrlToVacanciesController
         Pager(categories, page, category => (category.Name, Q(GetFilters, 0, urlId, siteType, category.Id, isActivate)),
                                         Q(GetFilterCategories, FirstPage, urlId, siteType, isActivate), 1);
         ActivateRowButton(urlId, isActivate, false, GetFilterCategories, page, urlId, siteType);
-        if(urlId is null)
+        if (urlId is null)
             RowButton(Back, Q(GetSiteNamesThenGetFilterCategories, urlId, isActivate));
     }
 
@@ -60,12 +59,12 @@ public partial class UrlToVacanciesController
         {
             await State(new AddingSearchFilterToUrlState(urlId, filter.GetParametr.Name, siteType));
             await Send("Введіть пошуковий запит.");
-        }           
+        }
     }
 
     [State]
     private async Task HandleAddingSearchFilterToUrlAsync(AddingSearchFilterToUrlState state)
-    {        
+    {
         string getParametrValue = Context.GetSafeTextPayload()!;
         GetParametr getParametr = new(state.GetParametrName, getParametrValue);
         await CreateOrUpdateUrlToVacanciesAsync(state.UrlId, state.SiteType, getParametr);
