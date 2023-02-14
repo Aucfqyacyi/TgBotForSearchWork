@@ -205,6 +205,11 @@ public abstract class BotController
         return await Send(text, ParseMode.Html, sendMessageOptions);
     }
 
+    protected async Task AnswerOkCallback()
+    {
+        await AnswerCallback("Ok");
+    }
+
     protected async Task AnswerCallback(string? text = null)
     {
         if (Context.GetCallbackQuery() is not null)

@@ -42,4 +42,9 @@ public class UrlToVacanciesService
         return _urlToVacanciesRepository.ReplaceIfNotExistCopy(userId, urlToVacancies, cancellationToken);
     }
 
+    public void Activate(ObjectId urlId, bool isActivate, CancellationToken cancellationToken)
+    {
+        _urlToVacanciesRepository.Activate(urlId, isActivate, cancellationToken);
+    }
+
 }

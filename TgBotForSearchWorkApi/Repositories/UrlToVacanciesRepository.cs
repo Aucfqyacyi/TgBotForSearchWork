@@ -2,6 +2,7 @@
 using MongoDB.Driver;
 using Parsers.Constants;
 using System.Threading;
+using Telegram.Bot.Types;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Utilities;
 using TgBotForSearchWorkApi.Utilities.Attributes;
@@ -55,6 +56,7 @@ public class UrlToVacanciesRepository
         ReplaceOptions? replaceOptions = null;
         _mongoContext.UrlToVacanciesCollection.ReplaceOne(u => u.Id == urlToVacancies.Id, urlToVacancies, replaceOptions, cancellationToken);
     }
+
     public UrlToVacancies? GetOrDefault(string hashedUrl, CancellationToken cancellationToken)
     {
         return _mongoContext.UrlToVacanciesCollection.FindSync(url => url.HashedUrl == hashedUrl, null, cancellationToken)
@@ -102,5 +104,11 @@ public class UrlToVacanciesRepository
             RemoveUserId(urlToVacancies.Id, userId, cancellationToken); 
             return oldUrl;
         }
+    }
+
+    public void Activate(ObjectId urlId, bool isActivate, CancellationToken cancellationToken)
+    {
+        var update = Builders<UrlToVacancies>.Update.Set(url => url.IsActivate, isActivate);
+        _mongoContext.UrlToVacanciesCollection.UpdateOne(url => url.Id == urlId, update, null, cancellationToken);
     }
 }

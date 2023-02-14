@@ -14,44 +14,38 @@ public partial class UrlToVacanciesController
     [Action(Command.CreateUrl, CommandDescription.Empty)]
     public void CreateUrl()
     {
-        GetSiteNamesThenGetFilterCategories(null);
+        GetSiteNamesThenGetFilterCategories(null, false);
     }
 
     [Action]
-    private void GetSiteNamesThenGetFilterCategories(ObjectId? urlId)
+    private void GetSiteNamesThenGetFilterCategories(ObjectId? urlId, bool isActivate)
     {
-        GetSiteNames(siteType => Q(GetFilterCategories, 0, urlId, siteType));
+        GetSiteNames(siteType => Q(GetFilterCategories, 0, urlId, siteType, isActivate));
     }
 
     [Action]
-    private void GetFilterCategories(int page, ObjectId? urlId, SiteType siteType)
+    private void GetFilterCategories(int page, ObjectId? urlId, SiteType siteType, bool isActivate)
     {
         Push($"Виберіть, потрібну категорію для фільтра.");
         var categories = _filterService.SiteTypeToCategoriesToFilters[siteType].Keys;
-        Pager(categories, page, category => (category.Name, Q(GetFilters, 0, urlId, siteType, category.Id)),
-                                        Q(GetFilterCategories, FirstPage, urlId, siteType), 1);
-        //AddExtraButtonsToList(urlIndex, siteType);
-        RowButton(Back, Q(GetSiteNamesThenGetFilterCategories, urlId));
+        Pager(categories, page, category => (category.Name, Q(GetFilters, 0, urlId, siteType, category.Id, isActivate)),
+                                        Q(GetFilterCategories, FirstPage, urlId, siteType, isActivate), 1);
+        ActivateRowButton(urlId, isActivate, false, GetFilterCategories, page, urlId, siteType);
+        if(urlId is null)
+            RowButton(Back, Q(GetSiteNamesThenGetFilterCategories, urlId, isActivate));
     }
 
     [Action]
-    private void GetFilters(int page, ObjectId? urlId, SiteType siteType, int categoryId)
+    private void GetFilters(int page, ObjectId? urlId, SiteType siteType, int categoryId, bool isActivate)
     {
         Push($"Виберіть, потрібний фільтр.");
         var idsToFilters = _filterService.SiteTypeToCategoriesToFilters[siteType][categoryId];
-        string format = Q(GetFilters, FirstPage, urlId, siteType, categoryId);
+        string format = Q(GetFilters, FirstPage, urlId, siteType, categoryId, isActivate);
         Pager(idsToFilters, page, idToFilter =>
                         (idToFilter.Value.Name, Q(AddFilterToUrlAsync, urlId, siteType, categoryId, idToFilter.Key)),
                         format);
-        //AddExtraButtonsToList(urlId, siteType);
-        RowButton(Back, Q(GetFilterCategories, 0, urlId, siteType));
-    }
-
-    private void AddExtraButtonsToList(int urlIndex, SiteType siteType)
-    {
-        if (urlIndex != 0)
-            RowButton("Aктивувати нове посилання", Q(ActivateUrl, urlIndex, true));
-
+        ActivateRowButton(urlId, isActivate, false, GetFilters, page, urlId, siteType, categoryId);
+        RowButton(Back, Q(GetFilterCategories, 0, urlId, siteType, isActivate));
     }
 
     [Action]
@@ -66,12 +60,11 @@ public partial class UrlToVacanciesController
         {
             await State(new AddingSearchFilterToUrlState(urlId, filter.GetParametr.Name, siteType));
             await Send("Введіть пошуковий запит.");
-        }
-            
+        }           
     }
 
     [State]
-    private async Task AddSearchFilterToUrlAsync(AddingSearchFilterToUrlState state)
+    private async Task HandleAddingSearchFilterToUrlAsync(AddingSearchFilterToUrlState state)
     {        
         string getParametrValue = Context.GetSafeTextPayload()!;
         GetParametr getParametr = new(state.GetParametrName, getParametrValue);
@@ -85,7 +78,7 @@ public partial class UrlToVacanciesController
             urlToVacancies = _urlToVacanciesService.Create(ChatId, siteType, getParametr, CancelToken);
         else
             urlToVacancies = _urlToVacanciesService.Update(ChatId, urlId.Value, getParametr, CancelToken);
-        GetFilterCategories(0, urlToVacancies.Id, siteType);
-        await AnswerCallback("Ok");
+        GetFilterCategories(0, urlToVacancies.Id, siteType, urlToVacancies.IsActivate);
+        await AnswerOkCallback();
     }
 }

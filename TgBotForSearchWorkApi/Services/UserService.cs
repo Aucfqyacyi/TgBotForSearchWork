@@ -1,9 +1,6 @@
 ﻿using Deployf.Botf;
 using MongoDB.Bson;
-using Parsers.Constants;
-using Parsers.Models;
 using Parsers.VacancyParsers;
-using System.Web;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Repositories;
 using TgBotForSearchWorkApi.Utilities;
@@ -33,9 +30,10 @@ public class UserService
             IVacancyParser vacancyParser = VacancyParserFactory.CreateVacancyParser(uri);
             if (await vacancyParser.IsCorrectUrlAsync(uri, cancellationToken) is false)
                 return null;
-            UrlToVacancies urlToVacancies = new(userId, uri);
-            _userRepository.AddUrlToVacancies(userId, urlToVacancies.Id, cancellationToken);
-            return _urlToVacanciesRepository.InsertOrUpdate(userId, urlToVacancies, cancellationToken);
+            UrlToVacancies urlToVacancies = _urlToVacanciesRepository.InsertOrUpdate(userId, new(userId, uri), cancellationToken);
+            bool result = _userRepository.AddUrlToVacancies(userId, urlToVacancies.Id, cancellationToken);
+            if (result)
+                return urlToVacancies;
         }
         catch (Exception ex)
         {
@@ -44,14 +42,9 @@ public class UserService
         return null;
     }
 
-    public void RemoveUrlToVacancyAsync(long userId, ObjectId urlId, CancellationToken cancellationToken)
+    public void RemoveUrlToVacancy(long userId, ObjectId urlId, CancellationToken cancellationToken)
     {
         _userRepository.RemoveUrlToVacancies(userId, urlId, cancellationToken);
-    }
-
-    public bool AddUrlToVacancyAsync(long userId, ObjectId urlId, CancellationToken cancellationToken)
-    {
-        return _userRepository.AddUrlToVacancies(userId, urlId, cancellationToken);
     }
 
 }
