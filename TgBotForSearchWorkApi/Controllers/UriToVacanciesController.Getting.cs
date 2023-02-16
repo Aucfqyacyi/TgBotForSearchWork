@@ -42,7 +42,7 @@ public partial class UriToVacanciesController
     {
         await AnswerCallback();
         UriToVacancies uriToVacancies = _uriToVacanciesService.Get(urlId, CancelToken);
-        ActivateRowButton(uriToVacancies.Id, uriToVacancies.IsActivate);
+        ActivateRowButton(uriToVacancies.Id, uriToVacancies.IsActivated);
         await Send(uriToVacancies.OriginalString, new() { DisableWebPagePreview = true });
     }
 

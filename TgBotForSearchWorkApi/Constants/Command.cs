@@ -9,4 +9,5 @@ public static class Command
     public const string GetUrl = "/get_url";
     public const string DeleteUrl = "/delete_url";
     public const string CreateUrl = "/create_url";
+    public const string UpdateUrl = "/update_url";
 }

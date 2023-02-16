@@ -29,19 +29,19 @@ public partial class UriToVacanciesController : BotController
         }
     }
 
-    protected void ActivateRowButton(ObjectId? urlId, bool? isActivate, bool sendNewMessage = true, Delegate? @delegate = null, params object[] args)
+    protected void ActivateRowButton(ObjectId? urlId, bool? isActivated, bool sendNewMessage = true, Delegate? @delegate = null, params object[] args)
     {
-        if (urlId is null || isActivate is null)
+        if (urlId is null || isActivated is null)
             return;
-        string activatePhrase = isActivate.Value ? "Дезактивувати" : "Активувати";
-        RowButton(activatePhrase, Q(ActivateUrl, urlId, !isActivate, sendNewMessage, @delegate, args));
+        string activatePhrase = isActivated.Value ? "Дезактивувати" : "Активувати";
+        RowButton(activatePhrase, Q(ActivateUrl, urlId, !isActivated, sendNewMessage, @delegate, args));
     }
 
     [Action]
-    protected async Task ActivateUrl(ObjectId urlId, bool isActivate, bool sendNewMessage, Delegate? @delegate = null, params object[] args)
+    protected async Task ActivateUrl(ObjectId urlId, bool isActivated, bool sendNewMessage, Delegate? @delegate = null, params object[] args)
     {
-        _uriToVacanciesService.Activate(urlId, isActivate, CancelToken);
-        string activatePhrase = "Посилання " + (isActivate ?  "активоване." : "дезактивоване.");
+        _uriToVacanciesService.Activate(urlId, isActivated, CancelToken);
+        string activatePhrase = "Посилання " + (isActivated ?  "активоване." : "дезактивоване.");
         if (sendNewMessage)
         {
             await AnswerCallback();
@@ -53,7 +53,7 @@ public partial class UriToVacanciesController : BotController
             if (@delegate is not null)
             {
                 MethodInfo methodInfo = @delegate.GetMethodInfo();
-                methodInfo.Invoke(this, new List<object?>(args) { isActivate }.ToArray());
+                methodInfo.Invoke(this, new List<object?>(args) { isActivated }.ToArray());
             }
         }
     }

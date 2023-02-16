@@ -14,7 +14,7 @@ public partial class UriToVacancies
     [BsonElement] public long ChatId { get; set; }
     [BsonElement] public Uri Uri { get; set; }
     [BsonElement] public string HashedUrl { get => Uri.OriginalString.GetMD5(); }
-    [BsonElement] public bool IsActivate {get; set;} = false;
+    [BsonElement] public bool IsActivated {get; set;} = false;
     [BsonElement] public SiteType SiteType { get; set; }
 
     [BsonElement] public IList<ulong> LastVacanciesIds

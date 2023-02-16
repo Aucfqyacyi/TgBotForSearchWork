@@ -3,7 +3,6 @@ using MongoDB.Bson;
 using Parsers.Constants;
 using Parsers.Models;
 using Parsers.VacancyParsers;
-using Telegram.Bot.Types;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Repositories;
 using TgBotForSearchWorkApi.Utilities;
@@ -31,25 +30,25 @@ public class UriToVacanciesService
         return _uriToVacanciesRepository.Get(uriId, cancellationToken);
     }
 
-    public UriToVacancies Create(long chatId, SiteType siteType, GetParametr getParametr, CancellationToken cancellationToken)
+    public UriToVacancies? Create(long chatId, SiteType siteType, GetParametr getParametr, CancellationToken cancellationToken)
     {
         UriToVacancies uriToVacancies = new(chatId, SiteTypesToUris.All[siteType].OriginalString);
-        uriToVacancies.AddGetParametr(getParametr.Name, getParametr.Value);
+        uriToVacancies.AddGetParametr(getParametr);
         _uriToVacanciesRepository.InsertOne(uriToVacancies, cancellationToken);
         return uriToVacancies;
     }
 
-    public UriToVacancies Update(ObjectId urlId, GetParametr getParametr, CancellationToken cancellationToken)
+    public UriToVacancies? Update(ObjectId urlId, GetParametr getParametr, CancellationToken cancellationToken)
     {
-        UriToVacancies uriToVacancies = _uriToVacanciesRepository.Pop(urlId, cancellationToken);
-        uriToVacancies.AddGetParametr(getParametr.Name, getParametr.Value);
-        _uriToVacanciesRepository.InsertOne(uriToVacancies, cancellationToken);
+        UriToVacancies uriToVacancies = _uriToVacanciesRepository.Get(urlId, cancellationToken);
+        uriToVacancies.AddGetParametr(getParametr);
+        _uriToVacanciesRepository.Replace(uriToVacancies, cancellationToken);
         return uriToVacancies;
     }
 
-    public void Activate(ObjectId urlId, bool isActivate, CancellationToken cancellationToken)
+    public void Activate(ObjectId urlId, bool isActivated, CancellationToken cancellationToken)
     {
-        _uriToVacanciesRepository.Activate(urlId, isActivate, cancellationToken);
+        _uriToVacanciesRepository.Activate(urlId, isActivated, cancellationToken);
     }
 
     public async Task<UriToVacancies?> AddAsync(long chatId, string url, CancellationToken cancellationToken)
@@ -76,5 +75,10 @@ public class UriToVacanciesService
     public void Delete(ObjectId urlId, CancellationToken cancellationToken)
     {
         _uriToVacanciesRepository.Delete(urlId, cancellationToken);
+    }
+
+    public bool IsActivated(ObjectId urlId) 
+    {
+        return _uriToVacanciesRepository.IsActivated(urlId);
     }
 }

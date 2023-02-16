@@ -1,7 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using Parsers.Constants;
-using Telegram.Bot.Types;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Utilities;
 using TgBotForSearchWorkApi.Utilities.Attributes;
@@ -41,11 +40,6 @@ public class UriToVacanciesRepository
                                                      .ToList();
     }
 
-    public UriToVacancies Pop(ObjectId urlId, CancellationToken cancellationToken)
-    {
-        return _mongoContext.UriToVacanciesCollection.FindOneAndDelete(GetFilterById(urlId), null, cancellationToken);
-    }
-
     public UriToVacancies Get(ObjectId urlId, CancellationToken cancellationToken)
     {
         UriToVacancies? uriToVacancies = GetOrDefault(urlId, cancellationToken);
@@ -71,9 +65,14 @@ public class UriToVacanciesRepository
         _mongoContext.UriToVacanciesCollection.DeleteOne(GetFilterById(urlId), cancellationToken);
     }
 
-    public void Activate(ObjectId urlId, bool isActivate, CancellationToken cancellationToken)
+    public void Activate(ObjectId urlId, bool isActivated, CancellationToken cancellationToken)
     {
-        var update = Builders<UriToVacancies>.Update.Set(url => url.IsActivate, isActivate);
+        var update = Builders<UriToVacancies>.Update.Set(url => url.IsActivated, isActivated);
         _mongoContext.UriToVacanciesCollection.UpdateOne(GetFilterById(urlId), update, null, cancellationToken);
+    }
+
+    public bool IsActivated(ObjectId urlId)
+    {
+        return _mongoContext.UriToVacanciesCollection.Find(GetFilterById(urlId)).Project(uri => uri.IsActivated).FirstOrDefault();
     }
 }

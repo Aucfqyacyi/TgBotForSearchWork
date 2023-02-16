@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Parsers.Constants;
+using Parsers.Models;
 using System.Web;
 
 namespace TgBotForSearchWorkApi.Models;
@@ -28,15 +29,25 @@ public partial class UriToVacancies
         return url.OriginalString;
     }
 
-    public void AddGetParametr(string getParametrName, string getParametrValue)
+    public void AddGetParametr(GetParametr getParametr)
     {
         UriBuilder uriBuilder = new(Uri);
         var query = HttpUtility.ParseQueryString(uriBuilder.Query);
-        if (query.GetValues(getParametrName) is null)
-            query.Add(getParametrName, getParametrValue);
+        if (query.GetValues(getParametr.Name) is null)
+            query.Add(getParametr.Name, getParametr.Value);
         else
-            query[getParametrName] = getParametrValue;
+            query[getParametr.Name] = getParametr.Value;
         uriBuilder.Query = query.ToString();
         Uri = uriBuilder.Uri;
+    }
+
+    public void RemoveGetParametr(GetParametr getParametr)
+    {
+        UriBuilder uriBuilder = new(Uri);
+        var query = HttpUtility.ParseQueryString(uriBuilder.Query);
+        if (query.GetValues(getParametr.Name) is not null)
+        {
+            query.Remove(getParametr.Name);
+        }
     }
 }
