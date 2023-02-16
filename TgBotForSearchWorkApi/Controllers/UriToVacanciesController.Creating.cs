@@ -76,7 +76,7 @@ public partial class UriToVacanciesController
         if (urlId is null)
             uriToVacancies = _uriToVacanciesService.Create(ChatId, siteType, getParametr, CancelToken);
         else
-            uriToVacancies = _uriToVacanciesService.Update(ChatId, urlId.Value, getParametr, CancelToken);
+            uriToVacancies = _uriToVacanciesService.Update(urlId.Value, getParametr, CancelToken);
         GetFilterCategories(0, uriToVacancies.Id, siteType, uriToVacancies.IsActivate);
         await AnswerOkCallback();
     }

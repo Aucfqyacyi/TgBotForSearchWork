@@ -11,7 +11,7 @@ public partial class UriToVacancies
     private ulong[] _lastVacanciesIds = new ulong[_lastVacanciesIdsSize];
 
     [BsonId] public ObjectId Id { get; set; }
-    [BsonElement] public HashSet<long> UserIds { get; set; } = new();
+    [BsonElement] public long ChatId { get; set; }
     [BsonElement] public Uri Uri { get; set; }
     [BsonElement] public string HashedUrl { get => Uri.OriginalString.GetMD5(); }
     [BsonElement] public bool IsActivate {get; set;} = false;

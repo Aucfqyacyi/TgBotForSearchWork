@@ -17,7 +17,7 @@ public partial class UriToVacanciesController
     [State]
     private async Task HandleAddingUrlAsync(AddingUrlState state)
     {
-        UriToVacancies? uriToVacancies = await _userService.AddUrlToVacancyAsync(ChatId, Context.GetSafeTextPayload()!, CancelToken);
+        UriToVacancies? uriToVacancies = await _uriToVacanciesService.AddAsync(ChatId, Context.GetSafeTextPayload()!, CancelToken);
         ActivateRowButton(uriToVacancies?.Id, uriToVacancies?.IsActivate);
         if (uriToVacancies is not null)
             Push("Посилання було добавленно.");

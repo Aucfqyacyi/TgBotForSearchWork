@@ -9,7 +9,7 @@ namespace TgBotForSearchWorkApi.Services;
 [SingletonService]
 public class VacancyService
 {
-    public async Task<List<Vacancy>> GetRelevantVacanciesAsync(User user, CancellationToken cancellationToken)
+    public async Task<List<Vacancy>> GetRelevantVacanciesAsync(/*User user,*/ CancellationToken cancellationToken)
     {
         List<Vacancy> vacancies = new();
 /*        var activatedUrls = user.UrlIds.Where(url => url.IsActivate);

@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using Parsers.Constants;
+using Telegram.Bot.Types;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Utilities;
 using TgBotForSearchWorkApi.Utilities.Attributes;
@@ -17,6 +18,11 @@ public class UriToVacanciesRepository
         _mongoContext = mongoContext;
     }
 
+    private FilterDefinition<UriToVacancies> GetFilterById(ObjectId urlId)
+    {
+        return Builders<UriToVacancies>.Filter.Eq(url => url.Id, urlId);
+    }
+
     public void InsertMany(IReadOnlyList<UriToVacancies> uriToVacancies, CancellationToken cancellationToken)
     {
         _mongoContext.UriToVacanciesCollection.InsertMany(uriToVacancies, null, cancellationToken);  
@@ -27,12 +33,17 @@ public class UriToVacanciesRepository
         _mongoContext.UriToVacanciesCollection.InsertOne(uriToVacancies, null, cancellationToken);
     }
 
-    public List<UriToVacancies> GetAll(long userId, SiteType siteType, CancellationToken cancellationToken)
+    public List<UriToVacancies> GetAll(long chatId, SiteType siteType, CancellationToken cancellationToken)
     {
-        var userIdsFilter = Builders<UriToVacancies>.Filter.AnyEq(url => url.UserIds, userId);
+        var chatIdFilter = Builders<UriToVacancies>.Filter.Eq(url => url.ChatId, chatId);
         var siteTypeFilter = Builders<UriToVacancies>.Filter.Eq(url => url.SiteType, siteType);
-        return _mongoContext.UriToVacanciesCollection.FindSync(userIdsFilter & siteTypeFilter, null, cancellationToken)
+        return _mongoContext.UriToVacanciesCollection.FindSync(chatIdFilter & siteTypeFilter, null, cancellationToken)
                                                      .ToList();
+    }
+
+    public UriToVacancies Pop(ObjectId urlId, CancellationToken cancellationToken)
+    {
+        return _mongoContext.UriToVacanciesCollection.FindOneAndDelete(GetFilterById(urlId), null, cancellationToken);
     }
 
     public UriToVacancies Get(ObjectId urlId, CancellationToken cancellationToken)
@@ -45,68 +56,24 @@ public class UriToVacanciesRepository
 
     public UriToVacancies? GetOrDefault(ObjectId urlId, CancellationToken cancellationToken)
     {
-        return _mongoContext.UriToVacanciesCollection.FindSync(url => url.Id == urlId, null, cancellationToken)
+        return _mongoContext.UriToVacanciesCollection.FindSync(GetFilterById(urlId), null, cancellationToken)
                                                      .FirstOrDefault(cancellationToken);
     }
 
     public void Replace(UriToVacancies uriToVacancies, CancellationToken cancellationToken)
     {
         ReplaceOptions? replaceOptions = null;
-        _mongoContext.UriToVacanciesCollection.ReplaceOne(u => u.Id == uriToVacancies.Id, uriToVacancies, replaceOptions, cancellationToken);
+        _mongoContext.UriToVacanciesCollection.ReplaceOne(GetFilterById(uriToVacancies.Id), uriToVacancies, replaceOptions, cancellationToken);
     }
 
-    public UriToVacancies? GetOrDefault(string hashedUrl, CancellationToken cancellationToken)
+    public void Delete(ObjectId urlId, CancellationToken cancellationToken)
     {
-        return _mongoContext.UriToVacanciesCollection.FindSync(url => url.HashedUrl == hashedUrl, null, cancellationToken)
-                                                                    .FirstOrDefault(cancellationToken);
-    }
-
-    public UriToVacancies InsertOrUpdate(long userId, UriToVacancies uriToVacancies, CancellationToken cancellationToken)
-    {
-        UriToVacancies? oldUrl = GetOrDefault(uriToVacancies.HashedUrl, cancellationToken);
-        if (oldUrl is null)
-        {
-            InsertOne(uriToVacancies, cancellationToken);
-            return uriToVacancies;
-        }
-        else
-        {
-            AddUserId(oldUrl.Id, userId, cancellationToken);
-            return oldUrl;
-        }
-    }
-
-    public void AddUserId(ObjectId urlId, long userId, CancellationToken cancellationToken)
-    {
-        var update = Builders<UriToVacancies>.Update.AddToSet(url => url.UserIds, userId);
-        _mongoContext.UriToVacanciesCollection.UpdateOne(url => url.Id == urlId, update, null, cancellationToken);
-    }
-
-    public void RemoveUserId(ObjectId urlId, long userId, CancellationToken cancellationToken)
-    {
-        var update = Builders<UriToVacancies>.Update.Pull(url => url.UserIds, userId);
-        _mongoContext.UriToVacanciesCollection.UpdateOne(url => url.Id == urlId, update, null, cancellationToken);
-    }
-
-    public UriToVacancies ReplaceIfNotExistCopy(long userId, UriToVacancies uriToVacancies, CancellationToken cancellationToken)
-    {
-        UriToVacancies? oldUrl = GetOrDefault(uriToVacancies.HashedUrl, cancellationToken);
-        if (oldUrl is null)
-        {
-            Replace(uriToVacancies, cancellationToken);
-            return uriToVacancies;
-        }
-        else
-        {
-            AddUserId(oldUrl.Id, userId, cancellationToken);
-            RemoveUserId(uriToVacancies.Id, userId, cancellationToken); 
-            return oldUrl;
-        }
+        _mongoContext.UriToVacanciesCollection.DeleteOne(GetFilterById(urlId), cancellationToken);
     }
 
     public void Activate(ObjectId urlId, bool isActivate, CancellationToken cancellationToken)
     {
         var update = Builders<UriToVacancies>.Update.Set(url => url.IsActivate, isActivate);
-        _mongoContext.UriToVacanciesCollection.UpdateOne(url => url.Id == urlId, update, null, cancellationToken);
+        _mongoContext.UriToVacanciesCollection.UpdateOne(GetFilterById(urlId), update, null, cancellationToken);
     }
 }

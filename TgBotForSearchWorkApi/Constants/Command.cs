@@ -7,6 +7,6 @@ public static class Command
     public const string Test = "/test";
     public const string AddUrl = "/add_url";
     public const string GetUrl = "/get_url";
-    public const string RemoveUrl = "/remove_url";
+    public const string DeleteUrl = "/delete_url";
     public const string CreateUrl = "/create_url";
 }

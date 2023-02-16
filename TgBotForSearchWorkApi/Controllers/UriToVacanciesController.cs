@@ -13,13 +13,11 @@ public partial class UriToVacanciesController : BotController
 
     protected readonly UriToVacanciesService _uriToVacanciesService;
     protected readonly FilterService _filterService;
-    protected readonly UserService _userService;
 
-    public UriToVacanciesController(FilterService filterService, UriToVacanciesService uriToVacanciesService, UserService userService)
+    public UriToVacanciesController(FilterService filterService, UriToVacanciesService uriToVacanciesService)
     {
         _filterService = filterService;
         _uriToVacanciesService = uriToVacanciesService;
-        _userService = userService;
     }
 
     protected void GetSiteNames(Func<SiteType, string> q)

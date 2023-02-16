@@ -1,9 +1,12 @@
-﻿using MongoDB.Bson;
+﻿using Deployf.Botf;
+using MongoDB.Bson;
 using Parsers.Constants;
 using Parsers.Models;
+using Parsers.VacancyParsers;
 using Telegram.Bot.Types;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Repositories;
+using TgBotForSearchWorkApi.Utilities;
 using TgBotForSearchWorkApi.Utilities.Attributes;
 
 namespace TgBotForSearchWorkApi.Services;
@@ -23,23 +26,25 @@ public class UriToVacanciesService
         return _uriToVacanciesRepository.GetAll(chatId, siteType, cancellationToken);
     }
 
-    public UriToVacancies Get(ObjectId objectId, CancellationToken cancellationToken)
+    public UriToVacancies Get(ObjectId uriId, CancellationToken cancellationToken)
     {
-        return _uriToVacanciesRepository.Get(objectId, cancellationToken);
+        return _uriToVacanciesRepository.Get(uriId, cancellationToken);
     }
 
-    public UriToVacancies Create(long userId, SiteType siteType, GetParametr getParametr, CancellationToken cancellationToken)
+    public UriToVacancies Create(long chatId, SiteType siteType, GetParametr getParametr, CancellationToken cancellationToken)
     {
-        UriToVacancies uriToVacancies = new(userId, SiteTypesToUris.All[siteType].OriginalString);
+        UriToVacancies uriToVacancies = new(chatId, SiteTypesToUris.All[siteType].OriginalString);
         uriToVacancies.AddGetParametr(getParametr.Name, getParametr.Value);
-        return _uriToVacanciesRepository.InsertOrUpdate(userId, uriToVacancies, cancellationToken);
+        _uriToVacanciesRepository.InsertOne(uriToVacancies, cancellationToken);
+        return uriToVacancies;
     }
 
-    public UriToVacancies Update(long userId, ObjectId urlId, GetParametr getParametr, CancellationToken cancellationToken)
+    public UriToVacancies Update(ObjectId urlId, GetParametr getParametr, CancellationToken cancellationToken)
     {
-        UriToVacancies uriToVacancies = _uriToVacanciesRepository.Get(urlId, cancellationToken);
+        UriToVacancies uriToVacancies = _uriToVacanciesRepository.Pop(urlId, cancellationToken);
         uriToVacancies.AddGetParametr(getParametr.Name, getParametr.Value);
-        return _uriToVacanciesRepository.ReplaceIfNotExistCopy(userId, uriToVacancies, cancellationToken);
+        _uriToVacanciesRepository.InsertOne(uriToVacancies, cancellationToken);
+        return uriToVacancies;
     }
 
     public void Activate(ObjectId urlId, bool isActivate, CancellationToken cancellationToken)
@@ -47,8 +52,29 @@ public class UriToVacanciesService
         _uriToVacanciesRepository.Activate(urlId, isActivate, cancellationToken);
     }
 
-    public void RemoveUserId(ObjectId urlId, long userId, CancellationToken cancellationToken)
+    public async Task<UriToVacancies?> AddAsync(long chatId, string url, CancellationToken cancellationToken)
     {
-        _uriToVacanciesRepository.RemoveUserId(urlId, userId, cancellationToken);
+        try
+        {
+            if (url.IsUrl() is false)
+                return null;
+            Uri uri = new Uri(url);
+            IVacancyParser vacancyParser = VacancyParserFactory.CreateVacancyParser(uri);
+            if (await vacancyParser.IsCorrectUrlAsync(uri, cancellationToken) is false)
+                return null;
+            UriToVacancies uriToVacancies = new(chatId, uri);
+            _uriToVacanciesRepository.InsertOne(uriToVacancies, cancellationToken);
+            return uriToVacancies;
+        }
+        catch (Exception ex)
+        {
+            Log.Info(ex.Message);
+        }
+        return null;
+    }
+
+    public void Delete(ObjectId urlId, CancellationToken cancellationToken)
+    {
+        _uriToVacanciesRepository.Delete(urlId, cancellationToken);
     }
 }
