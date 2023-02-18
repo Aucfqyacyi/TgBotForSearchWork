@@ -11,15 +11,16 @@ public partial class UriToVacancies
     [BsonIgnore] public string OriginalString { get => Uri.OriginalString; }
     [BsonIgnore] public string WithoutHttps { get => Uri.Host + Uri.PathAndQuery; }
 
-    public UriToVacancies(long chatId, Uri uri)
+    public UriToVacancies(long chatId, Uri uri, bool isActivated = false)
     {
         Id = ObjectId.GenerateNewId();
         ChatId = chatId;
         Uri = uri;
+        IsActivated = isActivated;
         SiteType = SiteTypesToUris.HostsToSiteTypes[Uri.Host];
     }
 
-    public UriToVacancies(long chatId, string url) : this(chatId, new Uri(url))
+    public UriToVacancies(long chatId, string url, bool isActivated = false) : this(chatId, new Uri(url), isActivated)
     {
     }
 

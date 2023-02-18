@@ -9,14 +9,14 @@ namespace TgBotForSearchWorkApi.Services;
 [SingletonService]
 public class VacancyService
 {
-    public async Task<List<Vacancy>> GetRelevantVacanciesAsync(/*User user,*/ CancellationToken cancellationToken)
+    public async Task<List<Vacancy>> GetRelevantVacanciesAsync(IEnumerable<UriToVacancies> urisToVacancies, CancellationToken cancellationToken)
     {
         List<Vacancy> vacancies = new();
-/*        var activatedUrls = user.UrlIds.Where(url => url.IsActivate);
-        await Parallel.ForEachAsync(activatedUrls, cancellationToken, (UriToVacancies uriToVacancies, CancellationToken cancellationToken) =>
+        await Parallel.ForEachAsync(urisToVacancies, cancellationToken, 
+                            (UriToVacancies uriToVacancies, CancellationToken cancellationToken) =>
         {
             return GetRelevantVacanciesAsync(uriToVacancies, vacancies, cancellationToken);
-        });*/
+        });
         return vacancies;
     }
 

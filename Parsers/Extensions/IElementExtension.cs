@@ -7,6 +7,12 @@ namespace Parsers.Extensions;
 
 internal static class IElementExtension
 {
+    private const char _space = ' ';
+    private static readonly Dictionary<char, char> _badSymbolsToCorrects = new()
+    {
+        { '`', '\'' }, { '_', _space }, { '*', _space }, { '\n', _space }, { '\r', _space }
+    };
+
     public static string GetTextContent(this IElement element, HtmlElement htmlElement)
     {
         return element.GetElement(htmlElement)?.GetFirstChildTextContent() ?? string.Empty;
@@ -25,12 +31,11 @@ internal static class IElementExtension
     {
         string textContent = element!.TextContent.Trim('\t', '\n', '\r',' ');
         char space = ' ';
-        Dictionary<char, char> badSymbolsToCorrect = new() { { '`', '\'' }, { '_', space }, { '*', space }, { '\n', space }, { '\r', space } };
         StringBuilder stringBuilder = new StringBuilder(textContent);
         for (int i = 0; i < stringBuilder.Length; i++)
         {
-            if (badSymbolsToCorrect.ContainsKey(stringBuilder[i]))
-                stringBuilder[i] = badSymbolsToCorrect[stringBuilder[i]];
+            if (_badSymbolsToCorrects.ContainsKey(stringBuilder[i]))
+                stringBuilder[i] = _badSymbolsToCorrects[stringBuilder[i]];
             if (stringBuilder[i] == space && stringBuilder[i + 1] == space)
                 stringBuilder.Remove(i, 1);
         }

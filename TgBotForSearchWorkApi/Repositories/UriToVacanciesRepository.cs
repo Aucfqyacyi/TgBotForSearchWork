@@ -36,7 +36,18 @@ public class UriToVacanciesRepository
     {
         var chatIdFilter = Builders<UriToVacancies>.Filter.Eq(url => url.ChatId, chatId);
         var siteTypeFilter = Builders<UriToVacancies>.Filter.Eq(url => url.SiteType, siteType);
-        return _mongoContext.UriToVacanciesCollection.FindSync(chatIdFilter & siteTypeFilter, null, cancellationToken)
+        return _mongoContext.UriToVacanciesCollection.FindSync(chatIdFilter & siteTypeFilter, new() { }, cancellationToken)
+                                                     .ToList();
+    }
+
+    public List<UriToVacancies> GetAllActivated(int skip, int limit, CancellationToken cancellationToken)
+    {
+        var options = new FindOptions<UriToVacancies, UriToVacancies>()
+        {
+            Skip = skip,
+            Limit= limit,
+        };
+        return _mongoContext.UriToVacanciesCollection.FindSync(uri => uri.IsActivated, options, cancellationToken)
                                                      .ToList();
     }
 
@@ -71,8 +82,21 @@ public class UriToVacanciesRepository
         _mongoContext.UriToVacanciesCollection.UpdateOne(GetFilterById(urlId), update, null, cancellationToken);
     }
 
-    public bool IsActivated(ObjectId urlId)
+    public bool IsActivated(ObjectId urlId, CancellationToken cancellationToken)
     {
-        return _mongoContext.UriToVacanciesCollection.Find(GetFilterById(urlId)).Project(uri => uri.IsActivated).FirstOrDefault();
+        var options = new FindOptions<UriToVacancies, bool>();
+        options.Projection = new ProjectionDefinitionBuilder<UriToVacancies>().Expression(uri => uri.IsActivated);
+        return _mongoContext.UriToVacanciesCollection.FindSync(GetFilterById(urlId), options, cancellationToken).FirstOrDefault();
+    }
+
+    public void UpdateManyLastVacancyIds(IEnumerable<UriToVacancies> urisToVacancies, CancellationToken cancellationToken)
+    {       
+        var requests = urisToVacancies.Aggregate(new List<WriteModel<UriToVacancies>>(), (requests, uri) =>
+        {
+            var update = Builders<UriToVacancies>.Update.Set(url => url.LastVacanciesIds, uri.LastVacanciesIds);
+            requests.Add(new UpdateOneModel<UriToVacancies>(GetFilterById(uri.Id), update));
+            return requests;
+        });
+        _mongoContext.UriToVacanciesCollection.BulkWrite(requests, null, cancellationToken);
     }
 }

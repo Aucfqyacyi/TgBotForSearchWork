@@ -9,8 +9,6 @@
     <Description>Make beautiful and clear telegram bots with the asp.net-like architecture</Description>
     <Copyright>Deploy-f</Copyright>
     <PackageProjectUrl>https://github.com/deploy-f/botf</PackageProjectUrl>
-    <PackageIcon>deployf_logo_sq_128.png</PackageIcon>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/deploy-f/botf</RepositoryUrl>
     <PackageTags>telegram;bot;framework</PackageTags>
     <OutputType>Library</OutputType>

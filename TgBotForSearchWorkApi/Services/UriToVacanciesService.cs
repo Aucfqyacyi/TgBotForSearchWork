@@ -77,8 +77,8 @@ public class UriToVacanciesService
         _uriToVacanciesRepository.Delete(urlId, cancellationToken);
     }
 
-    public bool IsActivated(ObjectId urlId) 
+    public bool IsActivated(ObjectId urlId, CancellationToken cancellationToken) 
     {
-        return _uriToVacanciesRepository.IsActivated(urlId);
+        return _uriToVacanciesRepository.IsActivated(urlId, cancellationToken);
     }
 }

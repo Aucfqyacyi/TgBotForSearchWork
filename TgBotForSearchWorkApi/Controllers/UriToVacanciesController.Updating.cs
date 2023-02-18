@@ -17,6 +17,6 @@ public partial class UriToVacanciesController
     [Action]
     private void UpdateUriToVacancies(ObjectId urlId, SiteType siteType)
     {
-        GetFilterCategories(0, urlId, siteType, _uriToVacanciesService.IsActivated(urlId));
+        GetFilterCategories(0, urlId, siteType, _uriToVacanciesService.IsActivated(urlId, CancelToken));
     }
 }

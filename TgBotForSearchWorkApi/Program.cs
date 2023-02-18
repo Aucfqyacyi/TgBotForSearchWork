@@ -20,7 +20,7 @@ BotfProgram.StartBot(args, onConfigure: (services, congif) =>
             .AddSingleton(mongoClient.GetDatabase(MongoDatabaseName))
             .AddSingleton(filterService)
             .AddServices()           
-            /*.AddHostedService<VacancyBackgroundService>()*/;
+            .AddHostedService<VacancyBackgroundService>();
 
 }, onRun: (app, congif) =>
 {
