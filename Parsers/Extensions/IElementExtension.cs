@@ -75,11 +75,11 @@ internal static class IElementExtension
     public static string GetHrefAttribute(this IElement element, string host)
     {
         string? url = GetHrefAttribute(element);
-        if (url.StartsWith(SiteTypesToUris.Https))
+        if (url.StartsWith(Uri.UriSchemeHttps + Uri.SchemeDelimiter))
         {
             return url;
         }
-        return SiteTypesToUris.Https + host + url;
+        return Uri.UriSchemeHttps + Uri.SchemeDelimiter + host + url;
     }
 
     public static IElement? GetElement(this IElement iElement, HtmlElement htmlElement)

@@ -8,13 +8,11 @@ public static class SiteTypesToUris
     private static readonly Dictionary<string, SiteType> _hostsToSiteTypes = new();
     public static IReadOnlyDictionary<string, SiteType> HostsToSiteTypes { get => _hostsToSiteTypes; }
 
-    public const string Https = @"https://";
-
     static SiteTypesToUris()
     {
-        AddUri(SiteType.WorkUa, new Uri(Https + "www.work.ua/jobs/?advs=1"));
-        AddUri(SiteType.Djinni, new Uri(Https + "djinni.co/jobs/"));
-        AddUri(SiteType.Dou, new Uri(Https + "jobs.dou.ua/vacancies/"));        
+        AddUri(SiteType.WorkUa, new Uri(Uri.UriSchemeHttps + Uri.SchemeDelimiter + "www.work.ua/jobs/?advs=1"));
+        AddUri(SiteType.Djinni, new Uri(Uri.UriSchemeHttps + Uri.SchemeDelimiter + "djinni.co/jobs/"));
+        AddUri(SiteType.Dou, new Uri(Uri.UriSchemeHttps + Uri.SchemeDelimiter + "jobs.dou.ua/vacancies/"));        
     }
 
     private static void AddUri(SiteType siteType, Uri uri)
