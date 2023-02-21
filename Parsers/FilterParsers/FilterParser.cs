@@ -2,6 +2,7 @@
 using AngleSharp.Dom;
 using Parsers.Constants;
 using Parsers.Models;
+using Parsers.Utilities;
 
 namespace Parsers.FilterParsers;
 

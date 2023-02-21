@@ -58,7 +58,7 @@ public class UriToVacanciesService
             if (url.IsUrl() is false)
                 return null;
             Uri uri = new Uri(url);
-            IVacancyParser vacancyParser = VacancyParserFactory.CreateVacancyParser(uri);
+            IVacancyParser vacancyParser = VacancyParserFactory.Create(uri);
             if (await vacancyParser.IsCorrectUrlAsync(uri, cancellationToken) is false)
                 return null;
             UriToVacancies uriToVacancies = new(chatId, uri);

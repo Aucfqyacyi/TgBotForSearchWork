@@ -14,5 +14,5 @@ internal class WorkUaVacancyParser : VacancyParser
 
     protected override uint IdPositionInUrl { get; } = 4; 
 
-    protected override char SymbolAfterId { get; } = '/';
+    protected override string SymbolNearId { get; } = "/";
 }

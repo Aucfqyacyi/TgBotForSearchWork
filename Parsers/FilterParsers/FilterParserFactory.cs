@@ -8,21 +8,21 @@ public class FilterParserFactory
     private readonly static Dictionary<SiteType, IFilterParser> _cache = new();
     private readonly static object _lock = new object();
 
-    public static IFilterParser CreateFilterParser(SiteType sitetype)
+    public static IFilterParser Create(SiteType sitetype)
     {
         switch (sitetype)
         {
             case SiteType.Dou:
-                return CreateFilterParser<DouFilterParser>(sitetype);
+                return Create<DouFilterParser>(sitetype);
             case SiteType.Djinni:
-                return CreateFilterParser<DjinniFilterParser>(sitetype);
+                return Create<DjinniFilterParser>(sitetype);
             case SiteType.WorkUa:
-                return CreateFilterParser<WorkUaFilterParser>(sitetype);
+                return Create<WorkUaFilterParser>(sitetype);
         }
         throw new Exception($"Parser with sitetype({sitetype}) was not found.");
     }
 
-    private static IFilterParser CreateFilterParser<TParser>(SiteType site)
+    private static IFilterParser Create<TParser>(SiteType site)
                                                 where TParser : class, IFilterParser, new()
     {
         IFilterParser? filterParser = null;

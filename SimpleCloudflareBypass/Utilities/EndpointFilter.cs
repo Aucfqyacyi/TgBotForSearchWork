@@ -8,10 +8,10 @@ public class EndpointFilter : IEndpointFilter
     {
         try
         {
-            ManyRequest? manyRequest = context.Arguments.First() as ManyRequest;
+            SendManyRequest? manyRequest = context.Arguments.First() as SendManyRequest;
             if (manyRequest is null)
             {
-                Request? request = context.Arguments.First() as Request;
+                SendRequest? request = context.Arguments.First() as SendRequest;
                 CheckRequest(request);
             }
             else
@@ -35,7 +35,7 @@ public class EndpointFilter : IEndpointFilter
         return await next(context);
     }
 
-    private void CheckRequest(Request? request)
+    private void CheckRequest(SendRequest? request)
     {
         ArgumentNullException.ThrowIfNull(request, nameof(request));
         ArgumentNullException.ThrowIfNull(request.Url, nameof(request.Url));

@@ -21,7 +21,7 @@ public class FilterService
 
     private async ValueTask CollectFiltersAsync(KeyValuePair<SiteType, Uri> siteTypeToUri, CancellationToken cancellationToken)
     {       
-        IFilterParser filterParser = FilterParserFactory.CreateFilterParser(siteTypeToUri.Key);
+        IFilterParser filterParser = FilterParserFactory.Create(siteTypeToUri.Key);
         List<Filter> filters = await filterParser.ParseAsync(siteTypeToUri.Value, cancellationToken);
         SortedDictionary<FilterCategory, IReadOnlyDictionary<int, Filter>> categoriesToFilters = new();
         SortedDictionary<int, Filter>? idsToFilters = null;

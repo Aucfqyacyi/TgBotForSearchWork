@@ -33,7 +33,7 @@ public class VacancyService
 
     private async Task<List<Vacancy>> GetRelevantVacanciesAsync(UriToVacancies uriToVacancies, CancellationToken cancellationToken)
     {
-        IVacancyParser vacancyParser = VacancyParserFactory.CreateVacancyParser(uriToVacancies.Uri);
+        IVacancyParser vacancyParser = VacancyParserFactory.Create(uriToVacancies.Uri);
         List<Vacancy> vacancies = await vacancyParser.ParseAsync(uriToVacancies.Uri, cancellationToken);
         for (int i = 0; i < Math.Min(vacancies.Count, uriToVacancies.LastVacanciesIds.Count); i++)
         {

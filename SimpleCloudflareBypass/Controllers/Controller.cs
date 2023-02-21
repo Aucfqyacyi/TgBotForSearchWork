@@ -11,12 +11,12 @@ public static class Controller
 {
     public static object _locker = new();
 
-    public static IResult Send([FromBody] Request request, [FromServices] IWebDriver chromeDriver, CancellationToken cancellationToken)
+    public static string Send([FromBody] SendRequest request, [FromServices] IWebDriver chromeDriver, CancellationToken cancellationToken)
     {       
-        return Results.Ok(GetPageSource(request, chromeDriver, cancellationToken));
+        return GetPageSource(request, chromeDriver, cancellationToken);
     }
 
-    public static IResult SendMany([FromBody] ManyRequest manyRequest, [FromServices] IWebDriver chromeDriver, CancellationToken cancellationToken)
+    public static IResult SendMany([FromBody] SendManyRequest manyRequest, [FromServices] IWebDriver chromeDriver, CancellationToken cancellationToken)
     {
         List<string> pageSources = new();
         foreach (var request in manyRequest.Requests)
@@ -26,7 +26,7 @@ public static class Controller
         return Results.Ok(pageSources);
     }
 
-    private static string GetPageSource(Request request, IWebDriver chromeDriver, CancellationToken cancellationToken)
+    private static string GetPageSource(SendRequest request, IWebDriver chromeDriver, CancellationToken cancellationToken)
     {
         lock (_locker)
         {

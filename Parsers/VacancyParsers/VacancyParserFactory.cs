@@ -9,26 +9,26 @@ public static class VacancyParserFactory
     private readonly static Dictionary<SiteType, IVacancyParser> _cache = new();
     private readonly static object _lock = new object();
 
-    public static IVacancyParser CreateVacancyParser(Uri uri)
+    public static IVacancyParser Create(Uri uri)
     {
-        return CreateVacancyParser(SiteTypesToUris.HostsToSiteTypes[uri.Host]);
+        return Create(SiteTypesToUris.HostsToSiteTypes[uri.Host]);
     }
 
-    public static IVacancyParser CreateVacancyParser(SiteType  siteType)
+    public static IVacancyParser Create(SiteType siteType)
     {
         switch (siteType)
         {
             case SiteType.Dou:
-                return CreateVacancyParser<DouVacancyParser>(siteType);
+                return Create<DouVacancyParser>(siteType);
             case SiteType.Djinni:
-                return CreateVacancyParser<DjinniVacancyParser>(siteType);
+                return Create<DjinniVacancyParser>(siteType);
             case SiteType.WorkUa:
-                return CreateVacancyParser<WorkUaVacancyParser>(siteType);
+                return Create<WorkUaVacancyParser>(siteType);
         }
         throw new Exception($"Parser with sitetype({siteType}) was not found.");
     }
 
-    private static IVacancyParser CreateVacancyParser<TParser>(SiteType site) 
+    private static IVacancyParser Create<TParser>(SiteType site) 
                                                 where TParser : class, IVacancyParser, new()
     {
         IVacancyParser? vacancyParser = null;

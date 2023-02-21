@@ -11,12 +11,12 @@ builder.Services.AddSingleton(ChromeDriverCreator.Create());
 var app = builder.Build();
 
 app.MapPost("/send", Controller.Send)
-   .Accepts<Request>("application/json")
+   .Accepts<SendRequest>("application/json")
    .AddEndpointFilter<EndpointFilter>()
    .AllowAnonymous();
 
 app.MapPost("/sendMany", Controller.SendMany)
-   .Accepts<ManyRequest>("application/json")
+   .Accepts<SendManyRequest>("application/json")
    .AddEndpointFilter<EndpointFilter>()
    .AllowAnonymous();
 

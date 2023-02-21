@@ -10,9 +10,10 @@ public static class SiteTypesToUris
 
     static SiteTypesToUris()
     {
-        AddUri(SiteType.WorkUa, new Uri(Uri.UriSchemeHttps + Uri.SchemeDelimiter + "www.work.ua/jobs/?advs=1"));
-        AddUri(SiteType.Djinni, new Uri(Uri.UriSchemeHttps + Uri.SchemeDelimiter + "djinni.co/jobs/"));
-        AddUri(SiteType.Dou, new Uri(Uri.UriSchemeHttps + Uri.SchemeDelimiter + "jobs.dou.ua/vacancies/"));        
+        string https = Uri.UriSchemeHttps + Uri.SchemeDelimiter;
+        AddUri(SiteType.WorkUa, new Uri(https + "www.work.ua/jobs/?advs=1"));
+        AddUri(SiteType.Djinni, new Uri(https + "djinni.co/jobs/"));
+        AddUri(SiteType.Dou, new Uri(https + "jobs.dou.ua/vacancies/"));
     }
 
     private static void AddUri(SiteType siteType, Uri uri)
