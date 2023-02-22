@@ -38,7 +38,7 @@ internal class DjinniFilterParser : FilterParser
     {
         string filterName = filterElement.GetFirstChildTextContent();
         string[] splitedGetParamater = filterElement.GetHrefAttribute().TrimStart('?').Split('=');
-        GetParametr getParametr = new(splitedGetParamater.First(), splitedGetParamater.Last());
-        return new(filterName, category, getParametr, FilterType.CheckBox);
+        category.GetParameterName ??= splitedGetParamater.First();
+        return new(filterName, category, splitedGetParamater.Last(), FilterType.CheckBox);
     }
 }

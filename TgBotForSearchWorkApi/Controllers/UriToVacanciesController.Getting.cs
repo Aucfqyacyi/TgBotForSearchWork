@@ -12,13 +12,13 @@ public partial class UriToVacanciesController
     [Action(Command.GetUrl, CommandDescription.Empty)]
     public void GetUrl()
     {
-        GetSiteNamesThenGetUrlsToVacancies(GetUriToVacancies);
+        ShowSiteNamesThenShowUrlsToVacancies(ShowUriToVacancies);
     }
 
     [Action]
-    protected void GetSiteNamesThenGetUrlsToVacancies(Delegate next)
+    protected void ShowSiteNamesThenShowUrlsToVacancies(Delegate next)
     {
-        GetSiteNames(siteType => Q(GetUrlsToVacanciesAsync, 0, siteType, next));
+        ShowSiteNames(siteType => Q(GetUrlsToVacanciesAsync, 0, siteType, next));
     }
 
     [Action]
@@ -34,11 +34,11 @@ public partial class UriToVacanciesController
         Push("Виберіть, потрібне посилання.");
         Pager(urlsToVacancies, page, indexToUrl => (indexToUrl.WithoutHttps, Q(next, indexToUrl.Id, siteType)),
                                         Q(GetUrlsToVacanciesAsync, FirstPage, siteType, next), 1);
-        RowButton(Back, Q(GetSiteNamesThenGetUrlsToVacancies, next));
+        RowButton(Back, Q(ShowSiteNamesThenShowUrlsToVacancies, next));
     }
 
     [Action]
-    private async Task GetUriToVacancies(ObjectId urlId, SiteType siteType)
+    private async Task ShowUriToVacancies(ObjectId urlId, SiteType siteType)
     {
         await AnswerCallback();
         UriToVacancies uriToVacancies = _uriToVacanciesService.Get(urlId, CancelToken);

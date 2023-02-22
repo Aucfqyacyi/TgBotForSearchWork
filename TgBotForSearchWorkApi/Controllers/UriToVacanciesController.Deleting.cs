@@ -10,7 +10,7 @@ public partial class UriToVacanciesController
     [Action(Command.DeleteUrl, CommandDescription.Empty)]
     public void DeleteUrl()
     {
-        GetSiteNamesThenGetUrlsToVacancies(DeleteUriToVacancies);
+        ShowSiteNamesThenShowUrlsToVacancies(DeleteUriToVacancies);
     }
 
     [Action]

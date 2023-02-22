@@ -4,7 +4,7 @@ using TgBotForSearchWorkApi.Extensions;
 using TgBotForSearchWorkApi.Services;
 
 FilterService filterService = new();
-//await filterService.CollectFiltersAsync();
+await filterService.CollectFiltersAsync();
 
 BotfProgram.StartBot(args, onConfigure: (services, congif) =>
 {
@@ -19,8 +19,8 @@ BotfProgram.StartBot(args, onConfigure: (services, congif) =>
     services.AddSingleton(mongoClient)
             .AddSingleton(mongoClient.GetDatabase(MongoDatabaseName))
             .AddSingleton(filterService)
-            .AddServices()           
-            /*.AddHostedService<VacancyBackgroundService>()*/;
+            .AddServices()
+            .AddHostedService<VacancyBackgroundService>();
 
 }, onRun: (app, congif) =>
 {

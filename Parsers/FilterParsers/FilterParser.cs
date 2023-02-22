@@ -14,7 +14,7 @@ internal abstract class FilterParser : IFilterParser
     {
         List<Filter> filters = new()
         {
-            new("Пошуковий запит", new("Пошук"), new(SearchGetParamName, string.Empty), FilterType.Text)
+            new("Пошуковий запит", new("Пошук", SearchGetParamName), new(string.Empty), FilterType.Text)
         };
         using Stream response = await GlobalHttpClient.GetAsync(uri, cancellationToken);
         using IBrowsingContext browsingContext = BrowsingContext.New();

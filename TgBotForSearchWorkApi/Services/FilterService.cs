@@ -40,4 +40,16 @@ public class FilterService
         lock (this)
             _siteTypeToCategoriesToFilters.Add(siteTypeToUri.Key, categoriesToFilters);
     }
+
+    public List<FilterCategory> GetFilterCategories(SiteType siteType, List<GetParameter> getParameters)
+    {
+        var allCategories = _siteTypeToCategoriesToFilters[siteType].Keys;
+        return allCategories.Aggregate(new List<FilterCategory>(), (categories, category) =>
+        {
+            GetParameter? getParameter = getParameters.FirstOrDefault(getParam => getParam.Name == category.GetParameterName);
+            if (getParameter is not null)
+                categories.Add(category);
+            return categories;
+        });
+    }
 }

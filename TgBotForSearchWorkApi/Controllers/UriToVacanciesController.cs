@@ -20,7 +20,7 @@ public partial class UriToVacanciesController : BotController
         _uriToVacanciesService = uriToVacanciesService;
     }
 
-    protected void GetSiteNames(Func<SiteType, string> q)
+    protected void ShowSiteNames(Func<SiteType, string> q)
     {
         Push("Виберіть, назву сайту.");
         foreach (var siteType in Enum.GetValues<SiteType>())
@@ -34,7 +34,7 @@ public partial class UriToVacanciesController : BotController
         if (urlId is null || isActivated is null)
             return;
         string activatePhrase = isActivated.Value ? "Дезактивувати" : "Активувати";
-        RowButton(activatePhrase, Q(ActivateUrl, urlId, !isActivated, sendNewMessage, @delegate, args));
+        RowButton(activatePhrase, Q(ActivateUrl, urlId, !isActivated, sendNewMessage, @delegate!, args));
     }
 
     [Action]

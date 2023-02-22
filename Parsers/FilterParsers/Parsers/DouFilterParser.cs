@@ -17,7 +17,7 @@ internal class DouFilterParser : FilterParser
 
     protected override void CollectFilters(IDocument document, List<Filter> filters)
     {
-        FilterCategory category = new("Категорії");
+        FilterCategory category = new("Категорії", "category");
         CollectFiltersFromCategories(document, filters, category);
         CollectFiltersFromFilterRegion(document, filters);
     }
@@ -40,8 +40,7 @@ internal class DouFilterParser : FilterParser
         string filterGetParamater = filterElement.GetValueAttribute();
         if (filterGetParamater.IsNullOrEmpty())
             return null;
-        GetParametr getParametr = new("category", filterGetParamater);
-        return new(filterName, category, getParametr, FilterType.CheckBox);
+        return new(filterName, category, filterGetParamater, FilterType.CheckBox);
     }
 
     protected void CollectFiltersFromFilterRegion(IDocument document, List<Filter> filters)
@@ -76,8 +75,8 @@ internal class DouFilterParser : FilterParser
     {
         string filterName = filterElement.GetFirstChildTextContent();
         string[] splitedGetParamater = filterElement.FirstElementChild!.GetHrefAttribute().Split('?').Last().Split('=');
-        GetParametr getParametr = new(splitedGetParamater.First(), splitedGetParamater.Last());
-        return new(filterName, category, getParametr, FilterType.CheckBox);
+        category.GetParameterName ??= splitedGetParamater.First();
+        return new(filterName, category, splitedGetParamater.Last(), FilterType.CheckBox);
     }
 
 

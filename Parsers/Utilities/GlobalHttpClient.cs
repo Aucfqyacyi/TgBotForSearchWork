@@ -1,6 +1,4 @@
-﻿using FlareSolverrSharp;
-
-namespace Parsers.Utilities;
+﻿namespace Parsers.Utilities;
 
 public static class GlobalHttpClient
 {

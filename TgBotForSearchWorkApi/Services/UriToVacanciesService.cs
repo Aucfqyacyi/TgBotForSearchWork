@@ -30,18 +30,22 @@ public class UriToVacanciesService
         return _uriToVacanciesRepository.Get(uriId, cancellationToken);
     }
 
-    public UriToVacancies? Create(long chatId, SiteType siteType, GetParametr getParametr, CancellationToken cancellationToken)
+    public UriToVacancies? Create(long chatId, SiteType siteType, GetParameter getParametr, CancellationToken cancellationToken)
     {
         UriToVacancies uriToVacancies = new(chatId, SiteTypesToUris.All[siteType].OriginalString);
-        uriToVacancies.AddGetParametr(getParametr);
+        uriToVacancies.AddGetParameter(getParametr);
         _uriToVacanciesRepository.InsertOne(uriToVacancies, cancellationToken);
         return uriToVacancies;
     }
 
-    public UriToVacancies? Update(ObjectId urlId, GetParametr getParametr, CancellationToken cancellationToken)
+    public UriToVacancies? Update(ObjectId urlId, GetParameter getParametr, bool addGetParameter, CancellationToken cancellationToken)
     {
         UriToVacancies uriToVacancies = _uriToVacanciesRepository.Get(urlId, cancellationToken);
-        uriToVacancies.AddGetParametr(getParametr);
+        if(addGetParameter)
+            uriToVacancies.AddGetParameter(getParametr);
+        else
+            uriToVacancies.RemoveGetParameter(getParametr);
+
         _uriToVacanciesRepository.Replace(uriToVacancies, cancellationToken);
         return uriToVacancies;
     }
