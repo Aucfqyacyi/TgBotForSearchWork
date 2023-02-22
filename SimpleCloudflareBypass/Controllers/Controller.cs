@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
 using SimpleCloudflareBypass.Models;
+using SimpleCloudflareBypass.Utilities;
 
 namespace SimpleCloudflareBypass.Controllers;
 
@@ -31,18 +30,28 @@ public static class Controller
         lock (_locker)
         {
             chromeDriver.Url = request.Url;
-            if (request.IdOnLoadedPage is not null)
+            while (request.IdOnLoadedPage is not null)
             {
                 try
                 {
-                    WebDriverWait wait = new(chromeDriver, TimeSpan.FromSeconds(request.Timeout));
-                    wait.IgnoreExceptionTypes(typeof(NoSuchElementException));
-                    wait.Until(driver => driver.FindElement(By.Id(request.IdOnLoadedPage)), cancellationToken);
+                    WaitUntilResolvingChallenge(chromeDriver, request.IdOnLoadedPage, request.Timeout, cancellationToken);
+                    break;
                 }
-                catch
-                { }
+                catch (WebDriverTimeoutException ex)
+                {
+                    chromeDriver.Dispose();
+                    chromeDriver = ChromeDriverCreator.Create();
+                    chromeDriver.Url = request.Url;
+                }
             }
             return chromeDriver.PageSource;
         }                
+    }
+
+    private static void WaitUntilResolvingChallenge(IWebDriver chromeDriver, string idOnLoadedPage, int timeout, CancellationToken cancellationToken)
+    {
+        WebDriverWait wait = new(chromeDriver, TimeSpan.FromSeconds(timeout));
+        wait.IgnoreExceptionTypes(typeof(NoSuchElementException));
+        wait.Until(driver => driver.FindElement(By.Id(idOnLoadedPage)), cancellationToken);
     }
 }

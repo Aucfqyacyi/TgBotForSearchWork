@@ -8,7 +8,7 @@ public class SendRequest
     public string? IdOnLoadedPage { get; set; }
     public int Timeout { get; set; }
 
-    public SendRequest(string url, string? idOnLoadedPage = null, int timeout = 120)
+    public SendRequest(string url, string? idOnLoadedPage = null, int timeout = 30)
     {
         Url = url;
         IdOnLoadedPage = idOnLoadedPage;
