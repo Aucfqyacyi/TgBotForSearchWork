@@ -1,5 +1,4 @@
 ﻿using AngleSharp.Dom;
-using Parsers.Constants;
 using Parsers.Models;
 using System.Text;
 
@@ -10,46 +9,88 @@ internal static class IElementExtension
     private const char _space = ' ';
     private static readonly Dictionary<char, char> _badSymbolsToCorrects = new()
     {
-        { '`', '\'' }, { '_', _space }, { '*', _space }, { '\n', _space }, { '\r', _space }
+        { '`', '\'' }, { '_', _space }, { '*', _space }, { '\r', _space }
     };
 
-    public static string GetTextContent(this IElement element, HtmlElement htmlElement)
+    public static string GetTextContent(this IElement element, HtmlElement htmlElement, int? maxLenght = null)
     {
-        return element.GetElement(htmlElement)?.GetFirstChildTextContent() ?? string.Empty;
+        return element.GetElement(htmlElement)?.GetTextContent(maxLenght) ?? string.Empty;
     }
 
-    public static string GetFirstChildTextContent(this IElement element)
+    public static string GetTextContent(this IElement element, int? maxLength = null)
     {
-        if (element?.FirstElementChild != null && element.FirstElementChild.TagName != "BR")
+        string innerHtml = element!.InnerHtml.Trim('\t', '\n', '\r', ' ');
+        StringBuilder stringBuilder = new StringBuilder(innerHtml.Length);
+        bool isTag = false;
+        maxLength ??= int.MaxValue;
+        for (int i = 0; i < innerHtml.Length && i < maxLength; i++)
         {
-            return element.FirstElementChild.GetFirstChildTextContent();
+            if (innerHtml[i] == '<')
+            {
+                isTag = true;
+            }
+            else if (innerHtml[i] == '>')
+            {
+                isTag = false;
+            }
+            else if (isTag)
+            {
+                OnTag(innerHtml, i, stringBuilder);
+            }
+            else if (_badSymbolsToCorrects.ContainsKey(innerHtml[i]))
+            {
+                stringBuilder.Append(_badSymbolsToCorrects[innerHtml[i]]);
+            }
+            else if ((innerHtml[i] == _space && innerHtml[i + 1] == _space) ||
+                     (innerHtml[i] == '\t' && innerHtml[i + 1] == '\t') ||
+                     (innerHtml[i] == '\n' && innerHtml[i + 1] == '\n'))
+            {
+                i += 1;
+            }
+            else if (innerHtml[i] == '&')
+            {
+                i += 5;
+                stringBuilder.Append(_space);
+            }
+            else
+            {
+                stringBuilder.Append(innerHtml[i]);
+            }
         }
-        return element!.PrepareTextContent();
-    }
-
-    private static string PrepareTextContent(this IElement element)
-    {
-        string textContent = element!.TextContent.Trim('\t', '\n', '\r',' ');
-        char space = ' ';
-        StringBuilder stringBuilder = new StringBuilder(textContent);
-        for (int i = 0; i < stringBuilder.Length; i++)
-        {
-            if (_badSymbolsToCorrects.ContainsKey(stringBuilder[i]))
-                stringBuilder[i] = _badSymbolsToCorrects[stringBuilder[i]];
-            if (stringBuilder[i] == space && stringBuilder[i + 1] == space)
-                stringBuilder.Remove(i, 1);
-        }
-        stringBuilder.AppendLine();
         return stringBuilder.ToString().TrimEnd();
+    }
+
+    public static void OnTag(string innerHtml, int index, StringBuilder stringBuilder)
+    {
+        if ((innerHtml[index] == 'b' && innerHtml[index + 1] == 'r') ||
+            (innerHtml[index] == 'p' && innerHtml[index - 1] == '/') ||
+            (innerHtml[index] == 'u' && innerHtml[index - 1] == '/'))
+        {
+            stringBuilder.AppendLine();
+        }
+        else if((innerHtml[index] == 'b' && (innerHtml[index + 1] == '>' || innerHtml[index - 1] == '/')) ||
+               ((innerHtml[index] == 'h' && (innerHtml[index - 1] == '<' || innerHtml[index - 1] == '/'))))
+        {
+            stringBuilder.Append('*');
+            if (innerHtml[index] == 'h' && innerHtml[index - 1] == '/')
+                stringBuilder.AppendLine();
+        }
+        else if(innerHtml[index] == 'l' && innerHtml[index - 1] == '<')
+        {
+            stringBuilder.AppendLine();
+            stringBuilder.Append("---");
+            stringBuilder.Append(_space);
+        }
+
     }
 
     public static string GetNearestSiblingTextContent(this IElement element)
     {
         if (element.NextElementSibling != null)
-            return element.NextElementSibling.GetFirstChildTextContent();
-        if(element.PreviousElementSibling != null)
-            return element.PreviousElementSibling.GetFirstChildTextContent();
-        return element.GetFirstChildTextContent();
+            return element.NextElementSibling.GetTextContent();
+        if (element.PreviousElementSibling != null)
+            return element.PreviousElementSibling.GetTextContent();
+        return element.GetTextContent();
     }
 
     public static string GetHrefAttribute(this IElement element)
@@ -110,7 +151,7 @@ internal static class IElementExtension
                 elements.AddRange(element.GetElementsByClassName(htmlElement.CssClassName));
             else
                 elements.AddRange(element.GetElementsByTagName(htmlElement.TagName));
-        }        
+        }
         return elements;
     }
 
@@ -119,7 +160,7 @@ internal static class IElementExtension
         List<IElement> elementsWithId = new();
         List<IElement> elements = iElement.GetElements(htmlElements);
         if (elements != null)
-        {          
+        {
             foreach (var element in elements)
             {
                 if (element.Id.IsNotNullOrEmpty())
@@ -129,13 +170,14 @@ internal static class IElementExtension
                     IElement? elementChild = element.FirstElementChild;
                     do
                     {
-                        if(elementChild!.Id.IsNotNullOrEmpty())
+                        if (elementChild!.Id.IsNotNullOrEmpty())
                             elementsWithId.Add(elementChild);
                     } while ((elementChild = elementChild?.NextElementSibling) != null);
                 }
             }
-        }     
+        }
         return elementsWithId;
     }
 
 }
+

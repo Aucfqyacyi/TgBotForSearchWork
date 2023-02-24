@@ -76,14 +76,14 @@ public class VacancyBackgroundService : BackgroundService
         });
     }
 
-    private async Task SendVacancyAsync(long chatId, IEnumerable<UriToVacancies> urisToVacancies, CancellationToken cancellationToken)
+    private async ValueTask SendVacancyAsync(long chatId, IEnumerable<UriToVacancies> urisToVacancies, CancellationToken cancellationToken)
     {
         List<Vacancy> relevantVacancies = await _vacancyService.GetRelevantVacanciesAsync(urisToVacancies, cancellationToken);
         await SendVacancyAsync(chatId, relevantVacancies, cancellationToken);
         Log.Info($"All vacancies for the chat({chatId}) were sent successfully.");
     }
 
-    private async Task SendVacancyAsync(long chatId, IReadOnlyList<Vacancy> vacancies, CancellationToken cancellationToken)
+    private async ValueTask SendVacancyAsync(long chatId, IReadOnlyList<Vacancy> vacancies, CancellationToken cancellationToken)
     {
         for (int i = 0; i < vacancies.Count; i++)
         {
@@ -102,9 +102,9 @@ public class VacancyBackgroundService : BackgroundService
         }
     }
 
-    private Task SendVacancyAsync(long chatId, Vacancy vacancy, CancellationToken cancellationToken)
+    private async ValueTask SendVacancyAsync(long chatId, Vacancy vacancy, CancellationToken cancellationToken)
     {
-        return _telegramBotClient.SendTextMessageAsync(chatId,
+        await _telegramBotClient.SendTextMessageAsync(chatId,
                                                       vacancy.Present(),
                                                       ParseMode.Markdown,
                                                       disableWebPagePreview: true,

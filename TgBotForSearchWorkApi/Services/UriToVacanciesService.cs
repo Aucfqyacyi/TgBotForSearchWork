@@ -55,7 +55,7 @@ public class UriToVacanciesService
         _uriToVacanciesRepository.Activate(urlId, isActivated, cancellationToken);
     }
 
-    public async Task<UriToVacancies?> AddAsync(long chatId, string url, CancellationToken cancellationToken)
+    public async ValueTask<UriToVacancies?> AddAsync(long chatId, string url, CancellationToken cancellationToken)
     {
         try
         {

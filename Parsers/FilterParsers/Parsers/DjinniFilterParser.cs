@@ -26,7 +26,7 @@ internal class DjinniFilterParser : FilterParser
         if (filterElements == null)
             return;
 
-        string? categoryName = set.PreviousElementSibling?.GetFirstChildTextContent();
+        string? categoryName = set.PreviousElementSibling?.GetTextContent();
         if (categoryName is null)
             return;
         FilterCategory filterCategory = new(categoryName);
@@ -36,7 +36,7 @@ internal class DjinniFilterParser : FilterParser
 
     protected Filter CreateFilter(IElement filterElement, FilterCategory category)
     {
-        string filterName = filterElement.GetFirstChildTextContent();
+        string filterName = filterElement.GetTextContent();
         string[] splitedGetParamater = filterElement.GetHrefAttribute().TrimStart('?').Split('=');
         category.GetParameterName ??= splitedGetParamater.First();
         return new(filterName, category, splitedGetParamater.Last(), FilterType.CheckBox);

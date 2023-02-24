@@ -137,8 +137,9 @@ public abstract class BotController
         }
     }
 
-    protected async Task<Message> Send(string text, ParseMode mode, SendMessageOptions? sendMessageOptions = null)
+    protected async Task<Message> Send(string text, SendMessageOptions? sendMessageOptions = null)
     {
+        sendMessageOptions ??= new();
         IsDirty = false;
         Message message;
         if(Message.PhotoUrl == null)
@@ -146,13 +147,13 @@ public abstract class BotController
             message = await Client.SendTextMessageAsync(
                 ChatId == 0 ? Context!.GetSafeChatId()! : ChatId,
                 text,
-                mode,
+                sendMessageOptions.ParseMode,
                 null,
-                sendMessageOptions?.DisableWebPagePreview,
-                sendMessageOptions?.DisableNotification,
-                sendMessageOptions?.ProtectCotent,
+                sendMessageOptions.DisableWebPagePreview,
+                sendMessageOptions.DisableNotification,
+                sendMessageOptions.ProtectCotent,
                 Message.ReplyToMessageId,
-                sendMessageOptions?.AllowSendingWithoutReply,
+                sendMessageOptions.AllowSendingWithoutReply,
                 Message.Markup,
                 CancelToken);
         }
@@ -162,7 +163,7 @@ public abstract class BotController
                 ChatId == 0 ? Context!.GetSafeChatId()! : ChatId,
                 Message.PhotoUrl,
                 text,
-                mode,
+                sendMessageOptions.ParseMode,
                 replyMarkup: Message.Markup,
                 cancellationToken: CancelToken,
                 replyToMessageId: Message.ReplyToMessageId);
@@ -198,11 +199,6 @@ public abstract class BotController
         await TrySaveLastMessageId(markupValue, message);
         ClearMessage();
         return message;
-    }
-
-    protected async Task<Message> Send(string text, SendMessageOptions? sendMessageOptions = null)
-    {
-        return await Send(text, ParseMode.Html, sendMessageOptions);
     }
 
     protected async Task AnswerOkCallback()

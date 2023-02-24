@@ -2,6 +2,7 @@
 using Parsers.Constants;
 using Parsers.Extensions;
 using Parsers.Models;
+using Parsers.Utilities;
 
 namespace Parsers.FilterParsers.Parsers;
 
@@ -29,7 +30,7 @@ internal class WorkUaFilterParser : FilterParser
 
     protected void CollectFiltersFromFilterGroup(IElement filterGroup, List<Filter> filters, params HtmlElement[] tags)
     {
-        string? categoryName = filterGroup.GetElement(_filterGroupTitle)?.GetFirstChildTextContent();
+        string? categoryName = filterGroup.GetElement(_filterGroupTitle)?.GetTextContent();
         if (categoryName is null)
             return;
         FilterCategory category = new(categoryName);
@@ -66,6 +67,6 @@ internal class WorkUaFilterParser : FilterParser
         {
             filters.Add(new(cities[i], category, id.ToString(), FilterType.CheckBox));
         }
-
     }
+
 }

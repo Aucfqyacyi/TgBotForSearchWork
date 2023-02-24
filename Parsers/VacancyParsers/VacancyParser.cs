@@ -1,5 +1,4 @@
-﻿using AngleSharp;
-using AngleSharp.Dom;
+﻿using AngleSharp.Dom;
 using Parsers.Extensions;
 using Parsers.Models;
 using Parsers.Utilities;
@@ -10,43 +9,46 @@ internal abstract class VacancyParser : IVacancyParser
 {
     protected abstract HtmlElement VacancyItem { get; }
     protected abstract HtmlElement Title { get; }
-    protected abstract HtmlElement ShortDescription { get; }
+    protected abstract HtmlElement Description { get; }
     protected abstract HtmlElement Url { get; }
     protected abstract uint IdPositionInUrl { get; }
     protected abstract string SymbolNearId { get; }
 
-    public async Task<bool> IsCorrectUrlAsync(Uri uri, CancellationToken cancellationToken)
+    public async ValueTask<bool> IsCorrectUrlAsync(Uri uri, CancellationToken cancellationToken)
     {
         IHtmlCollection<IElement> vacancyElements = await GetVacancyElementsAsync(uri, cancellationToken);
         return vacancyElements.Length > 0;
     }
 
-    public async Task<List<Vacancy>> ParseAsync(Uri uri, CancellationToken cancellationToken = default)
+    public async ValueTask<List<Vacancy>> ParseAsync(Uri uri, int descriptionLenght, CancellationToken cancellationToken = default)
     {
         IHtmlCollection<IElement> vacancyElements = await GetVacancyElementsAsync(uri, cancellationToken);
         List<Vacancy> vacancies = new();
         foreach (IElement vacancyElement in vacancyElements)
         {
-            vacancies.Add(CreateVacancy(vacancyElement, uri.Host));
+            vacancies.Add(await CreateVacancyAsync(vacancyElement, descriptionLenght, uri.Host, cancellationToken));
         }
         return vacancies;
     }
 
-    protected async Task<IHtmlCollection<IElement>> GetVacancyElementsAsync(Uri uri, CancellationToken cancellationToken)
-    {
-        using Stream response = await GlobalHttpClient.GetAsync(uri, cancellationToken);
-        using IBrowsingContext browsingContext = BrowsingContext.New();
-        using IDocument document = await browsingContext.OpenAsync(req => req.Content(response), cancellationToken);
-        return document.GetElementsByClassName(VacancyItem.CssClassName);
+    protected ValueTask<IHtmlCollection<IElement>> GetVacancyElementsAsync(Uri uri, CancellationToken cancellationToken)
+    {        
+        return HtmlParser.GetElementsAsync(uri, document => document.GetElementsByClassName(VacancyItem.CssClassName), cancellationToken);
     }
 
-    protected virtual Vacancy CreateVacancy(IElement element, string host)
+    protected virtual async ValueTask<Vacancy> CreateVacancyAsync(IElement element, int descriptionLenght, string host, CancellationToken cancellationToken)
     {
         string url = element.GetElement(Url)?.GetHrefAttribute(host) ?? string.Empty;
         string title = element.GetTextContent(Title);
-        string shortDescription = element.GetTextContent(ShortDescription);
+        string description = await GetDescriptionAsync(url, descriptionLenght, cancellationToken) ?? string.Empty;
         ulong id = GetId(url);
-        return new(id, title, url, shortDescription);
+        return new(id, title, url, description);
+    }
+
+    protected virtual async ValueTask<string?> GetDescriptionAsync(string url, int descriptionLenght, CancellationToken cancellationToken)
+    {
+        var elements = await HtmlParser.GetElementsAsync(new(url), document => document.GetElementsByClassName(Description.CssClassName), cancellationToken);
+        return elements.FirstOrDefault()?.GetTextContent(descriptionLenght);
     }
 
     protected ulong GetId(string url)

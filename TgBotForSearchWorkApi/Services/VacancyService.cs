@@ -9,7 +9,7 @@ namespace TgBotForSearchWorkApi.Services;
 [SingletonService]
 public class VacancyService
 {
-    public async Task<List<Vacancy>> GetRelevantVacanciesAsync(IEnumerable<UriToVacancies> urisToVacancies, CancellationToken cancellationToken)
+    public async ValueTask<List<Vacancy>> GetRelevantVacanciesAsync(IEnumerable<UriToVacancies> urisToVacancies, CancellationToken cancellationToken)
     {
         List<Vacancy> vacancies = new();
         await Parallel.ForEachAsync(urisToVacancies, cancellationToken, 
@@ -31,10 +31,10 @@ public class VacancyService
             vacancies.AddRange(relevantVacancies);
     }
 
-    private async Task<List<Vacancy>> GetRelevantVacanciesAsync(UriToVacancies uriToVacancies, CancellationToken cancellationToken)
+    private async ValueTask<List<Vacancy>> GetRelevantVacanciesAsync(UriToVacancies uriToVacancies, CancellationToken cancellationToken)
     {
         IVacancyParser vacancyParser = VacancyParserFactory.Create(uriToVacancies.Uri);
-        List<Vacancy> vacancies = await vacancyParser.ParseAsync(uriToVacancies.Uri, cancellationToken);
+        List<Vacancy> vacancies = await vacancyParser.ParseAsync(uriToVacancies.Uri, 0, cancellationToken);
         for (int i = 0; i < Math.Min(vacancies.Count, uriToVacancies.LastVacanciesIds.Count); i++)
         {
             if (uriToVacancies.LastVacanciesIds[i] == 0)

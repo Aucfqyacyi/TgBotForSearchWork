@@ -36,7 +36,7 @@ internal class DouFilterParser : FilterParser
 
     protected Filter? CreateFilterFromCategory(IElement filterElement, FilterCategory category)
     {
-        string filterName = filterElement.GetFirstChildTextContent();
+        string filterName = filterElement.GetTextContent();
         string filterGetParamater = filterElement.GetValueAttribute();
         if (filterGetParamater.IsNullOrEmpty())
             return null;
@@ -59,7 +59,7 @@ internal class DouFilterParser : FilterParser
 
     protected void CollectFiltersFromFilterRegion(IElement ul, List<Filter> filters)
     {
-        string? categoryName = ul.PreviousElementSibling?.GetFirstChildTextContent();
+        string? categoryName = ul.PreviousElementSibling?.GetTextContent();
         if (categoryName is null)
             return;
         FilterCategory category = new(categoryName);
@@ -73,7 +73,7 @@ internal class DouFilterParser : FilterParser
 
     protected Filter CreateFilterFromFilterRegion(IElement filterElement, FilterCategory category)
     {
-        string filterName = filterElement.GetFirstChildTextContent();
+        string filterName = filterElement.GetTextContent();
         string[] splitedGetParamater = filterElement.FirstElementChild!.GetHrefAttribute().Split('?').Last().Split('=');
         category.GetParameterName ??= splitedGetParamater.First();
         return new(filterName, category, splitedGetParamater.Last(), FilterType.CheckBox);

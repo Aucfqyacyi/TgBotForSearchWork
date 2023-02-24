@@ -1,28 +1,18 @@
 ﻿using Deployf.Botf;
 using TgBotForSearchWorkApi.Constants;
-using TgBotForSearchWorkApi.Services;
 
 namespace TgBotForSearchWorkApi.Controllers;
 
 public class UserController : BotController
 {
-    private readonly DefaultUserService _defaultUserService;
-
-    public UserController(DefaultUserService defaultUserService)
+    public UserController()
     {
-        _defaultUserService = defaultUserService;
     }
 
     [Action(Command.Start, CommandDescription.Empty)]
     public async Task Start()
     {
         await Send("Вітання!");
-    }
-
-    [Action("/adu")]
-    public void AddDefaultUser()
-    {
-        _defaultUserService.AddDefaultUser();
     }
 
     [Action(Command.Stop, CommandDescription.Empty)]
@@ -34,6 +24,6 @@ public class UserController : BotController
     [Action(Command.Test)]
     public async Task Test()
     {
-        await Send($"Тестовий визов.");
+        await Send("Тестовий визов.");
     }
 }
