@@ -1,13 +1,8 @@
-﻿using Amazon.Runtime.Internal.Transform;
-using AngleSharp.Html;
-using MongoDB.Bson.Serialization.Serializers;
-using Parsers.Models;
-using System.Threading;
+﻿using Parsers.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Repositories;
-using TgBotForSearchWorkApi.Services;
 using TgBotForSearchWorkApi.Utilities;
 
 namespace TgBotForSearchWorkApi.Services;
@@ -16,80 +11,81 @@ public class VacancyBackgroundService : BackgroundService
 {
     private readonly ITelegramBotClient _telegramBotClient;
     private readonly VacancyService _vacancyService;
+    private readonly UriToVacanciesRepository _uriToVacanciesRepository;
+    private readonly UserRepository _userRepository;
     private readonly TimeSpan _timeout;
     private readonly int _urisLimit;
     private int _skip = 0;
-    private readonly UriToVacanciesRepository _uriToVacanciesRepository;
 
     public VacancyBackgroundService(ITelegramBotClient telegramBotClient, VacancyService vacancyService,
-                                    UriToVacanciesRepository uriToVacanciesRepository, IConfiguration configuration)
+                                    UriToVacanciesRepository uriToVacanciesRepository, IConfiguration configuration, 
+                                    UserRepository userRepository)
     {
         _vacancyService = vacancyService;
         _telegramBotClient = telegramBotClient;
         _timeout = TimeSpan.FromSeconds(configuration.GetValue<int>("TimeoutBetweenSendVacancies"));
-        _urisLimit = configuration.GetValue<int>("UrisLimit");
+        _urisLimit = configuration.GetValue<int>("UserLimit");
         _uriToVacanciesRepository = uriToVacanciesRepository;
+        _userRepository = userRepository;
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         while (cancellationToken.IsCancellationRequested is false)
         {
+            List<User> users = _userRepository.GetAllActivated(_skip, _urisLimit, cancellationToken);
             try
-            {
-                List<UriToVacancies> urisToVacancies = _uriToVacanciesRepository.GetAllActivated(_skip, _urisLimit, cancellationToken);
-                var chatIdsToUris = GetChatIdsToUrisToVacancies(urisToVacancies);
-                foreach (var chatIdToUris in chatIdsToUris)
-                {
-                    await SendVacancyAsync(chatIdToUris.Key, chatIdToUris.Value, cancellationToken);
-                }              
-                if (urisToVacancies.Count > 0)
-                {
-                    _skip += _urisLimit;
-                    _uriToVacanciesRepository.UpdateManyLastVacancyIds(urisToVacancies, cancellationToken);
-                }
-                else
-                {
-                    _skip = 0;
-                    await Task.Delay(_timeout, cancellationToken);                    
-                }
+            {                 
+                await SendVacanciesAsync(users, cancellationToken);                
             }
             catch (Exception ex)
             {
                 Log.Info(ex.Message);
             }
+            if (users.Count > 0)
+            {
+                _skip += _urisLimit;
+            }
+            else
+            {
+                _skip = 0;
+                await Task.Delay(_timeout, cancellationToken);
+            }
         }       
     }
 
-    private Dictionary<long, List<UriToVacancies>> GetChatIdsToUrisToVacancies(IEnumerable<UriToVacancies> urisToVacancies)
+    private async ValueTask SendVacanciesAsync(List<User> users, CancellationToken cancellationToken)
     {
-        return urisToVacancies.Aggregate(new Dictionary<long, List<UriToVacancies>>(), (chatIdsToUris, uri) =>
+        foreach (var user in users)
         {
-            List<UriToVacancies>? uris = chatIdsToUris.GetValueOrDefault(uri.ChatId);
-            if (uris is null)
-            {
-                uris = new();
-                chatIdsToUris.Add(uri.ChatId, uris);
-            }               
-            uris.Add(uri);            
-            return chatIdsToUris;
-        });
+            List<UriToVacancies> urisToVacancies = await SendVacanciesAsync(user, cancellationToken);
+            if(urisToVacancies.Any())
+                _uriToVacanciesRepository.UpdateManyLastVacancyIds(urisToVacancies, cancellationToken);
+        }
     }
 
-    private async ValueTask SendVacancyAsync(long chatId, IEnumerable<UriToVacancies> urisToVacancies, CancellationToken cancellationToken)
+    private async ValueTask<List<UriToVacancies>> SendVacanciesAsync(User user, CancellationToken cancellationToken)
     {
-        List<Vacancy> relevantVacancies = await _vacancyService.GetRelevantVacanciesAsync(urisToVacancies, cancellationToken);
-        await SendVacancyAsync(chatId, relevantVacancies, cancellationToken);
-        Log.Info($"All vacancies for the chat({chatId}) were sent successfully.");
+        List<UriToVacancies> urisToVacancies = _uriToVacanciesRepository.GetAllActivated(user.ChatId, cancellationToken);
+        if (urisToVacancies.Any())
+            await SendVacanciesAsync(user, urisToVacancies, cancellationToken);
+        return urisToVacancies;
     }
 
-    private async ValueTask SendVacancyAsync(long chatId, IReadOnlyList<Vacancy> vacancies, CancellationToken cancellationToken)
+    private async ValueTask SendVacanciesAsync(User user, IEnumerable<UriToVacancies> urisToVacancies, CancellationToken cancellationToken)
+    {
+        List<Vacancy> relevantVacancies = await _vacancyService.GetRelevantVacanciesAsync(urisToVacancies, user.DescriptionLength, cancellationToken);
+        await SendVacanciesAsync(user, relevantVacancies, cancellationToken);
+        Log.Info($"All vacancies for the chat({user.ChatId}) were sent successfully.");
+    }
+
+    private async ValueTask SendVacanciesAsync(User user, IReadOnlyList<Vacancy> vacancies, CancellationToken cancellationToken)
     {
         for (int i = 0; i < vacancies.Count; i++)
         {
             try
             {
-                await SendVacancyAsync(chatId, vacancies[i], cancellationToken);
+                await SendVacancyAsync(user.ChatId, vacancies[i], cancellationToken);
             }
             catch (TaskCanceledException)
             {

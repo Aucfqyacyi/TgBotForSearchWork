@@ -14,44 +14,34 @@ public partial class UriToVacanciesController
     [Action(Command.CreateUrl, CommandDescription.Empty)]
     public void CreateUrl()
     {
-        GetSiteNamesThenShowFilterCategories(null, false);
+        ShowSitesThenShowFilterCategories(null, false);
     }
 
     [Action]
-    private void GetSiteNamesThenShowFilterCategories(ObjectId? urlId, bool isActivated)
+    private void ShowSitesThenShowFilterCategories(ObjectId? urlId, bool isActivated)
     {
-        ShowSiteNames(siteType => Q(ShowFilterCategoriesWithBackButton, 0, urlId!, siteType, isActivated));
+        ShowSites(siteType => Q(ShowFilterCategories_Creating, 0, siteType, urlId!, isActivated));
     }
 
+    /// <summary>
+    /// Method ShowFilterCategories with back button to ShowSitesThenShowFilterCategories.
+    /// </summary>
     [Action]
-    private void ShowFilterCategoriesWithBackButton(int page, ObjectId? urlId, SiteType siteType, bool isActivated)
+    private void ShowFilterCategories_Creating(int page, SiteType siteType, ObjectId? urlId, bool isActivated)
     {
-        ShowFilterCategories(page, urlId, siteType, isActivated);
+        ShowFilterCategories(page, siteType, ShowFilters_Creating, urlId, isActivated);
         if (urlId is null)
-            RowButton(Back, Q(GetSiteNamesThenShowFilterCategories, urlId!, isActivated));
+            RowButton(Back, Q(ShowSitesThenShowFilterCategories, urlId!, isActivated));
     }
 
+    /// <summary>
+    /// Method ShowFilters with back button to ShowFilterCategories_Creating.
+    /// </summary>
     [Action]
-    private void ShowFilterCategories(int page, ObjectId? urlId, SiteType siteType, bool isActivated)
+    private void ShowFilters_Creating(int page, SiteType siteType, int categoryId, ObjectId? urlId, bool isActivated)
     {
-        Push($"Виберіть, потрібну категорію для фільтра.");
-        IEnumerable<FilterCategory> categories = _filterService.SiteTypeToCategoriesToFilters[siteType].Keys;
-        Pager(categories, page, category => (category.Name, Q(ShowFilters, 0, urlId!, siteType, category.Id, isActivated)),
-                                        Q(ShowFilterCategories, FirstPage, urlId!, siteType, isActivated), 1);
-        ActivateRowButton(urlId, isActivated, false, ShowFilterCategories, page, urlId!, siteType);        
-    }
-
-    [Action]
-    private void ShowFilters(int page, ObjectId? urlId, SiteType siteType, int categoryId, bool isActivated)
-    {
-        Push($"Виберіть, потрібний фільтр.");
-        var idsToFilters = _filterService.SiteTypeToCategoriesToFilters[siteType][categoryId];
-        string format = Q(ShowFilters, FirstPage, urlId!, siteType, categoryId, isActivated);
-        Pager(idsToFilters, page, idToFilter =>
-                        (idToFilter.Value.Name, Q(AddFilterToUrlAsync, urlId!, siteType, categoryId, idToFilter.Key)),
-                        format);
-        ActivateRowButton(urlId, isActivated, false, ShowFilters, page, urlId!, siteType, categoryId);
-        RowButton(Back, Q(ShowFilterCategoriesWithBackButton, 0, urlId!, siteType, isActivated));
+        ShowFilters(page, siteType, categoryId, ShowFilters_Creating, urlId, isActivated);
+        RowButton(Back, Q(ShowFilterCategories_Creating, 0, siteType, urlId!, isActivated));
     }
 
     [Action]
@@ -72,6 +62,7 @@ public partial class UriToVacanciesController
     [State]
     private async Task HandleAddingSearchFilterToUrlAsync(AddingSearchFilterToUrlState state)
     {
+        await ClearState();
         string getParameterValue = Context.GetSafeTextPayload()!;
         GetParameter getParameter = new(state.GetParameterName, getParameterValue);
         await CreateOrUpdateUriToVacanciesAsync(state.UrlId, state.SiteType, getParameter);
@@ -93,6 +84,6 @@ public partial class UriToVacanciesController
             Log.Info(ex.Message);
             await Send("Посилання вже добавленно, оберіть інший фільтр.");
         }
-        ShowFilterCategories(0, uriToVacancies?.Id ?? urlId, siteType, uriToVacancies?.IsActivated ?? false);       
+        ShowFilterCategories(0, siteType, ShowFilters, uriToVacancies?.Id ?? urlId, uriToVacancies?.IsActivated ?? false);       
     }
 }

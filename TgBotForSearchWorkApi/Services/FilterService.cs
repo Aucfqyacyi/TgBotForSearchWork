@@ -13,7 +13,6 @@ public class FilterService
         get => _siteTypeToCategoriesToFilters;
     }
 
-
     public async ValueTask CollectFiltersAsync(CancellationToken cancellationToken = default)
     {
         await Parallel.ForEachAsync(SiteTypesToUris.All, cancellationToken, CollectFiltersAsync);

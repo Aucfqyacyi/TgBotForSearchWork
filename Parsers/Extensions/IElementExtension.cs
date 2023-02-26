@@ -77,9 +77,12 @@ internal static class IElementExtension
         }
         else if(innerHtml[index] == 'l' && innerHtml[index - 1] == '<')
         {
-            stringBuilder.AppendLine();
             stringBuilder.Append("---");
             stringBuilder.Append(_space);
+        }
+        else if (innerHtml[index] == 'l' && innerHtml[index - 1] == '/')
+        {
+            stringBuilder.AppendLine();
         }
 
     }

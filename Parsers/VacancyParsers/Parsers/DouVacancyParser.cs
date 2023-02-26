@@ -4,7 +4,7 @@ namespace Parsers.VacancyParsers.Parsers;
 
 internal class DouVacancyParser : VacancyParser
 {
-    protected override HtmlElement VacancyItem { get; } = new("l-vacancy");
+    protected override HtmlElement VacancyItem { get; } = new("vacancy");
 
     protected override HtmlElement Title { get; } = new("vt", "A");
 

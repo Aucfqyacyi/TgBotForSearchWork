@@ -36,18 +36,13 @@ public class UriToVacanciesRepository
     {
         var chatIdFilter = Builders<UriToVacancies>.Filter.Eq(url => url.ChatId, chatId);
         var siteTypeFilter = Builders<UriToVacancies>.Filter.Eq(url => url.SiteType, siteType);
-        return _mongoContext.UriToVacanciesCollection.FindSync(chatIdFilter & siteTypeFilter, new() { }, cancellationToken)
+        return _mongoContext.UriToVacanciesCollection.FindSync(chatIdFilter & siteTypeFilter, null, cancellationToken)
                                                      .ToList();
     }
 
-    public List<UriToVacancies> GetAllActivated(int skip, int limit, CancellationToken cancellationToken)
+    public List<UriToVacancies> GetAllActivated(long chatId, CancellationToken cancellationToken)
     {
-        var options = new FindOptions<UriToVacancies, UriToVacancies>()
-        {
-            Skip = skip,
-            Limit= limit,
-        };
-        return _mongoContext.UriToVacanciesCollection.FindSync(uri => uri.IsActivated, options, cancellationToken)
+        return _mongoContext.UriToVacanciesCollection.FindSync(uri => uri.ChatId == chatId && uri.IsActivated, null, cancellationToken)
                                                      .ToList();
     }
 

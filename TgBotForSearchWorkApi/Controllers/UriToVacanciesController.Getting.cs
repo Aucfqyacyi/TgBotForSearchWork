@@ -12,37 +12,35 @@ public partial class UriToVacanciesController
     [Action(Command.GetUrl, CommandDescription.Empty)]
     public void GetUrl()
     {
-        ShowSiteNamesThenShowUrlsToVacancies(ShowUriToVacancies);
+        ShowSitesThenShowUrisToVacancies(GetUriToVacanciesAsync);
     }
 
     [Action]
-    protected void ShowSiteNamesThenShowUrlsToVacancies(Delegate next)
+    protected void ShowSitesThenShowUrisToVacancies(Delegate next)
     {
-        ShowSiteNames(siteType => Q(GetUrlsToVacanciesAsync, 0, siteType, next));
+        ShowSites(siteType => Q(ShowUrisToVacancies, 0, siteType, next));
     }
 
     [Action]
-    protected async Task GetUrlsToVacanciesAsync(int page, SiteType siteType, Delegate next)
+    protected void ShowUrisToVacancies(int page, SiteType siteType, Delegate next)
     {
-
         List<UriToVacancies> urlsToVacancies = _uriToVacanciesService.GetAll(ChatId, siteType, CancelToken);
         if (urlsToVacancies.Count <= 0)
         {
-            await Send("У вас немає посилань.");
+            ShowSitesThenShowUrisToVacancies(next);
             return;
         }
         Push("Виберіть, потрібне посилання.");
         Pager(urlsToVacancies, page, indexToUrl => (indexToUrl.WithoutHttps, Q(next, indexToUrl.Id, siteType)),
-                                        Q(GetUrlsToVacanciesAsync, FirstPage, siteType, next), 1);
-        RowButton(Back, Q(ShowSiteNamesThenShowUrlsToVacancies, next));
+                                        Q(ShowUrisToVacancies, FirstPage, siteType, next), 1);
+        RowButton(Back, Q(ShowSitesThenShowUrisToVacancies, next));
     }
 
     [Action]
-    private async Task ShowUriToVacancies(ObjectId urlId, SiteType siteType)
+    private async Task GetUriToVacanciesAsync(ObjectId urlId, SiteType siteType)
     {
-        await AnswerCallback();
         UriToVacancies uriToVacancies = _uriToVacanciesService.Get(urlId, CancelToken);
-        ActivateRowButton(uriToVacancies.Id, uriToVacancies.IsActivated);
+        ActivateRowButton(urlId, uriToVacancies.IsActivated);
         await Send(uriToVacancies.OriginalString, new() { DisableWebPagePreview = true });
     }
 

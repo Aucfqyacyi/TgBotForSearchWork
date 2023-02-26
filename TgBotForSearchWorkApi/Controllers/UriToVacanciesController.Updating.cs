@@ -13,40 +13,53 @@ public partial class UriToVacanciesController
     [Action(Command.AddFilter, CommandDescription.Empty)]
     public void AddFilter()
     {
-        ShowSiteNamesThenShowUrlsToVacancies(AddFilterToUriToVacancies);
+        ShowSitesThenShowUrisToVacancies(ShowFilterCategories_Updating);
     }
 
+    /// <summary>
+    /// Method ShowFilterCategories with back button to ShowSitesThenShowUrisToVacancies.
+    /// </summary>
     [Action]
-    private void AddFilterToUriToVacancies(ObjectId urlId, SiteType siteType)
+    private void ShowFilterCategories_Updating(ObjectId urlId, SiteType siteType)
     {
-        ShowFilterCategories(0, urlId, siteType, _uriToVacanciesService.IsActivated(urlId, CancelToken));
-        RowButton(Back, Q(GetUrlsToVacanciesAsync, 0, siteType, AddFilterToUriToVacancies));
+        ShowFilterCategories(0, siteType, ShowFilters_Updating, urlId, _uriToVacanciesService.IsActivated(urlId, CancelToken));
+        RowButton(Back, Q(ShowUrisToVacancies, 0, siteType, ShowFilterCategories_Updating));
+    }
+
+    /// <summary>
+    /// Method ShowFilters with back button to the ShowFilterCategories_Updating.
+    /// </summary>
+    [Action]
+    private void ShowFilters_Updating(int page, SiteType siteType, int categoryId, ObjectId urlId, bool isActivated)
+    {
+        ShowFilters(page, siteType, categoryId, ShowFilters_Updating, urlId, isActivated);
+        RowButton(Back, Q(ShowFilterCategories_Updating, urlId, siteType));
     }
 
     [Action(Command.RemoveFilter, CommandDescription.Empty)]
     public void RemoveFilter()
     {
-        ShowSiteNamesThenShowUrlsToVacancies(ShowFirstPageCategoriesByGetParams);
+        ShowSitesThenShowUrisToVacancies(ShowFirstPageCategoriesByGetParams);
     }
 
     [Action]
     private void ShowFirstPageCategoriesByGetParams(ObjectId urlId, SiteType siteType)
     {
-        ShowFilterCategoriesByGetParams(0, urlId, siteType, _uriToVacanciesService.IsActivated(urlId, CancelToken));
+        ShowFilterCategoriesByGetParams(0, siteType, urlId, _uriToVacanciesService.IsActivated(urlId, CancelToken));
     }
 
     [Action]
-    private void ShowFilterCategoriesByGetParams(int page, ObjectId urlId, SiteType siteType, bool isActivated)
+    private void ShowFilterCategoriesByGetParams(int page, SiteType siteType, ObjectId urlId, bool isActivated)
     {
         Push("Виберіть категорію фільтра, яку бажаєте видалити з посилання.");
         UriToVacancies uriToVacancies = _uriToVacanciesService.Get(urlId, CancelToken);
         List<GetParameter> getParameters = uriToVacancies.GetParameters();
         List<FilterCategory> categories = _filterService.GetFilterCategories(siteType, getParameters);
-        Pager(categories, 0, categories => (categories.Name, 
+        Pager(categories, page, categories => (categories.Name, 
                     Q(RemoveFilterFromUri, urlId!, siteType, categories.Id, categories.GetParameterName)),
-                                        Q(ShowFilterCategoriesByGetParams, FirstPage, urlId!, siteType, isActivated), 1);
-        RowButton(Back, Q(GetUrlsToVacanciesAsync, 0, siteType, ShowFirstPageCategoriesByGetParams));
-        ActivateRowButton(urlId, isActivated, false, ShowFilterCategoriesByGetParams, page, urlId!, siteType);
+                                        Q(ShowFilterCategoriesByGetParams, FirstPage, siteType, urlId!, isActivated), 1);        
+        ActivateRowButton(urlId, isActivated, ShowFilterCategoriesByGetParams, page, siteType);
+        RowButton(Back, Q(ShowUrisToVacancies, 0, siteType, ShowFirstPageCategoriesByGetParams));
     }
 
     [Action]

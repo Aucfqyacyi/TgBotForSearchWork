@@ -38,9 +38,11 @@ internal abstract class VacancyParser : IVacancyParser
 
     protected virtual async ValueTask<Vacancy> CreateVacancyAsync(IElement element, int descriptionLenght, string host, CancellationToken cancellationToken)
     {
-        string url = element.GetElement(Url)?.GetHrefAttribute(host) ?? string.Empty;
+        string? url = element.GetElement(Url)?.GetHrefAttribute(host);
+        if (url.IsNullOrEmpty())
+            throw new Exception($"Url can't be null or empty.");
         string title = element.GetTextContent(Title);
-        string description = await GetDescriptionAsync(url, descriptionLenght, cancellationToken) ?? string.Empty;
+        string description = await GetDescriptionAsync(url!, descriptionLenght, cancellationToken) ?? string.Empty;
         ulong id = GetId(url);
         return new(id, title, url, description);
     }

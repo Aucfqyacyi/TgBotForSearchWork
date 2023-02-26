@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using MongoDB.Driver;
-using Telegram.Bot.Types;
+﻿using MongoDB.Driver;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Utilities.Attributes;
 
@@ -12,6 +10,8 @@ public class MongoDbContext
     private readonly IMongoDatabase _database;
 
     public IMongoCollection<UriToVacancies> UriToVacanciesCollection { get => GetCollection<UriToVacancies>("UrisToVacancies"); }
+
+    public IMongoCollection<User> UserCollection { get => GetCollection<User>(); }
 
     public MongoDbContext(IMongoDatabase database)
     {
