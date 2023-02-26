@@ -37,8 +37,10 @@ public static class Controller
                     WaitUntilResolvingChallenge(chromeDriver, request.IdOnLoadedPage, request.Timeout, cancellationToken);
                     break;
                 }
-                catch (WebDriverTimeoutException ex)
+                catch (WebDriverTimeoutException)
                 {
+                    Console.WriteLine("Rebooting the chrome driver.");
+                    chromeDriver.Close();
                     chromeDriver.Dispose();
                     chromeDriver = ChromeDriverCreator.Create();
                     chromeDriver.Url = request.Url;

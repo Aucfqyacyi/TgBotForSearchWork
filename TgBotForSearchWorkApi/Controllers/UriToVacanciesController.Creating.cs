@@ -84,6 +84,6 @@ public partial class UriToVacanciesController
             Log.Info(ex.Message);
             await Send("Посилання вже добавленно, оберіть інший фільтр.");
         }
-        ShowFilterCategories(0, siteType, ShowFilters, uriToVacancies?.Id ?? urlId, uriToVacancies?.IsActivated ?? false);       
+        ShowFilterCategories(0, siteType, ShowFilters_Creating, uriToVacancies?.Id ?? urlId, uriToVacancies?.IsActivated ?? false);       
     }
 }

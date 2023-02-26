@@ -10,8 +10,4 @@
     <PackageReference Include="AngleSharp.Io" Version="1.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\SimpleCloudflareBypass\SimpleCloudflareBypass.csproj" />
-  </ItemGroup>
-
 </Project>

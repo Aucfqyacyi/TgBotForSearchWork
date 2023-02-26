@@ -1,6 +1,4 @@
 ﻿using Parsers.Constants;
-using SimpleCloudflareBypass.Models;
-using System.Net.Http.Json;
 
 namespace Parsers.Utilities;
 
@@ -22,10 +20,15 @@ internal class SimplyCloudflareBypassHandler : DelegatingHandler
         SiteType siteType = SiteTypesToUris.HostsToSiteTypes[httpRequestMessage.RequestUri!.Host];
         if (siteType != SiteType.Dou)
             return base.SendAsync(httpRequestMessage, cancellationToken);
-        SendRequest request = new(httpRequestMessage.RequestUri.OriginalString, "txtGlobalSearch");
+        string request = $$"""
+                    {
+                        "Url": "{{httpRequestMessage.RequestUri.OriginalString}}", 
+                        "IdOnLoadedPage": "container",
+                    }
+                    """;
         httpRequestMessage.RequestUri = new Uri(_simpleCloudflareBypassUrl);
         httpRequestMessage.Method = HttpMethod.Post;
-        httpRequestMessage.Content = JsonContent.Create(request);
+        httpRequestMessage.Content = new StringContent(request);
         return base.SendAsync(httpRequestMessage, cancellationToken);
     }
 }

@@ -58,9 +58,11 @@ public class VacancyBackgroundService : BackgroundService
     {
         foreach (var user in users)
         {
+            Log.Info($"Start send vacancies to user with chatId({user.ChatId}).");
             List<UriToVacancies> urisToVacancies = await SendVacanciesAsync(user, cancellationToken);
             if(urisToVacancies.Any())
                 _uriToVacanciesRepository.UpdateManyLastVacancyIds(urisToVacancies, cancellationToken);
+            Log.Info($"Finish send vacancies to user with chatId({user.ChatId}).");
         }
     }
 
