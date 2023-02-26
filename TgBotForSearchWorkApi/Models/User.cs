@@ -12,5 +12,6 @@ public class User
     {
         ChatId = chatId;
         DescriptionLength = descriptionLength;
+        IsActivated = isActivated;
     }
 }

@@ -3,10 +3,6 @@ using MongoDB.Bson;
 using Parsers.Constants;
 using Parsers.Models;
 using TgBotForSearchWorkApi.Constants;
-using TgBotForSearchWorkApi.Models.States;
-using TgBotForSearchWorkApi.Models;
-using TgBotForSearchWorkApi.Utilities;
-
 namespace TgBotForSearchWorkApi.Controllers;
 
 public partial class UriToVacanciesController
@@ -29,7 +25,11 @@ public partial class UriToVacanciesController
     [Action]
     private void ShowFilterCategories_Creating(int page, SiteType siteType, ObjectId? urlId, bool isActivated)
     {
-        ShowFilterCategories(page, siteType, ShowFilters_Creating, urlId, isActivated);
+        Push($"Виберіть потрібну категорію для фільтра.");
+        IEnumerable<FilterCategory> categories = _filterService.SiteTypeToCategoriesToFilters[siteType].Keys;
+        Pager(categories, page, category => (category.Name, Q(ShowFilters_Creating, 0, siteType, category.Id, urlId!, isActivated)),
+                                        Q(ShowFilterCategories_Creating, FirstPage, siteType, urlId!, isActivated), 1);
+        ActivateRowButton(urlId, isActivated, ShowFilterCategories_Creating, page, siteType);
         if (urlId is null)
             RowButton(Back, Q(ShowSitesThenShowFilterCategories, urlId!, isActivated));
     }
@@ -40,50 +40,7 @@ public partial class UriToVacanciesController
     [Action]
     private void ShowFilters_Creating(int page, SiteType siteType, int categoryId, ObjectId? urlId, bool isActivated)
     {
-        ShowFilters(page, siteType, categoryId, ShowFilters_Creating, urlId, isActivated);
+        ShowFilters(page, siteType, categoryId, ShowFilters_Creating, false, urlId, isActivated);
         RowButton(Back, Q(ShowFilterCategories_Creating, 0, siteType, urlId!, isActivated));
-    }
-
-    [Action]
-    private async Task AddFilterToUrlAsync(ObjectId? urlId, SiteType siteType, int categoryId, int filterId)
-    {
-        Filter filter = _filterService.SiteTypeToCategoriesToFilters[siteType][categoryId][filterId];
-        if (filter.FilterType == FilterType.CheckBox)
-        {
-            await CreateOrUpdateUriToVacanciesAsync(urlId, siteType, filter.GetParameter);
-        }
-        else
-        {
-            await State(new AddingSearchFilterToUrlState(urlId, filter.GetParameter.Name, siteType));
-            await Send("Введіть пошуковий запит.");
-        }
-    }
-
-    [State]
-    private async Task HandleAddingSearchFilterToUrlAsync(AddingSearchFilterToUrlState state)
-    {
-        await ClearState();
-        string getParameterValue = Context.GetSafeTextPayload()!;
-        GetParameter getParameter = new(state.GetParameterName, getParameterValue);
-        await CreateOrUpdateUriToVacanciesAsync(state.UrlId, state.SiteType, getParameter);
-    }
-
-    private async Task CreateOrUpdateUriToVacanciesAsync(ObjectId? urlId, SiteType siteType, GetParameter getParameter)
-    {
-        UriToVacancies? uriToVacancies = null;        
-        try
-        {
-            if (urlId is null)
-                uriToVacancies = _uriToVacanciesService.Create(ChatId, siteType, getParameter, CancelToken);
-            else
-                uriToVacancies = _uriToVacanciesService.Update(urlId.Value, getParameter, true, CancelToken);
-            await AnswerOkCallback();
-        }
-        catch (Exception ex)
-        {
-            Log.Info(ex.Message);
-            await Send("Посилання вже добавленно, оберіть інший фільтр.");
-        }
-        ShowFilterCategories(0, siteType, ShowFilters_Creating, uriToVacancies?.Id ?? urlId, uriToVacancies?.IsActivated ?? false);       
     }
 }

@@ -30,7 +30,7 @@ public partial class UriToVacanciesController
             ShowSitesThenShowUrisToVacancies(next);
             return;
         }
-        Push("Виберіть, потрібне посилання.");
+        Push("Виберіть потрібне посилання.");
         Pager(urlsToVacancies, page, indexToUrl => (indexToUrl.WithoutHttps, Q(next, indexToUrl.Id, siteType)),
                                         Q(ShowUrisToVacancies, FirstPage, siteType, next), 1);
         RowButton(Back, Q(ShowSitesThenShowUrisToVacancies, next));

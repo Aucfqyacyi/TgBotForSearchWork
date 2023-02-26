@@ -36,22 +36,28 @@ public class VacancyService
     private async ValueTask<List<Vacancy>> GetRelevantVacanciesAsync(UriToVacancies uriToVacancies, int descriptionLength, 
                                                                      CancellationToken cancellationToken)
     {
-        IVacancyParser vacancyParser = VacancyParserFactory.Create(uriToVacancies.Uri);
-        List<Vacancy> vacancies = await vacancyParser.ParseAsync(uriToVacancies.Uri, descriptionLength, cancellationToken);
-        for (int i = 0; i < Math.Min(vacancies.Count, uriToVacancies.LastVacanciesIds.Count); i++)
+        try
         {
-            if (uriToVacancies.LastVacanciesIds[i] == 0)
-                break;
-            if (vacancies[i].Id == uriToVacancies.LastVacanciesIds[i])
+            IVacancyParser vacancyParser = VacancyParserFactory.Create(uriToVacancies.Uri);
+            List<Vacancy> vacancies = await vacancyParser.ParseAsync(uriToVacancies.Uri, descriptionLength, cancellationToken);
+            for (int i = 0; i < Math.Min(vacancies.Count, uriToVacancies.LastVacanciesIds.Count); i++)
             {
-                if (i == 0)
-                    return new();
-                else
-                    return vacancies.GetRange(0, i);
+                if (uriToVacancies.LastVacanciesIds[i] == 0)
+                    break;
+                if (vacancies[i].Id == uriToVacancies.LastVacanciesIds[i])
+                {
+                    if (i == 0)
+                        return new();
+                    else
+                        return vacancies.GetRange(0, i);
+                }
             }
+            return vacancies;
         }
-        return vacancies;
+        catch (Exception ex)
+        {
+            Log.Info(ex.Message);
+            return new();
+        }
     }
-
-
 }

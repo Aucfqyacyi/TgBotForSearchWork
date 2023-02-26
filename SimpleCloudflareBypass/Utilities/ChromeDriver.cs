@@ -5,7 +5,7 @@ using OpenQA.Selenium.DevTools.V110.Page;
 
 namespace SimpleCloudflareBypass.Utilities;
 
-public static class ChromeDriverCreator
+public static class ChromeDriver
 {
     public static IWebDriver Create()
     {
@@ -20,7 +20,8 @@ public static class ChromeDriverCreator
         options.AddArgument("--disable-software-rasterizer");
         options.AddAdditionalOption("useAutomationExtension", false);
         options.AddArgument("--disable-dev-shm-usage");
-        ChromeDriver chromeDriver = new ChromeDriver(options);
+        options.AddArgument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36");
+        OpenQA.Selenium.Chrome.ChromeDriver chromeDriver = new OpenQA.Selenium.Chrome.ChromeDriver(options);
         DevToolsSession session = chromeDriver.GetDevToolsSession();
         var domains = session.GetVersionSpecificDomains<OpenQA.Selenium.DevTools.V110.DevToolsSessionDomains>();
         domains.Page.Enable(new EnableCommandSettings());
@@ -31,5 +32,13 @@ public static class ChromeDriverCreator
                      "delete window.cdc_adoQpoasnfa76pfcZLmcfl_Symbol;"
         });
         return chromeDriver;
+    }
+
+    public static void Reboot(IWebDriver webDriver)
+    {
+        Console.WriteLine($"{DateTime.Now}: Rebooting the chrome driver.");
+        webDriver.Close();
+        webDriver.Dispose();
+        webDriver = Create();
     }
 }

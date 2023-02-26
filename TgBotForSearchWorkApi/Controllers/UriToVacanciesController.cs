@@ -23,7 +23,7 @@ public partial class UriToVacanciesController : BotController
 
     protected void ShowSites(Func<SiteType, string> q)
     {
-        Push("Виберіть, сайт.");
+        Push("Виберіть сайт.");
         foreach (var siteType in Enum.GetValues<SiteType>())
         {
             RowButton(siteType.ToString(), q(siteType));
@@ -57,28 +57,6 @@ public partial class UriToVacanciesController : BotController
                 methodInfo.Invoke(this, new List<object?>(args) { urlId, isActivated }.ToArray());
             }
         }
-    }
-
-    [Action]
-    private void ShowFilterCategories(int page, SiteType siteType, Delegate next, ObjectId? urlId, bool isActivated)
-    {
-        Push($"Виберіть, потрібну категорію для фільтра.");
-        IEnumerable<FilterCategory> categories = _filterService.SiteTypeToCategoriesToFilters[siteType].Keys;
-        Pager(categories, page, category => (category.Name, Q(next, 0, siteType, category.Id, urlId!, isActivated)),
-                                        Q(ShowFilterCategories, FirstPage, siteType, next, urlId!, isActivated), 1);
-        ActivateRowButton(urlId, isActivated, ShowFilterCategories, page, siteType, next);
-    }
-
-    [Action]
-    private void ShowFilters(int page, SiteType siteType, int categoryId, Delegate nextInPagination, ObjectId? urlId, bool isActivated)
-    {
-        Push($"Виберіть, потрібний фільтр.");
-        var idsToFilters = _filterService.SiteTypeToCategoriesToFilters[siteType][categoryId];
-        string format = Q(nextInPagination, FirstPage, siteType, categoryId, urlId!, isActivated);
-        Pager(idsToFilters, page, idToFilter =>
-                        (idToFilter.Value.Name, Q(AddFilterToUrlAsync, urlId!, siteType, categoryId, idToFilter.Key)),
-                        format);
-        ActivateRowButton(urlId, isActivated, ShowFilters, page, siteType, categoryId);
     }
 
 }

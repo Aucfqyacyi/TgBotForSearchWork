@@ -15,6 +15,10 @@ public static class GlobalHttpClient
     public static async ValueTask<Stream> GetAsync(Uri uri, CancellationToken cancellationToken = default)
     {
         var response = await Client.GetAsync(uri, cancellationToken);
+        if(response.StatusCode == System.Net.HttpStatusCode.Continue)
+            response = await Client.GetAsync(uri, cancellationToken);
+        if (response.IsSuccessStatusCode is false)
+            throw new Exception($"StatusCode is unsuccessful, {await response.Content.ReadAsStringAsync()}.");
         return await response.Content.ReadAsStreamAsync(cancellationToken);
     }
 }

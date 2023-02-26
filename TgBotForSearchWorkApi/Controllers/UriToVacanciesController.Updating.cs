@@ -13,17 +13,27 @@ public partial class UriToVacanciesController
     [Action(Command.AddFilter, CommandDescription.AddFilter)]
     public void AddFilter()
     {
-        ShowSitesThenShowUrisToVacancies(ShowFilterCategories_Updating);
+        ShowSitesThenShowUrisToVacancies(ShowFirstPageCategories);
+    }
+
+    [Action]
+    private void ShowFirstPageCategories(ObjectId urlId, SiteType siteType)
+    {
+        ShowFilterCategories_Updating(0, siteType, urlId, _uriToVacanciesService.IsActivated(urlId, CancelToken));
     }
 
     /// <summary>
     /// Method ShowFilterCategories with back button to ShowSitesThenShowUrisToVacancies.
     /// </summary>
     [Action]
-    private void ShowFilterCategories_Updating(ObjectId urlId, SiteType siteType)
+    private void ShowFilterCategories_Updating(int page, SiteType siteType, ObjectId? urlId, bool isActivated)
     {
-        ShowFilterCategories(0, siteType, ShowFilters_Updating, urlId, _uriToVacanciesService.IsActivated(urlId, CancelToken));
-        RowButton(Back, Q(ShowUrisToVacancies, 0, siteType, ShowFilterCategories_Updating));
+        Push($"Виберіть потрібну категорію для фільтра.");
+        IEnumerable<FilterCategory> categories = _filterService.SiteTypeToCategoriesToFilters[siteType].Keys;
+        Pager(categories, page, category => (category.Name, Q(ShowFilters_Updating, 0, siteType, category.Id, urlId!, isActivated)),
+                                        Q(ShowFilterCategories_Updating, FirstPage, siteType, urlId!, isActivated), 1);
+        ActivateRowButton(urlId, isActivated, ShowFilterCategories_Updating, 0, siteType);
+        RowButton(Back, Q(ShowUrisToVacancies, page, siteType, ShowFirstPageCategories));
     }
 
     /// <summary>
@@ -32,8 +42,8 @@ public partial class UriToVacanciesController
     [Action]
     private void ShowFilters_Updating(int page, SiteType siteType, int categoryId, ObjectId urlId, bool isActivated)
     {
-        ShowFilters(page, siteType, categoryId, ShowFilters_Updating, urlId, isActivated);
-        RowButton(Back, Q(ShowFilterCategories_Updating, urlId, siteType));
+        ShowFilters(page, siteType, categoryId, ShowFilters_Updating, true, urlId, isActivated);
+        RowButton(Back, Q(ShowFilterCategories_Updating, 0, siteType, urlId, isActivated));
     }
 
     [Action(Command.RemoveFilter, CommandDescription.RemoveFilter)]

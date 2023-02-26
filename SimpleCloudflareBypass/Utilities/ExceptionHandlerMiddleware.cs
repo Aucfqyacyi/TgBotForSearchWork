@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using System.Net;
 
 namespace SimpleCloudflareBypass.Utilities;
@@ -6,10 +8,12 @@ namespace SimpleCloudflareBypass.Utilities;
 public class ExceptionHandlerMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly IWebDriver _webDriver;
 
-    public ExceptionHandlerMiddleware(RequestDelegate next)
+    public ExceptionHandlerMiddleware(RequestDelegate next, IWebDriver webDriver)
     {
         _next = next;
+        _webDriver = webDriver;
     }
 
     public async Task Invoke(HttpContext context)
@@ -17,16 +21,23 @@ public class ExceptionHandlerMiddleware
         try
         {
             await _next(context);
-        }        
+        }
+        catch (WebDriverException)
+        {
+            ChromeDriver.Reboot(_webDriver);
+            await WriteToResponseAsync(context, HttpStatusCode.Continue, "WebDriver was rebooted.");
+        }
         catch (Exception ex)
         {
             Console.WriteLine($"In endpoint was throwed exception, error = {ex.Message}.");
-            var response = context.Response;
-            response.ContentType = "application/json";
-            response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
-
-            var result = JsonConvert.SerializeObject(new { message = "Something went wrong." });
-            await response.WriteAsync(result);
+            await WriteToResponseAsync(context, HttpStatusCode.UnprocessableEntity, "Something went wrong.");
         }
+    }
+
+    private async Task WriteToResponseAsync(HttpContext context, HttpStatusCode httpStatusCode, string message)
+    {
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = (int)httpStatusCode;
+        await context.Response.WriteAsync(JsonConvert.SerializeObject(new { message }));
     }
 }

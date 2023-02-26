@@ -1,4 +1,5 @@
 ﻿using Parsers.Constants;
+using System.Text;
 
 namespace Parsers.Utilities;
 
@@ -23,12 +24,12 @@ internal class SimplyCloudflareBypassHandler : DelegatingHandler
         string request = $$"""
                     {
                         "Url": "{{httpRequestMessage.RequestUri.OriginalString}}", 
-                        "IdOnLoadedPage": "container",
+                        "IdOnLoadedPage": "txtGlobalSearch"
                     }
                     """;
         httpRequestMessage.RequestUri = new Uri(_simpleCloudflareBypassUrl);
         httpRequestMessage.Method = HttpMethod.Post;
-        httpRequestMessage.Content = new StringContent(request);
+        httpRequestMessage.Content = new StringContent(request, Encoding.UTF8, "application/json");
         return base.SendAsync(httpRequestMessage, cancellationToken);
     }
 }

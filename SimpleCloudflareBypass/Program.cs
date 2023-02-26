@@ -6,7 +6,7 @@ using SimpleCloudflareBypass.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton(ChromeDriverCreator.Create());
+builder.Services.AddSingleton(ChromeDriver.Create());
 
 var app = builder.Build();
 

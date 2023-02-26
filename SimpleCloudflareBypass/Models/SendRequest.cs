@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace SimpleCloudflareBypass.Models;
+﻿namespace SimpleCloudflareBypass.Models;
 
 public class SendRequest
 {
