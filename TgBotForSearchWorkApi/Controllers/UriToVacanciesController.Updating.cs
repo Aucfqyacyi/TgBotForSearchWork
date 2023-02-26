@@ -10,7 +10,7 @@ namespace TgBotForSearchWorkApi.Controllers;
 
 public partial class UriToVacanciesController
 {
-    [Action(Command.AddFilter, CommandDescription.Empty)]
+    [Action(Command.AddFilter, CommandDescription.AddFilter)]
     public void AddFilter()
     {
         ShowSitesThenShowUrisToVacancies(ShowFilterCategories_Updating);
@@ -36,7 +36,7 @@ public partial class UriToVacanciesController
         RowButton(Back, Q(ShowFilterCategories_Updating, urlId, siteType));
     }
 
-    [Action(Command.RemoveFilter, CommandDescription.Empty)]
+    [Action(Command.RemoveFilter, CommandDescription.RemoveFilter)]
     public void RemoveFilter()
     {
         ShowSitesThenShowUrisToVacancies(ShowFirstPageCategoriesByGetParams);

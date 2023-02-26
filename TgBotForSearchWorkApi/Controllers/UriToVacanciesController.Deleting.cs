@@ -7,7 +7,7 @@ namespace TgBotForSearchWorkApi.Controllers;
 
 public partial class UriToVacanciesController
 {
-    [Action(Command.DeleteUrl, CommandDescription.Empty)]
+    [Action(Command.DeleteUrl, CommandDescription.DeleteUrl)]
     public void DeleteUrl()
     {
         ShowSitesThenShowUrisToVacancies(DeleteUriToVacancies);

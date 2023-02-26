@@ -11,7 +11,7 @@ namespace TgBotForSearchWorkApi.Controllers;
 
 public partial class UriToVacanciesController
 {
-    [Action(Command.CreateUrl, CommandDescription.Empty)]
+    [Action(Command.CreateUrl, CommandDescription.CreateUrl)]
     public void CreateUrl()
     {
         ShowSitesThenShowFilterCategories(null, false);

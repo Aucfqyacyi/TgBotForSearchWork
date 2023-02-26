@@ -8,7 +8,7 @@ namespace TgBotForSearchWorkApi.Controllers;
 
 public partial class UriToVacanciesController
 {
-    [Action(Command.AddUrl, CommandDescription.Empty)]
+    [Action(Command.AddUrl, CommandDescription.AddUrl)]
     public async Task AddUrl()
     {
         await State(new AddingUrlState());

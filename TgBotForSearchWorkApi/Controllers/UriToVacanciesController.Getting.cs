@@ -9,7 +9,7 @@ namespace TgBotForSearchWorkApi.Controllers;
 public partial class UriToVacanciesController
 {
 
-    [Action(Command.GetUrl, CommandDescription.Empty)]
+    [Action(Command.GetUrl, CommandDescription.GetUrl)]
     public void GetUrl()
     {
         ShowSitesThenShowUrisToVacancies(GetUriToVacanciesAsync);

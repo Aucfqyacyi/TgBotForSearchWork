@@ -14,7 +14,7 @@ public class UserController : BotController
         _userRepository = userRepository;
     }
 
-    [Action(Command.Start, CommandDescription.Empty)]
+    [Action(Command.Start, CommandDescription.Start)]
     public async Task Start()
     {
         if(_userRepository.Create(ChatId, CancelToken))
@@ -23,14 +23,14 @@ public class UserController : BotController
             await Send("Ваш обліковий запис вже створенно.");
     }
 
-    [Action(Command.Stop, CommandDescription.Empty)]
+    [Action(Command.Stop, CommandDescription.Stop)]
     public async Task Stop()
     {
         _userRepository.Activate(ChatId, false, CancelToken);
         await Send("До побачення!");
     }
 
-    [Action(Command.ChangeDescriptionLength, CommandDescription.Empty)]
+    [Action(Command.ChangeDescriptionLength, CommandDescription.ChangeDescriptionLength)]
     public async Task ChangeDescriptionLength()
     {              
         await State(new ChangingDescriptionLength());
