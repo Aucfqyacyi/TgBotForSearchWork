@@ -21,4 +21,11 @@ public static class StringExtension
             return false;
         return str.Contains(value);
     }
+
+    public static string GetWithoutTextInBrackets(this string? str)
+    {
+        if (str == null)
+            return string.Empty;
+        return str.Split('(').First().TrimEnd();
+    }
 }

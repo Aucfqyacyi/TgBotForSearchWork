@@ -2,6 +2,7 @@
 using Parsers.Constants;
 using Parsers.Extensions;
 using Parsers.Models;
+using Parsers.Utilities;
 
 namespace Parsers.FilterParsers.Parsers;
 
@@ -12,8 +13,8 @@ internal class DouFilterParser : FilterParser
 
     protected readonly HtmlElement _filterRegion = new("b-region-filter");
     protected readonly HtmlElement _ul = new(string.Empty, "ul");
-    protected readonly HtmlElement _li = new(string.Empty, "li");
-    protected readonly HtmlElement _category = new("", "option");
+    protected readonly HtmlElement _a = new(string.Empty, "a");
+    protected readonly HtmlElement _category = new(string.Empty, "option");
 
     protected override void CollectFilters(IDocument document, List<Filter> filters)
     {
@@ -30,8 +31,7 @@ internal class DouFilterParser : FilterParser
             Filter? filter = CreateFilterFromCategory(categoryElement, category);
             if(filter is not null)
                 filters.Add(filter);
-        }
-            
+        }           
     }
 
     protected Filter? CreateFilterFromCategory(IElement filterElement, FilterCategory category)
@@ -60,23 +60,28 @@ internal class DouFilterParser : FilterParser
     protected void CollectFiltersFromFilterRegion(IElement ul, List<Filter> filters)
     {
         string? categoryName = ul.PreviousElementSibling?.GetTextContent();
-        if (categoryName is null)
+        if (categoryName.IsNullOrEmpty())
             return;
-        FilterCategory category = new(categoryName);
-        List<IElement> lis = ul.GetElements(_li);
+
+        int categoryId = UniqueIntGenerator.Generate();
+        List<IElement> lis = ul.GetElements(_a);
         if (lis is null)
             return;
 
         for (int i = 1; i < lis.Count; i++)
-            filters.Add(CreateFilterFromFilterRegion(lis[i], category));
+            filters.Add(CreateFilterFromFilterRegion(categoryId, categoryName!, lis[i]));
     }
 
-    protected Filter CreateFilterFromFilterRegion(IElement filterElement, FilterCategory category)
+    protected Filter CreateFilterFromFilterRegion(int categoryId, string categoryName, IElement filterElement)
     {
         string filterName = filterElement.GetTextContent();
-        string[] splitedGetParamater = filterElement.FirstElementChild!.GetHrefAttribute().Split('?').Last().Split('=');
-        category.GetParameterName ??= splitedGetParamater.First();
-        return new(filterName, category, splitedGetParamater.Last(), FilterType.CheckBox);
+        string[] splitedGetParamater = filterElement.GetHrefAttribute().Split('?').Last().Split('=');
+        string getParameterName = splitedGetParamater.First();
+        FilterCategory category = new(categoryId, categoryName, getParameterName);
+        if (splitedGetParamater.Length == 1)
+            return new(filterName, category, "1", FilterType.CheckBox);
+        else
+            return new(filterName, category, splitedGetParamater.Last(), FilterType.CheckBox);
     }
 
 

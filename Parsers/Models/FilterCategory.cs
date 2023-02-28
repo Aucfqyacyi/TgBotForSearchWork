@@ -2,17 +2,21 @@
 
 namespace Parsers.Models;
 
-public class FilterCategory : IComparable<FilterCategory>
+public record FilterCategory : IComparable<FilterCategory>
 {
     public int Id { get; set; }
     public string Name { get; set; }
     public string? GetParameterName { get; set; }
 
-    public FilterCategory(string name, string? getParameterName = null)
+    public FilterCategory(string name, string? getParameterName = null, int? id = null)
     {
-        Id = UniqueIntGenerator.Generate();
+        Id = id ?? UniqueIntGenerator.Generate();
         Name = name;
         GetParameterName = getParameterName;
+    }
+
+    public FilterCategory(int id, string name, string getParameterName) : this(name, getParameterName, id)
+    {
     }
 
     public int CompareTo(FilterCategory? other)
@@ -22,6 +26,6 @@ public class FilterCategory : IComparable<FilterCategory>
 
     public static implicit operator FilterCategory(int id)
     {
-        return new(string.Empty) { Id = id };
+        return new(string.Empty, string.Empty) { Id = id };
     }
 }

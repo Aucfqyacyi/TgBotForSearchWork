@@ -22,11 +22,6 @@ public class ExceptionHandlerMiddleware
         {
             await _next(context);
         }
-        catch (WebDriverException)
-        {
-            ChromeDriver.Reboot(_webDriver);
-            await WriteToResponseAsync(context, HttpStatusCode.Continue, "WebDriver was rebooted.");
-        }
         catch (Exception ex)
         {
             Console.WriteLine($"In endpoint was throwed exception, error = {ex.Message}.");

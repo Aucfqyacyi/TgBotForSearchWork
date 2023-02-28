@@ -7,11 +7,11 @@ namespace TgBotForSearchWorkApi.Controllers;
 
 public class MainController : BotController
 {
-
     [On(Handle.Unknown)]
     public async Task OnUnknownCommand()
     {
-        await Send($"Будь ласка, виберіть команду з списку.");
+        if(Context.Update.Type == UpdateType.Message || Context.Update.Type == UpdateType.Unknown)
+            await Send($"Будь ласка, виберіть команду з списку.");
     }
 
     [On(Handle.Exception)]

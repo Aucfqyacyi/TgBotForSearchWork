@@ -1,5 +1,6 @@
 ﻿using Deployf.Botf;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using Parsers.Constants;
 using Parsers.Models;
 using Parsers.VacancyParsers;
@@ -84,5 +85,10 @@ public class UriToVacanciesService
     public bool IsActivated(ObjectId urlId, CancellationToken cancellationToken) 
     {
         return _uriToVacanciesRepository.IsActivated(urlId, cancellationToken);
+    }
+
+    public long Count(long chatId, CancellationToken cancellationToken)
+    {
+        return _uriToVacanciesRepository.Count(chatId, cancellationToken);
     }
 }

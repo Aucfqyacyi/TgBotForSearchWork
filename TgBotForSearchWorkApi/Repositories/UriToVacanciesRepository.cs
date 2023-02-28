@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using Parsers.Constants;
+using Telegram.Bot.Types;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Utilities;
 using TgBotForSearchWorkApi.Utilities.Attributes;
@@ -22,9 +23,24 @@ public class UriToVacanciesRepository
         return Builders<UriToVacancies>.Filter.Eq(url => url.Id, urlId);
     }
 
+    private FilterDefinition<UriToVacancies> GetFilterByChatId(long chatId)
+    {
+        return Builders<UriToVacancies>.Filter.Eq(url => url.ChatId, chatId);
+    }
+
+    private FilterDefinition<UriToVacancies> GetFilterByIsActivated()
+    {
+        return Builders<UriToVacancies>.Filter.Eq(url => url.IsActivated, true);
+    }
+
     public void InsertMany(IReadOnlyList<UriToVacancies> uriToVacancies, CancellationToken cancellationToken)
     {
         _mongoContext.UriToVacanciesCollection.InsertMany(uriToVacancies, null, cancellationToken);  
+    }
+
+    public long Count(long chatId, CancellationToken cancellationToken)
+    {
+        return _mongoContext.UriToVacanciesCollection.CountDocuments(GetFilterByChatId(chatId), null, cancellationToken);
     }
 
     public void InsertOne(UriToVacancies uriToVacancies, CancellationToken cancellationToken)
@@ -34,7 +50,7 @@ public class UriToVacanciesRepository
 
     public List<UriToVacancies> GetAll(long chatId, SiteType siteType, CancellationToken cancellationToken)
     {
-        var chatIdFilter = Builders<UriToVacancies>.Filter.Eq(url => url.ChatId, chatId);
+        var chatIdFilter = GetFilterByChatId(chatId);
         var siteTypeFilter = Builders<UriToVacancies>.Filter.Eq(url => url.SiteType, siteType);
         return _mongoContext.UriToVacanciesCollection.FindSync(chatIdFilter & siteTypeFilter, null, cancellationToken)
                                                      .ToList();
@@ -42,7 +58,7 @@ public class UriToVacanciesRepository
 
     public List<UriToVacancies> GetAllActivated(long chatId, CancellationToken cancellationToken)
     {
-        return _mongoContext.UriToVacanciesCollection.FindSync(uri => uri.ChatId == chatId && uri.IsActivated, null, cancellationToken)
+        return _mongoContext.UriToVacanciesCollection.FindSync(GetFilterByChatId(chatId) & GetFilterByIsActivated(), null, cancellationToken)
                                                      .ToList();
     }
 

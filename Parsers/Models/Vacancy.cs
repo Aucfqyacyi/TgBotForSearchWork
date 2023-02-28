@@ -17,6 +17,6 @@ public class Vacancy
 
     public string Present()
     {
-        return $"[{Title}]({Url})\n{ShortDescription}";
+        return $"<a href=\"{Url}\">{Title}</a>\n{ShortDescription}";
     }
 }

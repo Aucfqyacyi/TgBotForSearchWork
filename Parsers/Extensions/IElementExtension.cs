@@ -6,11 +6,6 @@ namespace Parsers.Extensions;
 
 internal static class IElementExtension
 {
-    private const char _space = ' ';
-    private static readonly Dictionary<char, char> _badSymbolsToCorrects = new()
-    {
-        { '`', '\'' }, { '_', _space }, { '*', _space }, { '\r', _space }
-    };
 
     public static string GetTextContent(this IElement element, HtmlElement htmlElement, int? maxLenght = null)
     {
@@ -23,7 +18,7 @@ internal static class IElementExtension
         StringBuilder stringBuilder = new StringBuilder(innerHtml.Length);
         bool isTag = false;
         maxLength ??= int.MaxValue;
-        for (int i = 0; i < innerHtml.Length && i < maxLength; i++)
+        for (int i = 0; i < innerHtml.Length && (i < maxLength || isTag); i++)
         {
             if (innerHtml[i] == '<')
             {
@@ -37,20 +32,12 @@ internal static class IElementExtension
             {
                 OnTag(innerHtml, i, stringBuilder);
             }
-            else if (_badSymbolsToCorrects.ContainsKey(innerHtml[i]))
-            {
-                stringBuilder.Append(_badSymbolsToCorrects[innerHtml[i]]);
-            }
-            else if ((innerHtml[i] == _space && innerHtml[i + 1] == _space) ||
+            else if ((innerHtml[i] == ' ' && innerHtml[i + 1] == ' ') ||
                      (innerHtml[i] == '\t' && innerHtml[i + 1] == '\t') ||
-                     (innerHtml[i] == '\n' && innerHtml[i + 1] == '\n'))
+                     (innerHtml[i] == '\n' && innerHtml[i + 1] == '\n') ||
+                      innerHtml[i] == '\r')
             {
                 i += 1;
-            }
-            else if (innerHtml[i] == '&')
-            {
-                i += 5;
-                stringBuilder.Append(_space);
             }
             else
             {
@@ -64,27 +51,22 @@ internal static class IElementExtension
     {
         if ((innerHtml[index] == 'b' && innerHtml[index + 1] == 'r') ||
             (innerHtml[index] == 'p' && innerHtml[index - 1] == '/') ||
-            (innerHtml[index] == 'u' && innerHtml[index - 1] == '/'))
+            (innerHtml[index] == 'u' && innerHtml[index - 1] == '/') ||
+             innerHtml[index] == 'l' && innerHtml[index - 1] == '/')
         {
             stringBuilder.AppendLine();
         }
-        else if((innerHtml[index] == 'b' && (innerHtml[index + 1] == '>' || innerHtml[index - 1] == '/')) ||
-               ((innerHtml[index] == 'h' && (innerHtml[index - 1] == '<' || innerHtml[index - 1] == '/'))))
-        {
-            stringBuilder.Append('*');
-            if (innerHtml[index] == 'h' && innerHtml[index - 1] == '/')
-                stringBuilder.AppendLine();
+        else if(innerHtml[index] == 'h' && (innerHtml[index - 1] == '<' || innerHtml[index - 1] == '/'))
+        {            
+            if (innerHtml[index] == 'h' && innerHtml[index - 1] == '<')
+                stringBuilder.AppendLine("<b>");
+            else
+                stringBuilder.AppendLine("</b>");
         }
         else if(innerHtml[index] == 'l' && innerHtml[index - 1] == '<')
         {
-            stringBuilder.Append("---");
-            stringBuilder.Append(_space);
+            stringBuilder.Append("--- ");
         }
-        else if (innerHtml[index] == 'l' && innerHtml[index - 1] == '/')
-        {
-            stringBuilder.AppendLine();
-        }
-
     }
 
     public static string GetNearestSiblingTextContent(this IElement element)

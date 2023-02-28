@@ -44,7 +44,7 @@ public class VacancyService
             {
                 if (uriToVacancies.LastVacanciesIds[i] == 0)
                     break;
-                if (vacancies[i].Id == uriToVacancies.LastVacanciesIds[i])
+                if (uriToVacancies.LastVacanciesIds.Contains(vacancies[i].Id))
                 {
                     if (i == 0)
                         return new();

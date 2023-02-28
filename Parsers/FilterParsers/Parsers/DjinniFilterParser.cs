@@ -2,6 +2,7 @@
 using Parsers.Constants;
 using Parsers.Extensions;
 using Parsers.Models;
+using Parsers.Utilities;
 
 namespace Parsers.FilterParsers.Parsers;
 
@@ -25,20 +26,22 @@ internal class DjinniFilterParser : FilterParser
         List<IElement>? filterElements = set.GetElements(_filterLink);
         if (filterElements == null)
             return;
-
         string? categoryName = set.PreviousElementSibling?.GetTextContent();
-        if (categoryName is null)
+        if (categoryName.IsNullOrEmpty())
             return;
-        FilterCategory filterCategory = new(categoryName);
+        int categoryId = UniqueIntGenerator.Generate();
         foreach (var filterElement in filterElements)
-            filters.Add(CreateFilter(filterElement, filterCategory));
+            filters.Add(CreateFilter(categoryId, categoryName!, filterElement));
     }
 
-    protected Filter CreateFilter(IElement filterElement, FilterCategory category)
+    protected Filter CreateFilter(int categoryId, string categoryName, IElement filterElement)
     {
         string filterName = filterElement.GetTextContent();
         string[] splitedGetParamater = filterElement.GetHrefAttribute().TrimStart('?').Split('=');
-        category.GetParameterName ??= splitedGetParamater.First();
-        return new(filterName, category, splitedGetParamater.Last(), FilterType.CheckBox);
+        FilterCategory category = new(categoryId, categoryName, splitedGetParamater.First());
+        if(splitedGetParamater.Length == 1)
+            return new(filterName, category, "1", FilterType.CheckBox);
+        else
+            return new(filterName, category, splitedGetParamater.Last(), FilterType.CheckBox);
     }
 }

@@ -104,7 +104,7 @@ public class VacancyBackgroundService : BackgroundService
     {
         await _telegramBotClient.SendTextMessageAsync(chatId,
                                                       vacancy.Present(),
-                                                      ParseMode.Markdown,
+                                                      ParseMode.Html,
                                                       disableWebPagePreview: true,
                                                       cancellationToken: cancellationToken);
     }

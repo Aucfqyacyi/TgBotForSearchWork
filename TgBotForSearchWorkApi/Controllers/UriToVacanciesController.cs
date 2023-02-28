@@ -1,7 +1,6 @@
 ﻿using Deployf.Botf;
 using MongoDB.Bson;
 using Parsers.Constants;
-using Parsers.Models;
 using System.Reflection;
 using TgBotForSearchWorkApi.Services;
 
@@ -9,8 +8,8 @@ namespace TgBotForSearchWorkApi.Controllers;
 
 public partial class UriToVacanciesController : BotController
 {
-    protected readonly string Back = "Назад";
-    protected readonly string FirstPage = "{0}";
+    protected const string Back = "Назад";
+    protected const string FirstPage = "{0}";
 
     protected readonly UriToVacanciesService _uriToVacanciesService;
     protected readonly FilterService _filterService;
