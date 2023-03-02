@@ -1,4 +1,3 @@
-using SimpleCloudflareBypass.Controllers;
 using SimpleCloudflareBypass.Models;
 using SimpleCloudflareBypass.Utilities;
 
@@ -6,16 +5,16 @@ using SimpleCloudflareBypass.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton(ChromeDriver.Create());
+builder.Services.AddSingleton<ChromeDriverFactory>();
 
 var app = builder.Build();
 
-app.MapPost("/send", Controller.Send)
+app.MapPost("/send", SimpleCloudflareBypass.Controllers.Controller.Send)
    .Accepts<SendRequest>("application/json")
    .AddEndpointFilter<EndpointFilter>()
    .AllowAnonymous();
 
-app.MapPost("/sendMany", Controller.SendMany)
+app.MapPost("/sendMany", SimpleCloudflareBypass.Controllers.Controller.SendMany)
    .Accepts<SendManyRequest>("application/json")
    .AddEndpointFilter<EndpointFilter>()
    .AllowAnonymous();

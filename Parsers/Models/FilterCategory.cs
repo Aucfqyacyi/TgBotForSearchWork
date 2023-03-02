@@ -6,9 +6,9 @@ public record FilterCategory : IComparable<FilterCategory>
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public string? GetParameterName { get; set; }
+    public string GetParameterName { get; set; }
 
-    public FilterCategory(string name, string? getParameterName = null, int? id = null)
+    public FilterCategory(string name, string getParameterName = "", int? id = null)
     {
         Id = id ?? UniqueIntGenerator.Generate();
         Name = name;

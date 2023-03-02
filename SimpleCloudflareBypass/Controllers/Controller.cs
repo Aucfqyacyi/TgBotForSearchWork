@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using SimpleCloudflareBypass.Models;
 using SimpleCloudflareBypass.Utilities;
@@ -10,41 +11,43 @@ public static class Controller
 {
     public static object _locker = new();
 
-    public static string Send([FromBody] SendRequest request, [FromServices] IWebDriver webDriver, CancellationToken cancellationToken)
-    {       
-        return GetPageSource(request, webDriver, cancellationToken);
+    public static string Send([FromBody] SendRequest request, [FromServices] ChromeDriverFactory chromeDriverFactory, CancellationToken cancellationToken)
+    {
+        return GetPageSource(request, chromeDriverFactory, cancellationToken);
     }
 
-    public static IResult SendMany([FromBody] SendManyRequest manyRequest, [FromServices] IWebDriver webDriver, CancellationToken cancellationToken)
+    public static IResult SendMany([FromBody] SendManyRequest manyRequest, [FromServices] ChromeDriverFactory chromeDriverFactory, CancellationToken cancellationToken)
     {
         List<string> pageSources = new();
         foreach (var request in manyRequest.Requests)
         {
-            pageSources.Add(GetPageSource(request, webDriver, cancellationToken));
+            pageSources.Add(GetPageSource(request, chromeDriverFactory, cancellationToken));
         }
         return Results.Ok(pageSources);
     }
 
-    private static string GetPageSource(SendRequest request, IWebDriver webDriver, CancellationToken cancellationToken)
+    private static string GetPageSource(SendRequest request, ChromeDriverFactory chromeDriverFactory, CancellationToken cancellationToken)
     {
         lock (_locker)
         {
-            webDriver.Url = request.Url;
-            while (request.IdOnLoadedPage is not null)
+            while (true)
             {
+                IWebDriver webDriver = chromeDriverFactory.CreateIfCallReboot();
+                webDriver.Url = request.Url;
+                if (request.IdOnLoadedPage is null)
+                    return webDriver.PageSource;
                 try
-                {
+                {                   
                     Console.WriteLine($"{DateTime.Now}: Processing the url({request.Url}).");
                     WaitUntilResolvingChallenge(webDriver, request.IdOnLoadedPage, request.Timeout, cancellationToken);
-                    break;
+                    return webDriver.PageSource;
                 }
-                catch (WebDriverException)
+                catch (WebDriverException ex)
                 {
-                    ChromeDriver.Reboot(webDriver);
-                    webDriver.Url = request.Url;
+                    Console.WriteLine(ex.Message);
+                    chromeDriverFactory.Reboot();
                 }
             }
-            return webDriver.PageSource;
         }                
     }
 

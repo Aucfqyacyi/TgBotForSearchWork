@@ -6,7 +6,7 @@ public class SendRequest
     public string? IdOnLoadedPage { get; set; }
     public int Timeout { get; set; }
 
-    public SendRequest(string url, string? idOnLoadedPage = null, int timeout = 30)
+    public SendRequest(string url, string? idOnLoadedPage = null, int timeout = 60)
     {
         Url = url;
         IdOnLoadedPage = idOnLoadedPage;

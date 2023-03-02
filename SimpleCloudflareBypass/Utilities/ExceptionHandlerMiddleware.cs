@@ -8,12 +8,10 @@ namespace SimpleCloudflareBypass.Utilities;
 public class ExceptionHandlerMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly IWebDriver _webDriver;
 
-    public ExceptionHandlerMiddleware(RequestDelegate next, IWebDriver webDriver)
+    public ExceptionHandlerMiddleware(RequestDelegate next)
     {
         _next = next;
-        _webDriver = webDriver;
     }
 
     public async Task Invoke(HttpContext context)

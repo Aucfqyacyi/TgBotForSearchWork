@@ -3,6 +3,7 @@ using Parsers.Constants;
 using Parsers.Extensions;
 using Parsers.Models;
 using Parsers.Utilities;
+using System.Web;
 
 namespace Parsers.FilterParsers.Parsers;
 
@@ -74,7 +75,7 @@ internal class DouFilterParser : FilterParser
 
     protected Filter CreateFilterFromFilterRegion(int categoryId, string categoryName, IElement filterElement)
     {
-        string filterName = filterElement.GetTextContent();
+        string filterName = HttpUtility.HtmlDecode(filterElement.GetTextContent());
         string[] splitedGetParamater = filterElement.GetHrefAttribute().Split('?').Last().Split('=');
         string getParameterName = splitedGetParamater.First();
         FilterCategory category = new(categoryId, categoryName, getParameterName);
