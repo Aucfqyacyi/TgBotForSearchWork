@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using SimpleCloudflareBypass.Models;
 using SimpleCloudflareBypass.Utilities;

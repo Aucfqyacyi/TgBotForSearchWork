@@ -1,7 +1,7 @@
 ﻿using MongoDB.Driver;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Utilities;
-using TgBotForSearchWorkApi.Utilities.Attributes;
+using AutoDIInjector.Attributes;
 
 namespace TgBotForSearchWorkApi.Repositories;
 

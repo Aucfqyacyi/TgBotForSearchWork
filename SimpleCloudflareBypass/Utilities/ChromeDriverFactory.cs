@@ -34,7 +34,6 @@ public class ChromeDriverFactory
         options.AddArgument("--disable-blink-features=AutomationControlled");
         options.AddArgument("--no-sandbox");
         //options.AddArgument("--headless");
-        //options.AddArgument("--no-zygote");
         options.AddArgument("--disable-gpu");
         options.AddArgument("--disable-software-rasterizer");
         options.AddAdditionalOption("useAutomationExtension", false);

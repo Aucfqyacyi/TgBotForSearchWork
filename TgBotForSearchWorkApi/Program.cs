@@ -1,6 +1,6 @@
+using AutoDIInjector;
 using Deployf.Botf;
 using MongoDB.Driver;
-using TgBotForSearchWorkApi.Extensions;
 using TgBotForSearchWorkApi.Services;
 
 FilterService filterService = new();

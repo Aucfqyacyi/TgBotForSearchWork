@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AutoDIInjector\AutoDIInjector.csproj" />
     <ProjectReference Include="..\Deployf.Botf\Deployf.Botf.csproj" />
     <ProjectReference Include="..\Parsers\Parsers.csproj" />
   </ItemGroup>

@@ -4,7 +4,7 @@ using Parsers.Constants;
 using Telegram.Bot.Types;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Utilities;
-using TgBotForSearchWorkApi.Utilities.Attributes;
+using AutoDIInjector.Attributes;
 
 namespace TgBotForSearchWorkApi.Repositories;
 
