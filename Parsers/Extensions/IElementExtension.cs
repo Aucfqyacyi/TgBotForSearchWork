@@ -1,6 +1,5 @@
 ﻿using AngleSharp.Dom;
 using Parsers.Models;
-using System.Text;
 
 namespace Parsers.Extensions;
 
@@ -14,59 +13,7 @@ internal static class IElementExtension
 
     public static string GetTextContent(this IElement element, int? maxLength = null)
     {
-        string innerHtml = element!.InnerHtml.Trim('\t', '\n', '\r', ' ');
-        StringBuilder stringBuilder = new StringBuilder(innerHtml.Length);
-        bool isTag = false;
-        maxLength ??= int.MaxValue;
-        for (int i = 0; i < innerHtml.Length && (i < maxLength || isTag); i++)
-        {
-            if (innerHtml[i] == '<')
-            {
-                isTag = true;
-            }
-            else if (innerHtml[i] == '>')
-            {
-                isTag = false;
-            }
-            else if (isTag)
-            {
-                OnTag(innerHtml, i, stringBuilder);
-            }
-            else if ((innerHtml[i] == ' ' && innerHtml[i + 1] == ' ') ||
-                     (innerHtml[i] == '\t' && innerHtml[i + 1] == '\t') ||
-                     (innerHtml[i] == '\n' && innerHtml[i + 1] == '\n') ||
-                      innerHtml[i] == '\r')
-            {
-                i += 1;
-            }
-            else
-            {
-                stringBuilder.Append(innerHtml[i]);
-            }
-        }
-        return stringBuilder.ToString().TrimEnd();
-    }
-
-    public static void OnTag(string innerHtml, int index, StringBuilder stringBuilder)
-    {
-        if ((innerHtml[index] == 'b' && innerHtml[index + 1] == 'r') ||
-            (innerHtml[index] == 'p' && innerHtml[index - 1] == '/') ||
-            (innerHtml[index] == 'u' && innerHtml[index - 1] == '/') ||
-             innerHtml[index] == 'l' && innerHtml[index - 1] == '/')
-        {
-            stringBuilder.AppendLine();
-        }
-        else if(innerHtml[index] == 'h' && (innerHtml[index - 1] == '<' || innerHtml[index - 1] == '/'))
-        {            
-            if (innerHtml[index] == 'h' && innerHtml[index - 1] == '<')
-                stringBuilder.AppendLine("<b>");
-            else
-                stringBuilder.AppendLine("</b>");
-        }
-        else if(innerHtml[index] == 'l' && innerHtml[index - 1] == '<')
-        {
-            stringBuilder.Append("--- ");
-        }
+        return element!.InnerHtml.Trim('\t', '\n', '\r', ' ').ParseHtml(maxLength);
     }
 
     public static string GetNearestSiblingTextContent(this IElement element)

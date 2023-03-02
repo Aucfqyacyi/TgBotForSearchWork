@@ -1,5 +1,6 @@
 ﻿using AutoDIInjector.Attributes;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Reflection;
 
 namespace AutoDIInjector;
@@ -12,10 +13,13 @@ public static class IServiceCollectionExtension
 
     public static IServiceCollection AddServices(this IServiceCollection services, params Assembly[] assemblies)
     {
-        return services.AddServices(null, assemblies);
+        if (assemblies.Length == 0)
+            return services.RegisterTypes(Assembly.GetCallingAssembly().GetExportedTypes());
+        else
+            return services.RegisterTypes(assemblies.SelectMany(assem => assem.GetExportedTypes()));
     }
 
-    public static IServiceCollection AddServices(this IServiceCollection services, Func<Type, bool>? predicate, params Assembly[] assemblies)
+    public static IServiceCollection AddServices(this IServiceCollection services, Func<Type, bool> predicate, params Assembly[] assemblies)
     {
         if (assemblies.Length == 0)
             return services.RegisterTypes(Assembly.GetCallingAssembly().GetExportedTypes(), predicate);
@@ -23,7 +27,7 @@ public static class IServiceCollectionExtension
             return services.RegisterTypes(assemblies.SelectMany(assem => assem.GetExportedTypes()), predicate);
     }
 
-    private static IServiceCollection RegisterTypes(this IServiceCollection services, IEnumerable<Type> types, Func<Type, bool>? predicate)
+    private static IServiceCollection RegisterTypes(this IServiceCollection services, IEnumerable<Type> types, Func<Type, bool>? predicate = null)
     {
         Parallel.ForEach(types, type =>
         {

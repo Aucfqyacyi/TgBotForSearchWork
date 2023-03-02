@@ -1,5 +1,4 @@
-﻿using AngleSharp.Io;
-using Parsers.Constants;
+﻿using Parsers.Constants;
 using Parsers.VacancyParsers.Parsers;
 
 namespace Parsers.VacancyParsers;
@@ -28,7 +27,7 @@ public static class VacancyParserFactory
         throw new Exception($"Parser with sitetype({siteType}) was not found.");
     }
 
-    private static IVacancyParser Create<TParser>(SiteType site) 
+    private static IVacancyParser Create<TParser>(SiteType site)
                                                 where TParser : class, IVacancyParser, new()
     {
         IVacancyParser? vacancyParser = null;
@@ -40,7 +39,7 @@ public static class VacancyParserFactory
                 vacancyParser = new TParser();
                 _cache.Add(site, vacancyParser);
             }
-        }            
+        }
         return vacancyParser;
     }
 }

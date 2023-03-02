@@ -1,5 +1,6 @@
 ﻿using Deployf.Botf;
 using Telegram.Bot.Types.Enums;
+using TgBotForSearchWorkApi.Constants;
 using TgBotForSearchWorkApi.Utilities;
 
 
@@ -10,7 +11,7 @@ public class MainController : BotController
     [On(Handle.Unknown)]
     public async Task OnUnknownCommand()
     {
-        if(Context.Update.Type == UpdateType.Message || Context.Update.Type == UpdateType.Unknown)
+        if (Context.Update.Type == UpdateType.Message || Context.Update.Type == UpdateType.Unknown)
             await Send($"Будь ласка, виберіть команду з списку.");
     }
 
@@ -31,5 +32,11 @@ public class MainController : BotController
         {
             Log.Info($"Exception in {nameof(OnExceptionAsync)} method - {ex.Message}");
         }
+    }
+
+    [Action(Command.Test)]
+    public async Task Test()
+    {
+        await Send("Тестовий визов.");
     }
 }

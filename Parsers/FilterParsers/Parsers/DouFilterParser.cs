@@ -3,7 +3,6 @@ using Parsers.Constants;
 using Parsers.Extensions;
 using Parsers.Models;
 using Parsers.Utilities;
-using System.Web;
 
 namespace Parsers.FilterParsers.Parsers;
 
@@ -16,6 +15,14 @@ internal class DouFilterParser : FilterParser
     protected readonly HtmlElement _ul = new(string.Empty, "ul");
     protected readonly HtmlElement _a = new(string.Empty, "a");
     protected readonly HtmlElement _category = new(string.Empty, "option");
+
+    public override ValueTask<List<Filter>> ParseAsync(Uri uri, CancellationToken cancellationToken = default)
+    {
+        if (uri.OriginalString.Contains("/feeds/"))
+            return base.ParseAsync(new(uri.OriginalString.Replace("feeds/", string.Empty)), cancellationToken);
+        else
+            return base.ParseAsync(uri, cancellationToken);
+    }
 
     protected override void CollectFilters(IDocument document, List<Filter> filters)
     {
@@ -30,9 +37,9 @@ internal class DouFilterParser : FilterParser
         foreach (var categoryElement in categories)
         {
             Filter? filter = CreateFilterFromCategory(categoryElement, category);
-            if(filter is not null)
+            if (filter is not null)
                 filters.Add(filter);
-        }           
+        }
     }
 
     protected Filter? CreateFilterFromCategory(IElement filterElement, FilterCategory category)
@@ -75,7 +82,7 @@ internal class DouFilterParser : FilterParser
 
     protected Filter CreateFilterFromFilterRegion(int categoryId, string categoryName, IElement filterElement)
     {
-        string filterName = HttpUtility.HtmlDecode(filterElement.GetTextContent());
+        string filterName = filterElement.GetTextContent();
         string[] splitedGetParamater = filterElement.GetHrefAttribute().Split('?').Last().Split('=');
         string getParameterName = splitedGetParamater.First();
         FilterCategory category = new(categoryId, categoryName, getParameterName);

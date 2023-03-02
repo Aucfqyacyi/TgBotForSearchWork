@@ -1,19 +1,58 @@
-﻿using Parsers.Models;
+﻿using AngleSharp;
+using AngleSharp.Dom;
+using Parsers.Extensions;
+using Parsers.Models;
+using System.ServiceModel.Syndication;
+using System.Xml;
 
 namespace Parsers.VacancyParsers.Parsers;
 
-internal class DouVacancyParser : VacancyParser
+internal class DouVacancyParser : IVacancyParser
 {
-    protected override HtmlElement VacancyItem { get; } = new("vacancy");
+    public ValueTask<bool> IsCorrectUriAsync(Uri uri, CancellationToken cancellationToken)
+    {
+        try
+        {
+            SyndicationFeed feed = GetSyndicationFeed(uri.OriginalString);
+            if (feed.Items.TryGetNonEnumeratedCount(out int count))
+                return ValueTask.FromResult(count > 0);
+        }
+        catch (Exception)
+        {
+        }
+        return ValueTask.FromResult(false);
+    }
 
-    protected override HtmlElement Title { get; } = new("vt", "A");
+    public async ValueTask<List<Vacancy>> ParseAsync(Uri uri, int descriptionLenght, CancellationToken cancellationToken = default)
+    {
+        SyndicationFeed feed = GetSyndicationFeed(uri.OriginalString);
+        List<Vacancy> vacancies = new();
+        foreach (SyndicationItem item in feed.Items)
+        {
+            vacancies.Add(await CreateVacancyAsync(item, descriptionLenght, cancellationToken));
+        }
+        return vacancies;
+    }
 
-    protected override HtmlElement Description { get; } = new("text b-typo vacancy-section");
+    protected SyndicationFeed GetSyndicationFeed(string url)
+    {
+        using XmlReader reader = XmlReader.Create(url);
+        return SyndicationFeed.Load(reader);
+    }
 
-    protected override HtmlElement Url { get; } = new("vt", "A");
+    protected async ValueTask<Vacancy> CreateVacancyAsync(SyndicationItem item, int descriptionLenght, CancellationToken cancellationToken)
+    {
+        string url = item.Id;
+        string title = item.Title.Text.ParseHtml();
+        string description = await GetDescriptionAsync(item, descriptionLenght, cancellationToken);
+        ulong id = url!.GetNumberFromUrl(6, "/");
+        return new(id, title, url, description);
+    }
 
-    protected override uint IdPositionInUrl { get; } = 6;
-
-    protected override string SymbolNearId { get; } = "/";
-
+    protected async ValueTask<string> GetDescriptionAsync(SyndicationItem item, int descriptionLenght, CancellationToken cancellationToken)
+    {
+        using IBrowsingContext browsingContext = BrowsingContext.New();
+        using IDocument document = await browsingContext.OpenAsync(req => req.Content(item.Summary.Text), cancellationToken);
+        return document.GetElementsByClassName("text __r").First().GetTextContent(descriptionLenght);
+    }
 }

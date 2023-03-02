@@ -65,9 +65,9 @@ public partial class UriToVacanciesController
         UriToVacancies uriToVacancies = _uriToVacanciesService.Get(urlId, CancelToken);
         List<GetParameter> getParameters = uriToVacancies.GetParameters();
         List<FilterCategory> categories = _filterService.GetFilterCategories(siteType, getParameters);
-        Pager(categories, page, categories => (categories.Name, 
+        Pager(categories, page, categories => (categories.Name,
                     Q(RemoveFilterFromUri, urlId!, siteType, categories.Id, categories.GetParameterName)),
-                                        Q(ShowFilterCategoriesByGetParams, FirstPage, siteType, urlId!, isActivated), 1);        
+                                        Q(ShowFilterCategoriesByGetParams, FirstPage, siteType, urlId!, isActivated), 1);
         ActivateRowButton(urlId, isActivated, ShowFilterCategoriesByGetParams, page, siteType);
         RowButton(Back, Q(ShowUrisToVacancies, 0, siteType, ShowFirstPageCategoriesByGetParams));
     }

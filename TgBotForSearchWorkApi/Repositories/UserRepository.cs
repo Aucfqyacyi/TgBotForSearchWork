@@ -1,7 +1,7 @@
-﻿using MongoDB.Driver;
+﻿using AutoDIInjector.Attributes;
+using MongoDB.Driver;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Utilities;
-using AutoDIInjector.Attributes;
 
 namespace TgBotForSearchWorkApi.Repositories;
 
@@ -59,7 +59,7 @@ public class UserRepository
             {
                 Activate(chatId, true, cancellationToken);
                 return true;
-            }           
+            }
         }
         return false;
     }

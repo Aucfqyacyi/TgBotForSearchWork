@@ -1,8 +1,8 @@
-﻿using Parsers.Models;
+﻿using AutoDIInjector.Attributes;
+using Parsers.Models;
 using Parsers.VacancyParsers;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Utilities;
-using AutoDIInjector.Attributes;
 
 namespace TgBotForSearchWorkApi.Services;
 
@@ -13,7 +13,7 @@ public class VacancyService
                                                                     CancellationToken cancellationToken)
     {
         List<Vacancy> vacancies = new();
-        await Parallel.ForEachAsync(urisToVacancies, cancellationToken, 
+        await Parallel.ForEachAsync(urisToVacancies, cancellationToken,
                             (UriToVacancies uriToVacancies, CancellationToken cancellationToken) =>
         {
             return GetRelevantVacanciesAsync(uriToVacancies, vacancies, descriptionLength, cancellationToken);
@@ -21,19 +21,19 @@ public class VacancyService
         return vacancies;
     }
 
-    private async ValueTask GetRelevantVacanciesAsync(UriToVacancies uriToVacancies, List<Vacancy> vacancies, int descriptionLength, 
+    private async ValueTask GetRelevantVacanciesAsync(UriToVacancies uriToVacancies, List<Vacancy> vacancies, int descriptionLength,
                                                       CancellationToken cancellationToken)
     {
         List<Vacancy> relevantVacancies = await GetRelevantVacanciesAsync(uriToVacancies, descriptionLength, cancellationToken);
         Log.Info($"{uriToVacancies.Uri.Host} has number of vacancies {relevantVacancies.Count}");
         if (relevantVacancies.Count == 0)
             return;
-        uriToVacancies.LastVacanciesIds = relevantVacancies.Select(e => e.Id).ToList();        
+        uriToVacancies.LastVacanciesIds = relevantVacancies.Select(e => e.Id).ToList();
         lock (this)
             vacancies.AddRange(relevantVacancies);
     }
 
-    private async ValueTask<List<Vacancy>> GetRelevantVacanciesAsync(UriToVacancies uriToVacancies, int descriptionLength, 
+    private async ValueTask<List<Vacancy>> GetRelevantVacanciesAsync(UriToVacancies uriToVacancies, int descriptionLength,
                                                                      CancellationToken cancellationToken)
     {
         try

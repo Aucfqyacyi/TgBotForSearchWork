@@ -1,13 +1,12 @@
-﻿using Deployf.Botf;
+﻿using AutoDIInjector.Attributes;
+using Deployf.Botf;
 using MongoDB.Bson;
-using MongoDB.Driver;
 using Parsers.Constants;
 using Parsers.Models;
 using Parsers.VacancyParsers;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Repositories;
 using TgBotForSearchWorkApi.Utilities;
-using AutoDIInjector.Attributes;
 
 namespace TgBotForSearchWorkApi.Services;
 
@@ -22,7 +21,7 @@ public class UriToVacanciesService
     }
 
     public List<UriToVacancies> GetAll(long chatId, SiteType siteType, CancellationToken cancellationToken)
-    {        
+    {
         return _uriToVacanciesRepository.GetAll(chatId, siteType, cancellationToken);
     }
 
@@ -33,7 +32,7 @@ public class UriToVacanciesService
 
     public UriToVacancies? Create(long chatId, SiteType siteType, GetParameter getParametr, CancellationToken cancellationToken)
     {
-        UriToVacancies uriToVacancies = new(chatId, SiteTypesToUris.All[siteType].OriginalString);
+        UriToVacancies uriToVacancies = new(chatId, SiteTypesToUris.All[siteType]);
         uriToVacancies.AddGetParameter(getParametr);
         _uriToVacanciesRepository.InsertOne(uriToVacancies, cancellationToken);
         return uriToVacancies;
@@ -42,7 +41,7 @@ public class UriToVacanciesService
     public UriToVacancies? Update(ObjectId urlId, GetParameter getParametr, bool addGetParameter, CancellationToken cancellationToken)
     {
         UriToVacancies uriToVacancies = _uriToVacanciesRepository.Get(urlId, cancellationToken);
-        if(addGetParameter)
+        if (addGetParameter)
             uriToVacancies.AddGetParameter(getParametr);
         else
             uriToVacancies.RemoveGetParameter(getParametr);
@@ -64,7 +63,7 @@ public class UriToVacanciesService
                 return null;
             Uri uri = new Uri(url);
             IVacancyParser vacancyParser = VacancyParserFactory.Create(uri);
-            if (await vacancyParser.IsCorrectUrlAsync(uri, cancellationToken) is false)
+            if (await vacancyParser.IsCorrectUriAsync(uri, cancellationToken) is false)
                 return null;
             UriToVacancies uriToVacancies = new(chatId, uri);
             _uriToVacanciesRepository.InsertOne(uriToVacancies, cancellationToken);
@@ -82,7 +81,7 @@ public class UriToVacanciesService
         _uriToVacanciesRepository.Delete(urlId, cancellationToken);
     }
 
-    public bool IsActivated(ObjectId urlId, CancellationToken cancellationToken) 
+    public bool IsActivated(ObjectId urlId, CancellationToken cancellationToken)
     {
         return _uriToVacanciesRepository.IsActivated(urlId, cancellationToken);
     }

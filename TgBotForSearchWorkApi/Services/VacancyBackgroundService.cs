@@ -18,7 +18,7 @@ public class VacancyBackgroundService : BackgroundService
     private int _skip = 0;
 
     public VacancyBackgroundService(ITelegramBotClient telegramBotClient, VacancyService vacancyService,
-                                    UriToVacanciesRepository uriToVacanciesRepository, IConfiguration configuration, 
+                                    UriToVacanciesRepository uriToVacanciesRepository, IConfiguration configuration,
                                     UserRepository userRepository)
     {
         _vacancyService = vacancyService;
@@ -35,8 +35,8 @@ public class VacancyBackgroundService : BackgroundService
         {
             List<User> users = _userRepository.GetAllActivated(_skip, _urisLimit, cancellationToken);
             try
-            {                 
-                await SendVacanciesAsync(users, cancellationToken);                
+            {
+                await SendVacanciesAsync(users, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -51,7 +51,7 @@ public class VacancyBackgroundService : BackgroundService
                 _skip = 0;
                 await Task.Delay(_timeout, cancellationToken);
             }
-        }       
+        }
     }
 
     private async ValueTask SendVacanciesAsync(List<User> users, CancellationToken cancellationToken)
@@ -60,7 +60,7 @@ public class VacancyBackgroundService : BackgroundService
         {
             Log.Info($"Start send vacancies to user with chatId({user.ChatId}).");
             List<UriToVacancies> urisToVacancies = await SendVacanciesAsync(user, cancellationToken);
-            if(urisToVacancies.Any())
+            if (urisToVacancies.Any())
                 _uriToVacanciesRepository.UpdateManyLastVacancyIds(urisToVacancies, cancellationToken);
             Log.Info($"Finish send vacancies to user with chatId({user.ChatId}).");
         }

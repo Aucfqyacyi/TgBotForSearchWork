@@ -36,7 +36,7 @@ public static class Controller
                 if (request.IdOnLoadedPage is null)
                     return webDriver.PageSource;
                 try
-                {                   
+                {
                     Console.WriteLine($"{DateTime.Now}: Processing the url({request.Url}).");
                     WaitUntilResolvingChallenge(webDriver, request.IdOnLoadedPage, request.Timeout, cancellationToken);
                     return webDriver.PageSource;
@@ -47,7 +47,7 @@ public static class Controller
                     chromeDriverFactory.Reboot();
                 }
             }
-        }                
+        }
     }
 
     private static void WaitUntilResolvingChallenge(IWebDriver webDriver, string idOnLoadedPage, int timeout, CancellationToken cancellationToken)

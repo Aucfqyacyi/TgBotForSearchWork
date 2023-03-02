@@ -1,8 +1,8 @@
 ﻿using Deployf.Botf;
-using TgBotForSearchWorkApi.Constants;
-using TgBotForSearchWorkApi.Models.States;
-using TgBotForSearchWorkApi.Models;
 using MongoDB.Bson;
+using TgBotForSearchWorkApi.Constants;
+using TgBotForSearchWorkApi.Models;
+using TgBotForSearchWorkApi.Models.States;
 
 namespace TgBotForSearchWorkApi.Controllers;
 
@@ -19,7 +19,7 @@ public partial class UriToVacanciesController
     private async Task HandleAddingUrlAsync(AddingUrlState state)
     {
         await ClearState();
-        UriToVacancies? uriToVacancies = await _uriToVacanciesService.AddAsync(ChatId, Context.GetSafeTextPayload()!, CancelToken);       
+        UriToVacancies? uriToVacancies = await _uriToVacanciesService.AddAsync(ChatId, Context.GetSafeTextPayload()!, CancelToken);
         OnAdd(uriToVacancies?.Id, uriToVacancies?.IsActivated);
     }
 

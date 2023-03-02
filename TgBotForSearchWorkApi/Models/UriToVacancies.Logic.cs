@@ -52,13 +52,13 @@ public partial class UriToVacancies
             query.Remove(getParametr.Name);
             uriBuilder.Query = query.ToString();
             Uri = uriBuilder.Uri;
-        }      
+        }
     }
 
     public List<GetParameter> GetParameters()
     {
         UriBuilder uriBuilder = new(Uri);
-        List<GetParameter> getParametrs= new List<GetParameter>();
+        List<GetParameter> getParametrs = new List<GetParameter>();
         NameValueCollection query = HttpUtility.ParseQueryString(uriBuilder.Query);
         for (int i = 0; i < query.Count; i++)
         {

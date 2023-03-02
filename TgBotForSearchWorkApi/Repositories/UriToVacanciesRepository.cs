@@ -1,10 +1,9 @@
-﻿using MongoDB.Bson;
+﻿using AutoDIInjector.Attributes;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Parsers.Constants;
-using Telegram.Bot.Types;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Utilities;
-using AutoDIInjector.Attributes;
 
 namespace TgBotForSearchWorkApi.Repositories;
 
@@ -35,7 +34,7 @@ public class UriToVacanciesRepository
 
     public void InsertMany(IReadOnlyList<UriToVacancies> uriToVacancies, CancellationToken cancellationToken)
     {
-        _mongoContext.UriToVacanciesCollection.InsertMany(uriToVacancies, null, cancellationToken);  
+        _mongoContext.UriToVacanciesCollection.InsertMany(uriToVacancies, null, cancellationToken);
     }
 
     public long Count(long chatId, CancellationToken cancellationToken)
@@ -101,7 +100,7 @@ public class UriToVacanciesRepository
     }
 
     public void UpdateManyLastVacancyIds(IEnumerable<UriToVacancies> urisToVacancies, CancellationToken cancellationToken)
-    {       
+    {
         var requests = urisToVacancies.Aggregate(new List<WriteModel<UriToVacancies>>(), (requests, uri) =>
         {
             var update = Builders<UriToVacancies>.Update.Set(url => url.LastVacanciesIds, uri.LastVacanciesIds);

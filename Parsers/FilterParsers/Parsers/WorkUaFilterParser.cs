@@ -42,7 +42,7 @@ internal class WorkUaFilterParser : FilterParser
                 CollectFiltersFromElement(filters, elementsWithId[i], categoryId, categoryName!);
     }
 
-    protected void CollectFiltersFromSalaries(List<Filter> filters, string categoryName, 
+    protected void CollectFiltersFromSalaries(List<Filter> filters, string categoryName,
                                               List<IElement> elementsWithId, List<IElement> subCategories)
     {
         for (int i = 0; i < elementsWithId.Count; i++)
@@ -72,7 +72,7 @@ internal class WorkUaFilterParser : FilterParser
         string filterName = input.GetNearestSiblingTextContent().GetWithoutTextInBrackets();
         string getParamName = elementWithId.Id!.Replace("_selection", string.Empty);
         FilterCategory category = new(categoryId, categoryName, getParamName);
-        return new(filterName, category, input.GetValueAttribute(), FilterType.CheckBox);    
+        return new(filterName, category, input.GetValueAttribute(), FilterType.CheckBox);
     }
 
     protected void CollectFiltersFromCities(List<Filter> filters)
@@ -83,7 +83,7 @@ internal class WorkUaFilterParser : FilterParser
                             "Полтава","Рівне","Суми", "Тернопіль", "Ужгород", "Харків","Херсон", "Хмельницький",
                             "Черкаси","Чернігів","Чернівці","Інші країни", "Дистанційно" };
         int id = 60;
-        for (int i = cities.Length - 1; i >=  0; i--, id--)
+        for (int i = cities.Length - 1; i >= 0; i--, id--)
             filters.Add(new(cities[i], category, id.ToString(), FilterType.CheckBox));
     }
 

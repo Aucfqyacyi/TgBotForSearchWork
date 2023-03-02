@@ -17,7 +17,7 @@ public class UserController : BotController
     [Action(Command.Start, CommandDescription.Start)]
     public async Task Start()
     {
-        if(_userRepository.Create(ChatId, CancelToken))
+        if (_userRepository.Create(ChatId, CancelToken))
             await Send("Вітання!");
         else
             await Send("Ваш обліковий запис вже створенно.");
@@ -32,7 +32,7 @@ public class UserController : BotController
 
     [Action(Command.ChangeDescriptionLength, CommandDescription.ChangeDescriptionLength)]
     public async Task ChangeDescriptionLength()
-    {              
+    {
         await State(new ChangingDescriptionLength());
         Push("Введіть бажаний розмір опису, діапазон значень від 0 до 6000.");
     }
@@ -49,12 +49,6 @@ public class UserController : BotController
         else
         {
             await Send("Не корректне повідомлення.");
-        }        
-    }
-
-    [Action(Command.Test)]
-    public async Task Test()
-    {
-        await Send("Тестовий визов.");
+        }
     }
 }

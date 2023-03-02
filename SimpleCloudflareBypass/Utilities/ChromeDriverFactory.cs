@@ -19,7 +19,7 @@ public class ChromeDriverFactory
             _webDriver = null;
         }
 
-        if(_webDriver is null)
+        if (_webDriver is null)
             _webDriver = Create();
 
         return _webDriver;

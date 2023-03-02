@@ -34,7 +34,7 @@ public class FilterParserFactory
                 filterParser = new TParser();
                 _cache.Add(site, filterParser);
             }
-        }      
+        }
         return filterParser;
     }
 }

@@ -41,7 +41,7 @@ public partial class UriToVacanciesController : BotController
     protected async Task ActivateUrl(ObjectId urlId, bool isActivated, Delegate? @delegate = null, params object[] args)
     {
         _uriToVacanciesService.Activate(urlId, isActivated, CancelToken);
-        string activatePhrase = "Посилання " + (isActivated ?  "активоване." : "дезактивоване.");
+        string activatePhrase = "Посилання " + (isActivated ? "активоване." : "дезактивоване.");
         if (@delegate is null)
         {
             await AnswerCallback();

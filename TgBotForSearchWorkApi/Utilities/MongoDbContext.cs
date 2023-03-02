@@ -1,6 +1,6 @@
-﻿using MongoDB.Driver;
+﻿using AutoDIInjector.Attributes;
+using MongoDB.Driver;
 using TgBotForSearchWorkApi.Models;
-using AutoDIInjector.Attributes;
 
 namespace TgBotForSearchWorkApi.Utilities;
 
@@ -17,7 +17,7 @@ public class MongoDbContext
     {
         _database = database;
         var indexKeysDefinition = Builders<UriToVacancies>.IndexKeys.Ascending(uri => uri.HashedUrl).Ascending(uri => uri.ChatId);
-        var indexModel = new CreateIndexModel<UriToVacancies>(indexKeysDefinition, new CreateIndexOptions() { Unique = true});
+        var indexModel = new CreateIndexModel<UriToVacancies>(indexKeysDefinition, new CreateIndexOptions() { Unique = true });
         UriToVacanciesCollection.Indexes.CreateOne(indexModel);
     }
 

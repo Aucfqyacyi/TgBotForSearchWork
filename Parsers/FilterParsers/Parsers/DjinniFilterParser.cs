@@ -22,7 +22,7 @@ internal class DjinniFilterParser : FilterParser
     }
 
     protected void CollectFiltersFromSet(IElement set, List<Filter> filters)
-    {       
+    {
         List<IElement>? filterElements = set.GetElements(_filterLink);
         if (filterElements == null)
             return;
@@ -39,7 +39,7 @@ internal class DjinniFilterParser : FilterParser
         string filterName = filterElement.GetTextContent();
         string[] splitedGetParamater = filterElement.GetHrefAttribute().TrimStart('?').Split('=');
         FilterCategory category = new(categoryId, categoryName, splitedGetParamater.First());
-        if(splitedGetParamater.Length == 1)
+        if (splitedGetParamater.Length == 1)
             return new(filterName, category, "1", FilterType.CheckBox);
         else
             return new(filterName, category, splitedGetParamater.Last(), FilterType.CheckBox);

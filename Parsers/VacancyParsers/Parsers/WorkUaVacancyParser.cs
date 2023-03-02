@@ -14,7 +14,7 @@ internal class WorkUaVacancyParser : VacancyParser
 
     protected override HtmlElement Url { get; } = new(string.Empty, "A");
 
-    protected override uint IdPositionInUrl { get; } = 4; 
+    protected override uint IdPositionInUrl { get; } = 4;
 
     protected override string SymbolNearId { get; } = "/";
 

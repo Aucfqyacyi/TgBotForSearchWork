@@ -10,7 +10,7 @@ internal abstract class FilterParser : IFilterParser
 {
     protected abstract string SearchGetParamName { get; }
 
-    public async ValueTask<List<Filter>> ParseAsync(Uri uri, CancellationToken cancellationToken = default)
+    public virtual async ValueTask<List<Filter>> ParseAsync(Uri uri, CancellationToken cancellationToken = default)
     {
         List<Filter> filters = new()
         {

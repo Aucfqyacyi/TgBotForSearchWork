@@ -8,18 +8,18 @@ internal class SimplyCloudflareBypassHandler : DelegatingHandler
     private readonly string _simpleCloudflareBypassUrl;
 
     public SimplyCloudflareBypassHandler(string simpleCloudflareBypassUrl) : base(new HttpClientHandler())
-	{
+    {
         _simpleCloudflareBypassUrl = simpleCloudflareBypassUrl;
         if (_simpleCloudflareBypassUrl.EndsWith("/"))
             _simpleCloudflareBypassUrl += "send";
         else
-            _simpleCloudflareBypassUrl += "/send";       
+            _simpleCloudflareBypassUrl += "/send";
     }
 
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage httpRequestMessage, CancellationToken cancellationToken)
     {
         SiteType siteType = SiteTypesToUris.HostsToSiteTypes[httpRequestMessage.RequestUri!.Host];
-        if (siteType != SiteType.Dou)
+        if (siteType != SiteType.Dou || httpRequestMessage.RequestUri.OriginalString.Contains("/feeds/"))
             return base.SendAsync(httpRequestMessage, cancellationToken);
         string request = $$"""
                     {

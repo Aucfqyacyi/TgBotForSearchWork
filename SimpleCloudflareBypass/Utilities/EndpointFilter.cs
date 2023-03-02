@@ -3,7 +3,7 @@
 namespace SimpleCloudflareBypass.Utilities;
 
 public class EndpointFilter : IEndpointFilter
-{   
+{
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
         try
@@ -20,14 +20,14 @@ public class EndpointFilter : IEndpointFilter
                 {
                     CheckRequest(request);
                 }
-            }            
+            }
         }
-        catch(ArgumentNullException ex)
+        catch (ArgumentNullException ex)
         {
             LogErrorMessage(ex.Message);
             return Results.BadRequest(new ErrorResponse("Request url is empty."));
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             LogErrorMessage(ex.Message);
             return Results.BadRequest(new ErrorResponse("Request is not correct."));

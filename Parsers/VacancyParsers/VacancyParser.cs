@@ -14,7 +14,7 @@ internal abstract class VacancyParser : IVacancyParser
     protected abstract uint IdPositionInUrl { get; }
     protected abstract string SymbolNearId { get; }
 
-    public async ValueTask<bool> IsCorrectUrlAsync(Uri uri, CancellationToken cancellationToken)
+    public async ValueTask<bool> IsCorrectUriAsync(Uri uri, CancellationToken cancellationToken)
     {
         IHtmlCollection<IElement> vacancyElements = await GetVacancyElementsAsync(uri, cancellationToken);
         return vacancyElements.Length > 0;
@@ -32,7 +32,7 @@ internal abstract class VacancyParser : IVacancyParser
     }
 
     protected ValueTask<IHtmlCollection<IElement>> GetVacancyElementsAsync(Uri uri, CancellationToken cancellationToken)
-    {        
+    {
         return HtmlParser.GetElementsAsync(uri, document => document.GetElementsByClassName(VacancyItem.CssClassName), cancellationToken);
     }
 
@@ -43,23 +43,13 @@ internal abstract class VacancyParser : IVacancyParser
             throw new Exception($"Url can't be null or empty.");
         string title = element.GetTextContent(Title);
         string description = await GetDescriptionAsync(url!, descriptionLenght, cancellationToken) ?? string.Empty;
-        ulong id = GetId(url);
-        return new(id, title, url, description);
+        ulong id = url!.GetNumberFromUrl(IdPositionInUrl, SymbolNearId);
+        return new(id, title, url!, description);
     }
 
     protected virtual async ValueTask<string?> GetDescriptionAsync(string url, int descriptionLenght, CancellationToken cancellationToken)
     {
         var elements = await HtmlParser.GetElementsAsync(new(url), document => document.GetElementsByClassName(Description.CssClassName), cancellationToken);
         return elements.FirstOrDefault()?.GetTextContent(descriptionLenght);
-    }
-
-    protected ulong GetId(string url)
-    {
-        string rawId = url.Split('/')[IdPositionInUrl];
-        string[] splitedRawId = rawId.Split(SymbolNearId);
-        string id = splitedRawId.First();
-        if (id.IsNullOrEmpty())
-            id = splitedRawId.Last();
-        return ulong.Parse(id);       
     }
 }
