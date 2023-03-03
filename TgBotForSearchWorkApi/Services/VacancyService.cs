@@ -24,40 +24,21 @@ public class VacancyService
     private async ValueTask GetRelevantVacanciesAsync(UriToVacancies uriToVacancies, List<Vacancy> vacancies, int descriptionLength,
                                                       CancellationToken cancellationToken)
     {
-        List<Vacancy> relevantVacancies = await GetRelevantVacanciesAsync(uriToVacancies, descriptionLength, cancellationToken);
-        Log.Info($"{uriToVacancies.Uri.Host} has number of vacancies {relevantVacancies.Count}");
-        if (relevantVacancies.Count == 0)
-            return;
-        uriToVacancies.LastVacanciesIds = relevantVacancies.Select(e => e.Id).ToList();
-        lock (this)
-            vacancies.AddRange(relevantVacancies);
-    }
-
-    private async ValueTask<List<Vacancy>> GetRelevantVacanciesAsync(UriToVacancies uriToVacancies, int descriptionLength,
-                                                                     CancellationToken cancellationToken)
-    {
         try
         {
             IVacancyParser vacancyParser = VacancyParserFactory.Create(uriToVacancies.Uri);
-            List<Vacancy> vacancies = await vacancyParser.ParseAsync(uriToVacancies.Uri, descriptionLength, cancellationToken);
-            for (int i = 0; i < Math.Min(vacancies.Count, uriToVacancies.LastVacanciesIds.Count); i++)
-            {
-                if (uriToVacancies.LastVacanciesIds[i] == 0)
-                    break;
-                if (uriToVacancies.LastVacanciesIds.Contains(vacancies[i].Id))
-                {
-                    if (i == 0)
-                        return new();
-                    else
-                        return vacancies.GetRange(0, i);
-                }
-            }
-            return vacancies;
+            List<Vacancy> relevantVacancies = await vacancyParser.ParseAsync(uriToVacancies.Uri, descriptionLength, 
+                                                                             uriToVacancies.LastVacanciesIds, cancellationToken);
+            Log.Info($"{uriToVacancies.Uri.Host} has number of vacancies {relevantVacancies.Count}");
+            if (relevantVacancies.Count == 0)
+                return;
+            uriToVacancies.LastVacanciesIds = relevantVacancies.Select(e => e.Id).ToList();
+            lock (vacancies)
+                vacancies.AddRange(relevantVacancies);
         }
         catch (Exception ex)
         {
             Log.Info(ex.Message);
-            return new();
-        }
+        }      
     }
 }

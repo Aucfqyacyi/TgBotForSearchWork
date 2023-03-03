@@ -2,7 +2,7 @@
 
 namespace Parsers.VacancyParsers.Parsers;
 
-internal class DjinniVacancyParser : VacancyParser
+internal class DjinniVacancyParser : HtmlVacancyParser
 {
     protected override HtmlElement VacancyItem { get; } = new("list-jobs__item");
 

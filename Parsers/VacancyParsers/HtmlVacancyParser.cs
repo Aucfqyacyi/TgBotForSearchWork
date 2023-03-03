@@ -5,7 +5,7 @@ using Parsers.Utilities;
 
 namespace Parsers.VacancyParsers;
 
-internal abstract class VacancyParser : IVacancyParser
+internal abstract class HtmlVacancyParser : IVacancyParser
 {
     protected abstract HtmlElement VacancyItem { get; }
     protected abstract HtmlElement Title { get; }
@@ -20,13 +20,17 @@ internal abstract class VacancyParser : IVacancyParser
         return vacancyElements.Length > 0;
     }
 
-    public async ValueTask<List<Vacancy>> ParseAsync(Uri uri, int descriptionLenght, CancellationToken cancellationToken = default)
+    public async ValueTask<List<Vacancy>> ParseAsync(Uri uri, int descriptionLenght, IList<ulong>? vacancyIdsToIgnore = null, CancellationToken cancellationToken = default)
     {
         IHtmlCollection<IElement> vacancyElements = await GetVacancyElementsAsync(uri, cancellationToken);
         List<Vacancy> vacancies = new();
         foreach (IElement vacancyElement in vacancyElements)
         {
-            vacancies.Add(await CreateVacancyAsync(vacancyElement, descriptionLenght, uri.Host, cancellationToken));
+            Vacancy vacancy = await CreateVacancyAsync(vacancyElement, descriptionLenght, uri.Host, cancellationToken);
+            if (vacancyIdsToIgnore is not null && vacancyIdsToIgnore.Contains(vacancy.Id))
+                return vacancies;
+            else
+                vacancies.Add(vacancy);
         }
         return vacancies;
     }
@@ -42,7 +46,9 @@ internal abstract class VacancyParser : IVacancyParser
         if (url.IsNullOrEmpty())
             throw new Exception($"Url can't be null or empty.");
         string title = element.GetTextContent(Title);
-        string description = await GetDescriptionAsync(url!, descriptionLenght, cancellationToken) ?? string.Empty;
+        string description = string.Empty;
+        if (descriptionLenght != 0)
+            description = await GetDescriptionAsync(url!, descriptionLenght, cancellationToken) ?? string.Empty;
         ulong id = url!.GetNumberFromUrl(IdPositionInUrl, SymbolNearId);
         return new(id, title, url!, description);
     }

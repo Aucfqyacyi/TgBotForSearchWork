@@ -4,7 +4,7 @@ using Parsers.Utilities;
 
 namespace Parsers.VacancyParsers.Parsers;
 
-internal class WorkUaVacancyParser : VacancyParser
+internal class WorkUaVacancyParser : HtmlVacancyParser
 {
     protected override HtmlElement VacancyItem { get; } = new("card card-hover card-visited wordwrap job-link");
 

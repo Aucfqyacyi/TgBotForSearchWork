@@ -23,20 +23,24 @@ internal class DouVacancyParser : IVacancyParser
         return ValueTask.FromResult(false);
     }
 
-    public async ValueTask<List<Vacancy>> ParseAsync(Uri uri, int descriptionLenght, CancellationToken cancellationToken = default)
+    public async ValueTask<List<Vacancy>> ParseAsync(Uri uri, int descriptionLenght, IList<ulong>? vacancyIdsToIgnore = null, CancellationToken cancellationToken = default)
     {
         SyndicationFeed feed = GetSyndicationFeed(uri.OriginalString);
         List<Vacancy> vacancies = new();
         foreach (SyndicationItem item in feed.Items)
         {
-            vacancies.Add(await CreateVacancyAsync(item, descriptionLenght, cancellationToken));
+            Vacancy vacancy = await CreateVacancyAsync(item, descriptionLenght, cancellationToken);
+            if (vacancyIdsToIgnore is not null && vacancyIdsToIgnore.Contains(vacancy.Id))
+                return vacancies;
+            else
+                vacancies.Add(vacancy);
         }
         return vacancies;
     }
 
     protected SyndicationFeed GetSyndicationFeed(string url)
     {
-        using XmlReader reader = XmlReader.Create(url);
+        using XmlReader reader = XmlReader.Create(url, new() { DtdProcessing  = DtdProcessing.Ignore, });
         return SyndicationFeed.Load(reader);
     }
 
