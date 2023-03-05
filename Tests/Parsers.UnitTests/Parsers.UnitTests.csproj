@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Parsers\Parsers.csproj" />
+    <ProjectReference Include="..\..\src\Parsers\Parsers.csproj" />
   </ItemGroup>
 
 </Project>
