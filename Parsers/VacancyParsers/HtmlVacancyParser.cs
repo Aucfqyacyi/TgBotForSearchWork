@@ -14,12 +14,6 @@ internal abstract class HtmlVacancyParser : IVacancyParser
     protected abstract uint IdPositionInUrl { get; }
     protected abstract string SymbolNearId { get; }
 
-    public async ValueTask<bool> IsCorrectUriAsync(Uri uri, CancellationToken cancellationToken)
-    {
-        IHtmlCollection<IElement> vacancyElements = await GetVacancyElementsAsync(uri, cancellationToken);
-        return vacancyElements.Length > 0;
-    }
-
     public async ValueTask<List<Vacancy>> ParseAsync(Uri uri, int descriptionLenght, IList<ulong>? vacancyIdsToIgnore = null, CancellationToken cancellationToken = default)
     {
         IHtmlCollection<IElement> vacancyElements = await GetVacancyElementsAsync(uri, cancellationToken);
@@ -33,6 +27,19 @@ internal abstract class HtmlVacancyParser : IVacancyParser
                 vacancies.Add(vacancy);
         }
         return vacancies;
+    }
+
+    public async ValueTask<bool> IsCorrectUriAsync(Uri uri, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            IHtmlCollection<IElement> vacancyElements = await GetVacancyElementsAsync(uri, cancellationToken);
+            return vacancyElements.Length > 0;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     protected ValueTask<IHtmlCollection<IElement>> GetVacancyElementsAsync(Uri uri, CancellationToken cancellationToken)

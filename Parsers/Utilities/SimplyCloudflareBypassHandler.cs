@@ -16,11 +16,14 @@ internal class SimplyCloudflareBypassHandler : DelegatingHandler
             _simpleCloudflareBypassUrl += "/send";
     }
 
-    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage httpRequestMessage, CancellationToken cancellationToken)
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage httpRequestMessage, CancellationToken cancellationToken)
     {
         SiteType siteType = SiteTypesToUris.HostsToSiteTypes[httpRequestMessage.RequestUri!.Host];
         if (siteType != SiteType.Dou || httpRequestMessage.RequestUri.OriginalString.Contains("/feeds/"))
-            return base.SendAsync(httpRequestMessage, cancellationToken);
+            return await base.SendAsync(httpRequestMessage, cancellationToken);
+        var response = await base.SendAsync(httpRequestMessage, cancellationToken);
+        if (response.IsSuccessStatusCode is false)
+            return response;   
         string request = $$"""
                     {
                         "Url": "{{httpRequestMessage.RequestUri.OriginalString}}", 
@@ -30,6 +33,6 @@ internal class SimplyCloudflareBypassHandler : DelegatingHandler
         httpRequestMessage.RequestUri = new Uri(_simpleCloudflareBypassUrl);
         httpRequestMessage.Method = HttpMethod.Post;
         httpRequestMessage.Content = new StringContent(request, Encoding.UTF8, "application/json");
-        return base.SendAsync(httpRequestMessage, cancellationToken);
+        return await base.SendAsync(httpRequestMessage, cancellationToken);
     }
 }

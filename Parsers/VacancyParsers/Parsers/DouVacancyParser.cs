@@ -9,20 +9,6 @@ namespace Parsers.VacancyParsers.Parsers;
 
 internal class DouVacancyParser : IVacancyParser
 {
-    public ValueTask<bool> IsCorrectUriAsync(Uri uri, CancellationToken cancellationToken)
-    {
-        try
-        {
-            SyndicationFeed feed = GetSyndicationFeed(uri.OriginalString);
-            if (feed.Items.TryGetNonEnumeratedCount(out int count))
-                return ValueTask.FromResult(count > 0);
-        }
-        catch (Exception)
-        {
-        }
-        return ValueTask.FromResult(false);
-    }
-
     public async ValueTask<List<Vacancy>> ParseAsync(Uri uri, int descriptionLenght, IList<ulong>? vacancyIdsToIgnore = null, CancellationToken cancellationToken = default)
     {
         SyndicationFeed feed = GetSyndicationFeed(uri.OriginalString);
@@ -37,6 +23,21 @@ internal class DouVacancyParser : IVacancyParser
         }
         return vacancies;
     }
+
+    public ValueTask<bool> IsCorrectUriAsync(Uri uri, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            SyndicationFeed feed = GetSyndicationFeed(uri.OriginalString);
+            if (feed.Items.TryGetNonEnumeratedCount(out int count))
+                return ValueTask.FromResult(count > 0);
+        }
+        catch (Exception)
+        {
+        }
+        return ValueTask.FromResult(false);
+    }
+
 
     protected SyndicationFeed GetSyndicationFeed(string url)
     {

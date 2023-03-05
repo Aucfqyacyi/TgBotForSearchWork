@@ -17,9 +17,9 @@ public static class StringExtension
 
     public static bool NullableContains(this string? str, string value)
     {
-        if (str == null)
+        if (str.IsNullOrEmpty())
             return false;
-        return str.Contains(value);
+        return str!.Contains(value);
     }
 
     public static string GetWithoutTextInBrackets(this string? str)
@@ -75,7 +75,7 @@ public static class StringExtension
         else if (htmlText[index] == 'h' && (htmlText[index - 1] == '<' || htmlText[index - 1] == '/'))
         {
             if (htmlText[index] == 'h' && htmlText[index - 1] == '<')
-                stringBuilder.AppendLine("<b>");
+                stringBuilder.Append("<b>");
             else
                 stringBuilder.AppendLine("</b>");
         }
@@ -85,13 +85,18 @@ public static class StringExtension
         }
     }
 
-    public static ulong GetNumberFromUrl(this string url, uint numberPositionInUrl, string symbolNearNumber)
+    public static ulong GetNumberFromUrl(this string url, uint numberPositionInUrl, string? symbolNearNumber = null)
     {
         string rawNumber = url.Split('/')[numberPositionInUrl];
-        string[] splitedRawId = rawNumber.Split(symbolNearNumber);
-        string number = splitedRawId.First();
-        if (number.IsNullOrEmpty())
-            number = splitedRawId.Last();
-        return ulong.Parse(number);
+        string? number = null;
+        if (symbolNearNumber is not null)
+            number = rawNumber.Split(symbolNearNumber).First();
+        else
+            number = rawNumber;
+        
+        if (ulong.TryParse(number, out ulong num))
+            return num;
+        else
+            throw new Exception("String doesn't contain the number.");
     }
 }

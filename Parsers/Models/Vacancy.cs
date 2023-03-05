@@ -1,6 +1,6 @@
 ﻿namespace Parsers.Models;
 
-public class Vacancy
+public class Vacancy 
 {
     public ulong Id { get; set; }
     public string Title { get; set; } = string.Empty;
