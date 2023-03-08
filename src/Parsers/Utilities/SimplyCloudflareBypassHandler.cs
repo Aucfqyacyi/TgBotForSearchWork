@@ -11,9 +11,9 @@ internal class SimplyCloudflareBypassHandler : DelegatingHandler
     {
         _simpleCloudflareBypassUrl = simpleCloudflareBypassUrl;
         if (_simpleCloudflareBypassUrl.EndsWith("/"))
-            _simpleCloudflareBypassUrl += "send";
+            _simpleCloudflareBypassUrl += "getHtml";
         else
-            _simpleCloudflareBypassUrl += "/send";
+            _simpleCloudflareBypassUrl += "/getHtml";
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage httpRequestMessage, CancellationToken cancellationToken)
@@ -26,8 +26,7 @@ internal class SimplyCloudflareBypassHandler : DelegatingHandler
             return response;   
         string request = $$"""
                     {
-                        "Url": "{{httpRequestMessage.RequestUri.OriginalString}}", 
-                        "IdOnLoadedPage": "txtGlobalSearch"
+                        "Url": "{{httpRequestMessage.RequestUri.OriginalString}}"
                     }
                     """;
         httpRequestMessage.RequestUri = new Uri(_simpleCloudflareBypassUrl);

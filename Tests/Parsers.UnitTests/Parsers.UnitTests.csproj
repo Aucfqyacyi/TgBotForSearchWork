@@ -25,4 +25,8 @@
     <ProjectReference Include="..\..\src\Parsers\Parsers.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="UtilitiesTests\" />
+  </ItemGroup>
+
 </Project>

@@ -50,12 +50,13 @@ public class StringExtensionTests
     }
 
     [Fact]
-    public void GetNumberFromUrl_UrlWithNumber_ThrowExpection()
+    public void GetNumberFromUrl_InCorrectUrl_ThrowExpection()
     {
         // Arrange
         ulong firstNumber = 12321312;
         string urlWithNumber1 = $"http://www.somesite.eu/{firstNumber}/";
         string urlWithNumber2 = $"http://www.somesite.eu/{firstNumber}-sometext/";
+        string urlWithoutNumber = $"http://www.somesite.eu/sometext/";
         //Act
 
         //Assert
@@ -63,17 +64,7 @@ public class StringExtensionTests
         Assert.ThrowsAny<Exception>(() => urlWithNumber1.GetNumberFromUrl(2));
         Assert.ThrowsAny<Exception>(() => urlWithNumber2.GetNumberFromUrl(2));
         Assert.ThrowsAny<Exception>(() => urlWithNumber2.GetNumberFromUrl(3, "     "));
-    }
-
-    [Fact]
-    public void GetNumberFromUrl_UrlWithoutNumber_ThrowExpection()
-    {
-        // Arrange
-        string url = $"http://www.somesite.eu/sometext/";
-        //Act
-
-        //Assert
-        Assert.ThrowsAny<Exception>(() => url.GetNumberFromUrl(2));
+        Assert.ThrowsAny<Exception>(() => urlWithoutNumber.GetNumberFromUrl(2));
     }
 
     [Fact]

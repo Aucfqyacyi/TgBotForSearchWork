@@ -5,7 +5,6 @@ namespace Parsers.Extensions;
 
 internal static class IElementExtension
 {
-
     public static string GetTextContent(this IElement element, HtmlElement htmlElement, int? maxLenght = null)
     {
         return element.GetElement(htmlElement)?.GetTextContent(maxLenght) ?? string.Empty;
