@@ -30,8 +30,7 @@ public partial class UriToVacanciesController
         Pager(categories, page, category => (category.Name, Q(ShowFilters_Creating, 0, siteType, category.Id, urlId!, isActivated)),
                                         Q(ShowFilterCategories_Creating, FirstPage, siteType, urlId!, isActivated), 1);
         ActivateRowButton(urlId, isActivated, ShowFilterCategories_Creating, page, siteType);
-        if (urlId is null)
-            RowButton(Back, Q(ShowSitesThenShowFilterCategories, urlId!, isActivated));
+        RowButton(Back, Q(ShowSitesThenShowFilterCategories, new ObjectId?(), isActivated));
     }
 
     /// <summary>

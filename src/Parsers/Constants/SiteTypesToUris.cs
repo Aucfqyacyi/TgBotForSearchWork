@@ -13,7 +13,7 @@ public static class SiteTypesToUris
         string https = Uri.UriSchemeHttps + Uri.SchemeDelimiter;
         AddUri(SiteType.WorkUa, new Uri(https + "www.work.ua/jobs/?advs=1"));
         AddUri(SiteType.Djinni, new Uri(https + "djinni.co/jobs/"));
-        AddUri(SiteType.Dou, new Uri(https + "jobs.dou.ua/vacancies/feeds/"));
+        AddUri(SiteType.Dou, new Uri(https + "jobs.dou.ua/vacancies/"));
     }
 
     private static void AddUri(SiteType siteType, Uri uri)

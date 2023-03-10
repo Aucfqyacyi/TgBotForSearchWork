@@ -32,7 +32,7 @@ public class UriToVacanciesService
 
     public UriToVacancies? Create(long chatId, SiteType siteType, GetParameter getParametr, CancellationToken cancellationToken)
     {
-        UriToVacancies uriToVacancies = new(chatId, SiteTypesToUris.All[siteType]);
+        UriToVacancies uriToVacancies = new(chatId, SiteTypesToUris.All[siteType], siteType);
         uriToVacancies.AddGetParameter(getParametr);
         _uriToVacanciesRepository.InsertOne(uriToVacancies, cancellationToken);
         return uriToVacancies;

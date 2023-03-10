@@ -12,9 +12,11 @@ internal abstract class FilterParser : IFilterParser
 
     public virtual async ValueTask<List<Filter>> ParseAsync(Uri uri, CancellationToken cancellationToken = default)
     {
+        FilterCategory filterCategory = new("Пошук", SearchGetParamName);
+        GetParameter getParameter = new(SearchGetParamName, string.Empty);
         List<Filter> filters = new()
         {
-            new("Пошуковий запит", new("Пошук", SearchGetParamName), new(string.Empty), FilterType.Text)
+            new Filter("Пошуковий запит", filterCategory, getParameter, FilterType.Text)
         };
         using Stream response = await GlobalHttpClient.GetAsync(uri, cancellationToken);
         using IBrowsingContext browsingContext = BrowsingContext.New();

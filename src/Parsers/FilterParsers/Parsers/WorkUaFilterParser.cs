@@ -34,17 +34,18 @@ internal class WorkUaFilterParser : FilterParser
             return;
         int categoryId = UniqueIntGenerator.Generate();
         List<IElement> elementsWithId = filterGroup.GetElementsWithId(_div);
-        List<IElement> subCategories = filterGroup.GetElements(_filterSmallText);
-        if (subCategories.Any())
-            CollectFiltersFromSalaries(filters, categoryName!, elementsWithId, subCategories);
+        
+        if (categoryName == "Зарплата")
+            CollectFiltersFromSalaryCategory(filterGroup, filters, categoryName!, elementsWithId);
         else
             for (int i = 0; i < elementsWithId.Count; i++)
                 CollectFiltersFromElement(filters, elementsWithId[i], categoryId, categoryName!);
     }
 
-    protected void CollectFiltersFromSalaries(List<Filter> filters, string categoryName,
-                                              List<IElement> elementsWithId, List<IElement> subCategories)
+    protected void CollectFiltersFromSalaryCategory(IElement filterGroup, List<Filter> filters,
+                                              string categoryName, List<IElement> elementsWithId)
     {
+        List<IElement> subCategories = filterGroup.GetElements(_filterSmallText);
         for (int i = 0; i < elementsWithId.Count; i++)
         {
             IElement? subCategory = subCategories.ElementAtOrDefault(i);
@@ -59,20 +60,26 @@ internal class WorkUaFilterParser : FilterParser
 
     protected void CollectFiltersFromElement(List<Filter> filters, IElement element, int categoryId, string categoryName)
     {
-        List<IElement>? inputs = element.GetElements(_input, _option);
-        if (inputs is null)
-            return;
+        List<IElement> inputs = element.GetElements(_input);
+        bool isOption = inputs.Any() is false;
+        if (isOption)
+            inputs = element.GetElements(_option);
 
         foreach (var input in inputs)
-            filters.Add(CreateFilter(categoryId, categoryName, input, element));
+            filters.Add(CreateFilter(categoryId, categoryName, input, element, isOption));
     }
 
-    protected Filter CreateFilter(int categoryId, string categoryName, IElement input, IElement elementWithId)
+    protected Filter CreateFilter(int categoryId, string categoryName, IElement input, IElement elementWithId, bool isOption)
     {
-        string filterName = input.GetNearestSiblingTextContent().GetWithoutTextInBrackets();
+        string? filterName = null;
+        if(isOption is true)
+            filterName = input.GetTextContent().GetWithoutTextInBrackets();
+        else
+            filterName = input.GetNearestSiblingTextContent().GetWithoutTextInBrackets();
         string getParamName = elementWithId.Id!.Replace("_selection", string.Empty);
         FilterCategory category = new(categoryId, categoryName, getParamName);
-        return new(filterName, category, input.GetValueAttribute(), FilterType.CheckBox);
+        GetParameter getParameter = new(category.GetParameterName, input.GetValueAttribute());
+        return new Filter(filterName, category, getParameter, FilterType.CheckBox);
     }
 
     protected void CollectFiltersFromCities(List<Filter> filters)
@@ -84,7 +91,11 @@ internal class WorkUaFilterParser : FilterParser
                             "Черкаси","Чернігів","Чернівці","Інші країни", "Дистанційно" };
         int id = 60;
         for (int i = cities.Length - 1; i >= 0; i--, id--)
-            filters.Add(new(cities[i], category, id.ToString(), FilterType.CheckBox));
+        {
+            GetParameter getParameter = new(category.GetParameterName, id.ToString());
+            filters.Add(new Filter(cities[i], category, getParameter, FilterType.CheckBox));
+        }
+            
     }
 
 }

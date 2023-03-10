@@ -16,14 +16,6 @@ internal class DouFilterParser : FilterParser
     protected readonly HtmlElement _a = new(string.Empty, "a");
     protected readonly HtmlElement _category = new(string.Empty, "option");
 
-    public override ValueTask<List<Filter>> ParseAsync(Uri uri, CancellationToken cancellationToken = default)
-    {
-        if (uri.OriginalString.Contains("/feeds/"))
-            return base.ParseAsync(new(uri.OriginalString.Replace("feeds/", string.Empty)), cancellationToken);
-        else
-            return base.ParseAsync(uri, cancellationToken);
-    }
-
     protected override void CollectFilters(IDocument document, List<Filter> filters)
     {
         FilterCategory category = new("Категорії", "category");
@@ -45,10 +37,11 @@ internal class DouFilterParser : FilterParser
     protected Filter? CreateFilterFromCategory(IElement filterElement, FilterCategory category)
     {
         string filterName = filterElement.GetTextContent();
-        string filterGetParamater = filterElement.GetValueAttribute();
-        if (filterGetParamater.IsNullOrEmpty())
+        string getParameterValue = filterElement.GetValueAttribute();
+        if (getParameterValue.IsNullOrEmpty())
             return null;
-        return new(filterName, category, filterGetParamater, FilterType.CheckBox);
+        GetParameter getParameter = new(category.GetParameterName, getParameterValue);
+        return new Filter(filterName, category, getParameter, FilterType.CheckBox);
     }
 
     protected void CollectFiltersFromFilterRegion(IDocument document, List<Filter> filters)
@@ -86,10 +79,12 @@ internal class DouFilterParser : FilterParser
         string[] splitedGetParamater = filterElement.GetHrefAttribute().Split('?').Last().Split('=');
         string getParameterName = splitedGetParamater.First();
         FilterCategory category = new(categoryId, categoryName, getParameterName);
+        GetParameter? getParameter = null;
         if (splitedGetParamater.Length == 1)
-            return new(filterName, category, "1", FilterType.CheckBox);
+            getParameter = new(category.GetParameterName, "1");
         else
-            return new(filterName, category, splitedGetParamater.Last(), FilterType.CheckBox);
+            getParameter = new(category.GetParameterName, splitedGetParamater.Last());
+        return new Filter(filterName, category, getParameter, FilterType.CheckBox);
     }
 
 

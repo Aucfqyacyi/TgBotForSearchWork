@@ -4,11 +4,12 @@ public class GetParameter
 {
     public string Name { get; set; }
     public string Value { get; set; }
+    public bool CanBeDuplicated { get; set; }
 
-    public GetParameter(string getParametrName, string getParametrValue)
+    public GetParameter(string getParameterName, string getParameterValue, bool canBeDuplicated = false)
     {
-        Name = getParametrName;
-        Value = getParametrValue;
+        Name = getParameterName;
+        Value = getParameterValue;
+        CanBeDuplicated = canBeDuplicated;
     }
-
 }

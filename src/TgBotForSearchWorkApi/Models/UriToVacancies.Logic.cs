@@ -12,19 +12,19 @@ public partial class UriToVacancies
     [BsonIgnore] public string OriginalString { get => Uri.OriginalString; }
     [BsonIgnore] public string WithoutHttps { get => Uri.Host + Uri.PathAndQuery; }
 
-    public UriToVacancies(long chatId, Uri uri, bool isActivated = false)
+
+    public UriToVacancies(long chatId, Uri uri, SiteType siteType, bool isActivated = false)
     {
         Id = ObjectId.GenerateNewId();
         ChatId = chatId;
         Uri = uri;
         IsActivated = isActivated;
-        SiteType = SiteTypesToUris.HostsToSiteTypes[Uri.Host];
+        SiteType = siteType;
     }
 
-    public UriToVacancies(long chatId, string url, bool isActivated = false) : this(chatId, new Uri(url), isActivated)
-    {
-    }
-
+    public UriToVacancies(long chatId, Uri uri, bool isActivated = false)
+                                        : this(chatId, uri, SiteTypesToUris.HostsToSiteTypes[uri.Host], isActivated)
+    { }
 
     public static implicit operator string(UriToVacancies url)
     {
@@ -35,24 +35,35 @@ public partial class UriToVacancies
     {
         UriBuilder uriBuilder = new(Uri);
         NameValueCollection query = HttpUtility.ParseQueryString(uriBuilder.Query);
-        if (query.GetValues(getParametr.Name) is null)
-            query.Add(getParametr.Name, getParametr.Value);
+        if (query.HasKeys() is true)
+        {
+            if (getParametr.CanBeDuplicated is true)
+                query.Add(getParametr.Name, getParametr.Value);
+            else
+                query[getParametr.Name] = getParametr.Value;
+        }
         else
-            query[getParametr.Name] = getParametr.Value;
-        uriBuilder.Query = query.ToString();
-        Uri = uriBuilder.Uri;
+        {
+            query.Add(getParametr.Name, getParametr.Value);
+        }
+        UpdateUri(uriBuilder, query.ToString());
     }
 
     public void RemoveGetParameter(GetParameter getParametr)
     {
         UriBuilder uriBuilder = new(Uri);
         NameValueCollection query = HttpUtility.ParseQueryString(uriBuilder.Query);
-        if (query.GetValues(getParametr.Name) is not null)
+        if (query.HasKeys() is true)
         {
             query.Remove(getParametr.Name);
-            uriBuilder.Query = query.ToString();
-            Uri = uriBuilder.Uri;
+            UpdateUri(uriBuilder, query.ToString());
         }
+    }
+
+    private void UpdateUri(UriBuilder uriBuilder, string? newQuery)
+    {
+        uriBuilder.Query = newQuery;
+        Uri = uriBuilder.Uri;
     }
 
     public List<GetParameter> GetParameters()

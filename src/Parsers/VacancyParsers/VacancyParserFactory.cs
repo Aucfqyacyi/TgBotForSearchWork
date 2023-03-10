@@ -28,7 +28,7 @@ public static class VacancyParserFactory
     }
 
     private static IVacancyParser Create<TParser>(SiteType site)
-                                                where TParser : class, IVacancyParser, new()
+                                   where TParser : class, IVacancyParser, new()
     {
         IVacancyParser? vacancyParser = null;
         lock (_lock)

@@ -29,10 +29,11 @@ public class VacancyService
             IVacancyParser vacancyParser = VacancyParserFactory.Create(uriToVacancies.Uri);
             List<Vacancy> relevantVacancies = await vacancyParser.ParseAsync(uriToVacancies.Uri, descriptionLength, 
                                                                              uriToVacancies.LastVacanciesIds, cancellationToken);
+
             Log.Info($"{uriToVacancies.Uri.Host} has number of vacancies {relevantVacancies.Count}");
             if (relevantVacancies.Count == 0)
                 return;
-            uriToVacancies.LastVacanciesIds = relevantVacancies.Select(e => e.Id).ToList();
+            uriToVacancies.LastVacanciesIds = relevantVacancies.Select(vacancy => vacancy.Id).ToList();
             lock (vacancies)
                 vacancies.AddRange(relevantVacancies);
         }

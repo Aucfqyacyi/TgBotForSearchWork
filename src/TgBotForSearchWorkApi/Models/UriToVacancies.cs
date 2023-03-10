@@ -8,7 +8,7 @@ namespace TgBotForSearchWorkApi.Models;
 public partial class UriToVacancies
 {
     private const int _lastVacanciesIdsSize = 5;
-    private ulong[] _lastVacanciesIds = new ulong[_lastVacanciesIdsSize];
+    private List<ulong> _lastVacanciesIds = new(_lastVacanciesIdsSize);
 
     [BsonId] public ObjectId Id { get; set; }
     [BsonElement] public long ChatId { get; set; }
@@ -17,24 +17,21 @@ public partial class UriToVacancies
     [BsonElement] public bool IsActivated { get; set; }
     [BsonElement] public SiteType SiteType { get; set; }
 
-    [BsonElement]
-    public IList<ulong> LastVacanciesIds
+    [BsonElement()] public IReadOnlyList<ulong> LastVacanciesIds
     {
         get => _lastVacanciesIds;
         set
         {
-            if (_lastVacanciesIds is null)
-                _lastVacanciesIds = new ulong[_lastVacanciesIdsSize];
-
-            int i = 0;
-            for (; i < Math.Min(value.Count, _lastVacanciesIdsSize); i++)
+            if (value.Count >= _lastVacanciesIdsSize || _lastVacanciesIds is null)
             {
-                _lastVacanciesIds[i] = value[i];
+                _lastVacanciesIds = new(value.Take(_lastVacanciesIdsSize));
             }
-
-            for (; i < _lastVacanciesIdsSize; i++)
-                _lastVacanciesIds[i] = 0;
-
+            else
+            {
+                List<ulong> newLastVacanciesIds = new(value);
+                newLastVacanciesIds.AddRange(_lastVacanciesIds.GetRange(0, _lastVacanciesIdsSize - value.Count));
+                _lastVacanciesIds = newLastVacanciesIds;
+            }
         }
     }
 

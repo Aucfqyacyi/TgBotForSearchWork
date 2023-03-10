@@ -5,7 +5,7 @@ using Parsers.Utilities;
 
 namespace Parsers.VacancyParsers;
 
-internal abstract class HtmlVacancyParser : IVacancyParser
+internal abstract class HtmlPageVacancyParser : IVacancyParser
 {
     protected abstract HtmlElement VacancyItem { get; }
     protected abstract HtmlElement Title { get; }
@@ -14,7 +14,7 @@ internal abstract class HtmlVacancyParser : IVacancyParser
     protected abstract uint IdPositionInUrl { get; }
     protected abstract string SymbolNearId { get; }
 
-    public async ValueTask<List<Vacancy>> ParseAsync(Uri uri, int descriptionLenght, IList<ulong>? vacancyIdsToIgnore = null, CancellationToken cancellationToken = default)
+    public async ValueTask<List<Vacancy>> ParseAsync(Uri uri, int descriptionLenght, IReadOnlyList<ulong>? vacancyIdsToIgnore = null, CancellationToken cancellationToken = default)
     {
         IHtmlCollection<IElement> vacancyElements = await GetVacancyElementsAsync(uri, cancellationToken);
         List<Vacancy> vacancies = new();
@@ -57,7 +57,7 @@ internal abstract class HtmlVacancyParser : IVacancyParser
         if (descriptionLenght != 0)
             description = await GetDescriptionAsync(url!, descriptionLenght, cancellationToken) ?? string.Empty;
         ulong id = url!.GetNumberFromUrl(IdPositionInUrl, SymbolNearId);
-        return new(id, title, url!, description);
+        return new Vacancy(id, title, url!, description);
     }
 
     protected virtual async ValueTask<string?> GetDescriptionAsync(string url, int descriptionLenght, CancellationToken cancellationToken)
