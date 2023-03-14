@@ -16,8 +16,8 @@ public partial class UriToVacanciesController
     [Action]
     private async Task DeleteUriToVacancies(ObjectId urlId, SiteType siteType)
     {
-        _uriToVacanciesService.Delete(urlId, CancelToken);
+        await _uriToVacanciesService.DeleteAsync(urlId, CancelToken);
         await AnswerOkCallback();
-        ShowUrisToVacancies(0, siteType, DeleteUriToVacancies);
+        await ShowUrisToVacancies(0, siteType, DeleteUriToVacancies);
     }
 }

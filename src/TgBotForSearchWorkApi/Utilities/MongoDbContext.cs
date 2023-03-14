@@ -4,8 +4,8 @@ using TgBotForSearchWorkApi.Models;
 
 namespace TgBotForSearchWorkApi.Utilities;
 
-[SingletonService]
-public class MongoDbContext
+[SingletonService(typeof(IMongoDbContext))]
+public class MongoDbContext : IMongoDbContext
 {
     private readonly IMongoDatabase _database;
 

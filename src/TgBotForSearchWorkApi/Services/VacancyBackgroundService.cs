@@ -23,8 +23,8 @@ public class VacancyBackgroundService : BackgroundService
     {
         _vacancyService = vacancyService;
         _telegramBotClient = telegramBotClient;
-        _timeout = TimeSpan.FromSeconds(configuration.GetValue<int>("TimeoutBetweenSendVacancies"));
-        _urisLimit = configuration.GetValue<int>("UserLimit");
+        _timeout = TimeSpan.FromSeconds(configuration.GetValue("TimeoutBetweenSendVacancies", 60));
+        _urisLimit = configuration.GetValue("UserLimit", 10);
         _uriToVacanciesRepository = uriToVacanciesRepository;
         _userRepository = userRepository;
     }
@@ -33,7 +33,7 @@ public class VacancyBackgroundService : BackgroundService
     {
         while (cancellationToken.IsCancellationRequested is false)
         {
-            List<User> users = _userRepository.GetAllActivated(_skip, _urisLimit, cancellationToken);
+            List<User> users = await _userRepository.GetAllActivatedAsync(_skip, _urisLimit, cancellationToken);
             try
             {
                 await SendVacanciesAsync(users, cancellationToken);
@@ -61,14 +61,14 @@ public class VacancyBackgroundService : BackgroundService
             Log.Info($"Start send vacancies to user with chatId({user.ChatId}).");
             List<UriToVacancies> urisToVacancies = await SendVacanciesAsync(user, cancellationToken);
             if (urisToVacancies.Any())
-                _uriToVacanciesRepository.UpdateManyLastVacancyIds(urisToVacancies, cancellationToken);
+                await _uriToVacanciesRepository.UpdateManyLastVacancyIdsAsync(urisToVacancies, cancellationToken);
             Log.Info($"Finish send vacancies to user with chatId({user.ChatId}).");
         }
     }
 
     private async ValueTask<List<UriToVacancies>> SendVacanciesAsync(User user, CancellationToken cancellationToken)
     {
-        List<UriToVacancies> urisToVacancies = _uriToVacanciesRepository.GetAllActivated(user.ChatId, cancellationToken);
+        List<UriToVacancies> urisToVacancies = await _uriToVacanciesRepository.GetAllActivatedAsync(user.ChatId, cancellationToken);
         if (urisToVacancies.Any())
             await SendVacanciesAsync(user, urisToVacancies, cancellationToken);
         return urisToVacancies;

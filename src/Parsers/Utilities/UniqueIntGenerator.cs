@@ -1,6 +1,6 @@
 ﻿namespace Parsers.Utilities;
 
-internal static class UniqueIntGenerator
+public static class UniqueIntGenerator
 {
     private static int _id = 0;
 

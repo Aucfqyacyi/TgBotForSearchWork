@@ -10,9 +10,9 @@ namespace TgBotForSearchWorkApi.Repositories;
 [SingletonService]
 public class UriToVacanciesRepository
 {
-    private readonly MongoDbContext _mongoContext;
+    private readonly IMongoDbContext _mongoContext;
 
-    public UriToVacanciesRepository(MongoDbContext mongoContext)
+    public UriToVacanciesRepository(IMongoDbContext mongoContext)
     {
         _mongoContext = mongoContext;
     }
@@ -32,74 +32,76 @@ public class UriToVacanciesRepository
         return Builders<UriToVacancies>.Filter.Eq(url => url.IsActivated, true);
     }
 
-    public void InsertMany(IReadOnlyList<UriToVacancies> uriToVacancies, CancellationToken cancellationToken)
+    public ValueTask InsertManyAsync(IReadOnlyList<UriToVacancies> uriToVacancies, CancellationToken cancellationToken)
     {
-        _mongoContext.UriToVacanciesCollection.InsertMany(uriToVacancies, null, cancellationToken);
+        return new(_mongoContext.UriToVacanciesCollection.InsertManyAsync(uriToVacancies, null, cancellationToken));
     }
 
-    public long Count(long chatId, CancellationToken cancellationToken)
+    public ValueTask<long> CountAsync(long chatId, CancellationToken cancellationToken)
     {
-        return _mongoContext.UriToVacanciesCollection.CountDocuments(GetFilterByChatId(chatId), null, cancellationToken);
+        return new(_mongoContext.UriToVacanciesCollection.CountDocumentsAsync(GetFilterByChatId(chatId), null, cancellationToken));
     }
 
-    public void InsertOne(UriToVacancies uriToVacancies, CancellationToken cancellationToken)
+    public ValueTask InsertOneAsync(UriToVacancies uriToVacancies, CancellationToken cancellationToken)
     {
-        _mongoContext.UriToVacanciesCollection.InsertOne(uriToVacancies, null, cancellationToken);
+        return new(_mongoContext.UriToVacanciesCollection.InsertOneAsync(uriToVacancies, null, cancellationToken));
     }
 
-    public List<UriToVacancies> GetAll(long chatId, SiteType siteType, CancellationToken cancellationToken)
+    public async ValueTask<List<UriToVacancies>> GetAllAsync(long chatId, SiteType siteType, CancellationToken cancellationToken)
     {
         var chatIdFilter = GetFilterByChatId(chatId);
         var siteTypeFilter = Builders<UriToVacancies>.Filter.Eq(url => url.SiteType, siteType);
-        return _mongoContext.UriToVacanciesCollection.FindSync(chatIdFilter & siteTypeFilter, null, cancellationToken)
-                                                     .ToList();
+        var cursor = await _mongoContext.UriToVacanciesCollection.FindAsync(chatIdFilter & siteTypeFilter, null, cancellationToken);
+        return await cursor.ToListAsync(cancellationToken);
     }
 
-    public List<UriToVacancies> GetAllActivated(long chatId, CancellationToken cancellationToken)
+    public async ValueTask<List<UriToVacancies>> GetAllActivatedAsync(long chatId, CancellationToken cancellationToken)
     {
-        return _mongoContext.UriToVacanciesCollection.FindSync(GetFilterByChatId(chatId) & GetFilterByIsActivated(), null, cancellationToken)
-                                                     .ToList();
+        var cursor = await _mongoContext.UriToVacanciesCollection.FindAsync(GetFilterByChatId(chatId) & GetFilterByIsActivated(), null, cancellationToken);
+        return await cursor.ToListAsync(cancellationToken);
     }
 
-    public UriToVacancies Get(ObjectId urlId, CancellationToken cancellationToken)
+    public async ValueTask<UriToVacancies> GetAsync(ObjectId urlId, CancellationToken cancellationToken)
     {
-        UriToVacancies? uriToVacancies = GetOrDefault(urlId, cancellationToken);
+        UriToVacancies? uriToVacancies = await GetOrDefaultAsync(urlId, cancellationToken);
         if (uriToVacancies is null)
-            throw new Exception($"Url with id({urlId}) doesnot exist.");
+            throw new Exception($"Uri with id({urlId}) doesn't exist.");
         return uriToVacancies;
     }
 
-    public UriToVacancies? GetOrDefault(ObjectId urlId, CancellationToken cancellationToken)
+    public async ValueTask<UriToVacancies?> GetOrDefaultAsync(ObjectId urlId, CancellationToken cancellationToken)
     {
-        return _mongoContext.UriToVacanciesCollection.FindSync(GetFilterById(urlId), null, cancellationToken)
-                                                     .FirstOrDefault(cancellationToken);
+        var cursor = await _mongoContext.UriToVacanciesCollection.FindAsync(GetFilterById(urlId), null, cancellationToken);
+        return await cursor.FirstOrDefaultAsync(cancellationToken);
     }
 
-    public void Replace(UriToVacancies uriToVacancies, CancellationToken cancellationToken)
+    public ValueTask ReplaceAsync(UriToVacancies uriToVacancies, CancellationToken cancellationToken)
     {
         ReplaceOptions? replaceOptions = null;
-        _mongoContext.UriToVacanciesCollection.ReplaceOne(GetFilterById(uriToVacancies.Id), uriToVacancies, replaceOptions, cancellationToken);
+        return new(_mongoContext.UriToVacanciesCollection.ReplaceOneAsync(GetFilterById(uriToVacancies.Id), uriToVacancies, 
+                                                                                        replaceOptions, cancellationToken));
     }
 
-    public void Delete(ObjectId urlId, CancellationToken cancellationToken)
+    public ValueTask DeleteAsync(ObjectId urlId, CancellationToken cancellationToken)
     {
-        _mongoContext.UriToVacanciesCollection.DeleteOne(GetFilterById(urlId), cancellationToken);
+        return new(_mongoContext.UriToVacanciesCollection.DeleteOneAsync(GetFilterById(urlId), cancellationToken));
     }
 
-    public void Activate(ObjectId urlId, bool isActivated, CancellationToken cancellationToken)
+    public ValueTask ActivateAsync(ObjectId urlId, bool isActivated, CancellationToken cancellationToken)
     {
         var update = Builders<UriToVacancies>.Update.Set(url => url.IsActivated, isActivated);
-        _mongoContext.UriToVacanciesCollection.UpdateOne(GetFilterById(urlId), update, null, cancellationToken);
+        return new(_mongoContext.UriToVacanciesCollection.UpdateOneAsync(GetFilterById(urlId), update, null, cancellationToken));
     }
 
-    public bool IsActivated(ObjectId urlId, CancellationToken cancellationToken)
+    public async ValueTask<bool> IsActivatedAsync(ObjectId urlId, CancellationToken cancellationToken)
     {
         var options = new FindOptions<UriToVacancies, bool>();
         options.Projection = new ProjectionDefinitionBuilder<UriToVacancies>().Expression(uri => uri.IsActivated);
-        return _mongoContext.UriToVacanciesCollection.FindSync(GetFilterById(urlId), options, cancellationToken).FirstOrDefault();
+        var cursor = await _mongoContext.UriToVacanciesCollection.FindAsync(GetFilterById(urlId), options, cancellationToken);
+        return await cursor.FirstOrDefaultAsync(cancellationToken);
     }
 
-    public void UpdateManyLastVacancyIds(IEnumerable<UriToVacancies> urisToVacancies, CancellationToken cancellationToken)
+    public ValueTask UpdateManyLastVacancyIdsAsync(IEnumerable<UriToVacancies> urisToVacancies, CancellationToken cancellationToken)
     {
         var requests = urisToVacancies.Aggregate(new List<WriteModel<UriToVacancies>>(), (requests, uri) =>
         {
@@ -107,6 +109,6 @@ public class UriToVacanciesRepository
             requests.Add(new UpdateOneModel<UriToVacancies>(GetFilterById(uri.Id), update));
             return requests;
         });
-        _mongoContext.UriToVacanciesCollection.BulkWrite(requests, null, cancellationToken);
+        return new(_mongoContext.UriToVacanciesCollection.BulkWriteAsync(requests, null, cancellationToken));
     }
 }

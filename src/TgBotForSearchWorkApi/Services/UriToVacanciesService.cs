@@ -20,39 +20,45 @@ public class UriToVacanciesService
         _uriToVacanciesRepository = uriToVacanciesRepository;
     }
 
-    public List<UriToVacancies> GetAll(long chatId, SiteType siteType, CancellationToken cancellationToken)
+    public ValueTask<List<UriToVacancies>> GetAllAsync(long chatId, SiteType siteType, CancellationToken cancellationToken)
     {
-        return _uriToVacanciesRepository.GetAll(chatId, siteType, cancellationToken);
+        return _uriToVacanciesRepository.GetAllAsync(chatId, siteType, cancellationToken);
     }
 
-    public UriToVacancies Get(ObjectId uriId, CancellationToken cancellationToken)
+    public ValueTask<UriToVacancies> GetAsync(ObjectId uriId, CancellationToken cancellationToken)
     {
-        return _uriToVacanciesRepository.Get(uriId, cancellationToken);
+        return _uriToVacanciesRepository.GetAsync(uriId, cancellationToken);
     }
 
-    public UriToVacancies? Create(long chatId, SiteType siteType, GetParameter getParametr, CancellationToken cancellationToken)
+    public async ValueTask<UriToVacancies?> CreateAsync(long chatId, SiteType siteType, GetParameter getParametr, CancellationToken cancellationToken)
     {
         UriToVacancies uriToVacancies = new(chatId, SiteTypesToUris.All[siteType], siteType);
         uriToVacancies.AddGetParameter(getParametr);
-        _uriToVacanciesRepository.InsertOne(uriToVacancies, cancellationToken);
+        await _uriToVacanciesRepository.InsertOneAsync(uriToVacancies, cancellationToken);
         return uriToVacancies;
     }
 
-    public UriToVacancies? Update(ObjectId urlId, GetParameter getParametr, bool addGetParameter, CancellationToken cancellationToken)
+    public ValueTask<UriToVacancies> AddFilterAsync(ObjectId urlId, GetParameter getParametr, CancellationToken cancellationToken)
     {
-        UriToVacancies uriToVacancies = _uriToVacanciesRepository.Get(urlId, cancellationToken);
-        if (addGetParameter)
-            uriToVacancies.AddGetParameter(getParametr);
-        else
-            uriToVacancies.RemoveGetParameter(getParametr);
+        return UpdateAsync(urlId, getParametr, UriToVacancies.AddGetParameter, cancellationToken);
+    }
 
-        _uriToVacanciesRepository.Replace(uriToVacancies, cancellationToken);
+    public ValueTask<UriToVacancies> RemoveFilterAsync(ObjectId urlId, GetParameter getParametr, CancellationToken cancellationToken)
+    {
+        return UpdateAsync(urlId, getParametr, UriToVacancies.RemoveGetParameter, cancellationToken);
+    }
+
+    private async ValueTask<UriToVacancies> UpdateAsync(ObjectId urlId, GetParameter getParametr, Action<UriToVacancies, GetParameter> updateAction, CancellationToken cancellationToken)
+    {
+        UriToVacancies uriToVacancies = await _uriToVacanciesRepository.GetAsync(urlId, cancellationToken);
+        updateAction(uriToVacancies, getParametr);
+        await _uriToVacanciesRepository.ReplaceAsync(uriToVacancies, cancellationToken);
         return uriToVacancies;
     }
 
-    public void Activate(ObjectId urlId, bool isActivated, CancellationToken cancellationToken)
+    public ValueTask ActivateAsync(ObjectId urlId, bool isActivated, CancellationToken cancellationToken)
     {
-        _uriToVacanciesRepository.Activate(urlId, isActivated, cancellationToken);
+        return _uriToVacanciesRepository.ActivateAsync(urlId, isActivated, cancellationToken);
     }
 
     public async ValueTask<UriToVacancies?> AddAsync(long chatId, string url, CancellationToken cancellationToken)
@@ -66,7 +72,7 @@ public class UriToVacanciesService
             if (await vacancyParser.IsCorrectUriAsync(uri, cancellationToken) is false)
                 return null;
             UriToVacancies uriToVacancies = new(chatId, uri);
-            _uriToVacanciesRepository.InsertOne(uriToVacancies, cancellationToken);
+            await _uriToVacanciesRepository.InsertOneAsync(uriToVacancies, cancellationToken);
             return uriToVacancies;
         }
         catch (Exception ex)
@@ -76,18 +82,18 @@ public class UriToVacanciesService
         return null;
     }
 
-    public void Delete(ObjectId urlId, CancellationToken cancellationToken)
+    public ValueTask DeleteAsync(ObjectId urlId, CancellationToken cancellationToken)
     {
-        _uriToVacanciesRepository.Delete(urlId, cancellationToken);
+        return _uriToVacanciesRepository.DeleteAsync(urlId, cancellationToken);
     }
 
-    public bool IsActivated(ObjectId urlId, CancellationToken cancellationToken)
+    public ValueTask<bool> IsActivatedAsync(ObjectId urlId, CancellationToken cancellationToken)
     {
-        return _uriToVacanciesRepository.IsActivated(urlId, cancellationToken);
+        return _uriToVacanciesRepository.IsActivatedAsync(urlId, cancellationToken);
     }
 
-    public long Count(long chatId, CancellationToken cancellationToken)
+    public ValueTask<long> CountAsync(long chatId, CancellationToken cancellationToken)
     {
-        return _uriToVacanciesRepository.Count(chatId, cancellationToken);
+        return _uriToVacanciesRepository.CountAsync(chatId, cancellationToken);
     }
 }

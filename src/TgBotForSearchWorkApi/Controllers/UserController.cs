@@ -17,7 +17,7 @@ public class UserController : BotController
     [Action(Command.Start, CommandDescription.Start)]
     public async Task Start()
     {
-        if (_userRepository.Create(ChatId, CancelToken))
+        if (await _userRepository.CreateAsync(ChatId, CancelToken))
             await Send("Вітання!");
         else
             await Send("Ваш обліковий запис вже створенно.");
@@ -26,7 +26,7 @@ public class UserController : BotController
     [Action(Command.Stop, CommandDescription.Stop)]
     public async Task Stop()
     {
-        _userRepository.Activate(ChatId, false, CancelToken);
+        await _userRepository.ActivateAsync(ChatId, false, CancelToken);
         await Send("До побачення!");
     }
 
@@ -43,7 +43,7 @@ public class UserController : BotController
         await ClearState();
         if (int.TryParse(Context.GetSafeTextPayload(), out int descriptionLength))
         {
-            _userRepository.UpdateDescriptionLength(ChatId, descriptionLength, CancelToken);
+            await _userRepository.UpdateAsync(ChatId, descriptionLength, CancelToken);
             await Send("Розмір опису змінено.");
         }
         else

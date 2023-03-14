@@ -22,9 +22,9 @@ public partial class UriToVacanciesController
     }
 
     [Action]
-    protected void ShowUrisToVacancies(int page, SiteType siteType, Delegate next)
+    protected async Task ShowUrisToVacancies(int page, SiteType siteType, Delegate next)
     {
-        List<UriToVacancies> urlsToVacancies = _uriToVacanciesService.GetAll(ChatId, siteType, CancelToken);
+        List<UriToVacancies> urlsToVacancies = await _uriToVacanciesService.GetAllAsync(ChatId, siteType, CancelToken);
         if (urlsToVacancies.Count <= 0)
         {
             ShowSitesThenShowUrisToVacancies(next);
@@ -39,7 +39,7 @@ public partial class UriToVacanciesController
     [Action]
     private async Task GetUriToVacanciesAsync(ObjectId urlId, SiteType siteType)
     {
-        UriToVacancies uriToVacancies = _uriToVacanciesService.Get(urlId, CancelToken);
+        UriToVacancies uriToVacancies = await _uriToVacanciesService.GetAsync(urlId, CancelToken);
         ActivateRowButton(urlId, uriToVacancies.IsActivated);
         await Send(uriToVacancies.OriginalString, new() { DisableWebPagePreview = true });
     }

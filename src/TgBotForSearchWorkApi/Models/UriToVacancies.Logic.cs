@@ -60,6 +60,16 @@ public partial class UriToVacancies
         }
     }
 
+    public static void AddGetParameter(UriToVacancies uriToVacancies, GetParameter getParametr)
+    {
+        uriToVacancies.AddGetParameter(getParametr);
+    }
+
+    public static void RemoveGetParameter(UriToVacancies uriToVacancies, GetParameter getParametr)
+    {
+        uriToVacancies.RemoveGetParameter(getParametr);
+    }
+
     private void UpdateUri(UriBuilder uriBuilder, string? newQuery)
     {
         uriBuilder.Query = newQuery;

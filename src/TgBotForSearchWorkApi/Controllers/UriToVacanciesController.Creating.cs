@@ -10,7 +10,7 @@ public partial class UriToVacanciesController
     [Action(Command.CreateUrl, CommandDescription.CreateUrl)]
     public void CreateUrl()
     {
-        ShowSitesThenShowFilterCategories(null, false);
+        ShowSitesThenShowFilterCategories(urlId:null, isActivated:false);
     }
 
     [Action]
@@ -39,7 +39,7 @@ public partial class UriToVacanciesController
     [Action]
     private void ShowFilters_Creating(int page, SiteType siteType, int categoryId, ObjectId? urlId, bool isActivated)
     {
-        ShowFilters(page, siteType, categoryId, ShowFilters_Creating, false, urlId, isActivated);
+        ShowFilters(page, siteType, categoryId, ShowFilters_Creating, isUpdating:false, urlId, isActivated);
         RowButton(Back, Q(ShowFilterCategories_Creating, 0, siteType, urlId!, isActivated));
     }
 }

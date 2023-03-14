@@ -17,9 +17,9 @@ public partial class UriToVacanciesController
     }
 
     [Action]
-    private void ShowFirstPageCategories(ObjectId urlId, SiteType siteType)
+    private async Task ShowFirstPageCategories(ObjectId urlId, SiteType siteType)
     {
-        ShowFilterCategories_Updating(0, siteType, urlId, _uriToVacanciesService.IsActivated(urlId, CancelToken));
+        ShowFilterCategories_Updating(0, siteType, urlId, await _uriToVacanciesService.IsActivatedAsync(urlId, CancelToken));
     }
 
     /// <summary>
@@ -42,7 +42,7 @@ public partial class UriToVacanciesController
     [Action]
     private void ShowFilters_Updating(int page, SiteType siteType, int categoryId, ObjectId urlId, bool isActivated)
     {
-        ShowFilters(page, siteType, categoryId, ShowFilters_Updating, true, urlId, isActivated);
+        ShowFilters(page, siteType, categoryId, ShowFilters_Updating, isUpdating:true, urlId, isActivated);
         RowButton(Back, Q(ShowFilterCategories_Updating, 0, siteType, urlId, isActivated));
     }
 
@@ -53,16 +53,16 @@ public partial class UriToVacanciesController
     }
 
     [Action]
-    private void ShowFirstPageCategoriesByGetParams(ObjectId urlId, SiteType siteType)
+    private async Task ShowFirstPageCategoriesByGetParams(ObjectId urlId, SiteType siteType)
     {
-        ShowFilterCategoriesByGetParams(0, siteType, urlId, _uriToVacanciesService.IsActivated(urlId, CancelToken));
+        await ShowFilterCategoriesByGetParams(0, siteType, urlId, await _uriToVacanciesService.IsActivatedAsync(urlId, CancelToken));
     }
 
     [Action]
-    private void ShowFilterCategoriesByGetParams(int page, SiteType siteType, ObjectId urlId, bool isActivated)
+    private async Task ShowFilterCategoriesByGetParams(int page, SiteType siteType, ObjectId urlId, bool isActivated)
     {
         Push("Виберіть категорію фільтра, яку бажаєте видалити з посилання.");
-        UriToVacancies uriToVacancies = _uriToVacanciesService.Get(urlId, CancelToken);
+        UriToVacancies uriToVacancies = await _uriToVacanciesService.GetAsync(urlId, CancelToken);
         List<GetParameter> getParameters = uriToVacancies.GetParameters();
         List<FilterCategory> categories = _filterService.GetFilterCategories(siteType, getParameters);
         Pager(categories, page, categories => (categories.Name,
@@ -75,8 +75,8 @@ public partial class UriToVacanciesController
     [Action]
     private async Task RemoveFilterFromUri(ObjectId urlId, SiteType siteType, int categoryId, string getParamName)
     {
-        _uriToVacanciesService.Update(urlId, new(getParamName, string.Empty), false, CancelToken);
+        await _uriToVacanciesService.RemoveFilterAsync(urlId, new(getParamName, string.Empty), CancelToken);
         await AnswerOkCallback();
-        ShowFirstPageCategoriesByGetParams(urlId, siteType);
+        await ShowFirstPageCategoriesByGetParams(urlId, siteType);
     }
 }

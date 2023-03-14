@@ -13,27 +13,27 @@ public partial class UriToVacanciesController
 
     [Action]
     private void ShowFilters(int page, SiteType siteType, int categoryId, Delegate nextInPagination,
-                             bool canBackToMainPage, ObjectId? urlId, bool isActivated)
+                             bool isUpdating, ObjectId? urlId, bool isActivated)
     {
         Push($"Виберіть потрібний фільтр.");
         var idsToFilters = _filterService.SiteTypeToCategoriesToFilters[siteType][categoryId];
         Pager(idsToFilters, page, idToFilter =>
-                  (idToFilter.Value.Name, Q(AddFilterToUrlAsync, urlId!, siteType, categoryId, idToFilter.Key, canBackToMainPage)),
+                  (idToFilter.Value.Name, Q(AddFilterToUrlAsync, urlId!, siteType, categoryId, idToFilter.Key, isUpdating)),
                         Q(nextInPagination, FirstPage, siteType, categoryId, urlId!, isActivated));
         ActivateRowButton(urlId, isActivated, nextInPagination, page, siteType, categoryId);
     }
 
     [Action]
-    private async Task AddFilterToUrlAsync(ObjectId? urlId, SiteType siteType, int categoryId, int filterId, bool canBackToMainPage)
+    private async Task AddFilterToUrlAsync(ObjectId? urlId, SiteType siteType, int categoryId, int filterId, bool isUpdating)
     {
         Filter filter = _filterService.SiteTypeToCategoriesToFilters[siteType][categoryId][filterId];
         if (filter.FilterType == FilterType.CheckBox)
         {
-            await CreateOrUpdateUriToVacanciesAsync(urlId, siteType, filter.GetParameter, canBackToMainPage);
+            await CreateOrUpdateUriToVacanciesAsync(urlId, siteType, filter.GetParameter, isUpdating);
         }
         else
         {
-            await State(new AddingSearchFilterToUrlState(urlId, filter.GetParameter.Name, siteType, canBackToMainPage));
+            await State(new AddingSearchFilterToUrlState(urlId, filter.GetParameter.Name, siteType, isUpdating));
             await Send("Введіть пошуковий запит.");
         }
     }
@@ -44,18 +44,18 @@ public partial class UriToVacanciesController
         await ClearState();
         string getParameterValue = Context.GetSafeTextPayload()!;
         GetParameter getParameter = new(state.GetParameterName, getParameterValue);
-        await CreateOrUpdateUriToVacanciesAsync(state.UrlId, state.SiteType, getParameter, state.CanBackToMainPage);
+        await CreateOrUpdateUriToVacanciesAsync(state.UrlId, state.SiteType, getParameter, state.IsUpdating);
     }
 
-    private async Task CreateOrUpdateUriToVacanciesAsync(ObjectId? urlId, SiteType siteType, GetParameter getParameter, bool canBackToMainPage)
+    private async Task CreateOrUpdateUriToVacanciesAsync(ObjectId? urlId, SiteType siteType, GetParameter getParameter, bool isUpdating)
     {
         UriToVacancies? uriToVacancies = null;
         try
         {
             if (urlId is null)
-                uriToVacancies = _uriToVacanciesService.Create(ChatId, siteType, getParameter, CancelToken);
+                uriToVacancies = await _uriToVacanciesService.CreateAsync(ChatId, siteType, getParameter, CancelToken);
             else
-                uriToVacancies = _uriToVacanciesService.Update(urlId.Value, getParameter, true, CancelToken);
+                uriToVacancies = await _uriToVacanciesService.AddFilterAsync(urlId.Value, getParameter, CancelToken);
             await AnswerOkCallback();
         }
         catch (Exception ex)
@@ -63,7 +63,7 @@ public partial class UriToVacanciesController
             Log.Info(ex.Message);
             await Send("Посилання вже добавленно, оберіть інший фільтр.");
         }
-        if (canBackToMainPage)
+        if (isUpdating)
             ShowFilterCategories_Updating(0, siteType, uriToVacancies?.Id, uriToVacancies?.IsActivated ?? false);
         else
             ShowFilterCategories_Creating(0, siteType, uriToVacancies?.Id, uriToVacancies?.IsActivated ?? false);
