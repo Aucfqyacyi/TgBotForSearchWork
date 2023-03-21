@@ -22,10 +22,8 @@ public class UserRepository
 
     public async ValueTask<User> GetAsync(long chatId, CancellationToken cancellationToken)
     {
-        User? user = await GetOrDefaultAsync(chatId, cancellationToken);
-        if (user is null)
-            throw new Exception($"User with chatId({chatId}) doesnot exist.");
-        return user;
+        User? user = await GetOrDefaultAsync(chatId, cancellationToken); 
+        return user ?? throw new Exception($"User with chatId({chatId}) doesnot exist.");     
     }
 
     public async ValueTask<User?> GetOrDefaultAsync(long chatId, CancellationToken cancellationToken)
@@ -57,7 +55,7 @@ public class UserRepository
         {
             if (user.IsActivated is false)
             {
-                await ActivateAsync(chatId, isActivated:true, cancellationToken);
+                await ActivateAsync(chatId, isActivated: true, cancellationToken);
                 return true;
             }
         }

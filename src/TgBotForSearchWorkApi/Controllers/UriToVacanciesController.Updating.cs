@@ -11,29 +11,26 @@ namespace TgBotForSearchWorkApi.Controllers;
 public partial class UriToVacanciesController
 {
     [Action(Command.AddFilter, CommandDescription.AddFilter)]
-    public void AddFilter()
+    public async Task AddFilter()
     {
-        ShowSitesThenShowUrisToVacancies(ShowFirstPageCategories);
+        await ShowSitesThenShowUrisToVacancies(ShowFirstPageCategories);
     }
 
     [Action]
     private async Task ShowFirstPageCategories(ObjectId urlId, SiteType siteType)
     {
-        ShowFilterCategories_Updating(0, siteType, urlId, await _uriToVacanciesService.IsActivatedAsync(urlId, CancelToken));
+        ShowFilterCategories_Updating(0, siteType, urlId, await _uriToVacanciesRepository.IsActivatedAsync(urlId, CancelToken));
     }
 
-    /// <summary>
-    /// Method ShowFilterCategories with back button to ShowSitesThenShowUrisToVacancies.
-    /// </summary>
     [Action]
     private void ShowFilterCategories_Updating(int page, SiteType siteType, ObjectId? urlId, bool isActivated)
     {
-        Push($"Виберіть потрібну категорію для фільтра.");
+        Push(CommandRecommendations.All[siteType]);
         IEnumerable<FilterCategory> categories = _filterService.SiteTypeToCategoriesToFilters[siteType].Keys;
         Pager(categories, page, category => (category.Name, Q(ShowFilters_Updating, 0, siteType, category.Id, urlId!, isActivated)),
-                                        Q(ShowFilterCategories_Updating, FirstPage, siteType, urlId!, isActivated), 1);
+                                        Q(ShowFilterCategories_Updating, _firstPage, siteType, urlId!, isActivated), 1);
         ActivateRowButton(urlId, isActivated, ShowFilterCategories_Updating, 0, siteType);
-        RowButton(Back, Q(ShowUrisToVacancies, page, siteType, ShowFirstPageCategories));
+        RowButton(_back, Q(ShowUrisToVacancies, page, siteType, ShowFirstPageCategories));
     }
 
     /// <summary>
@@ -42,34 +39,34 @@ public partial class UriToVacanciesController
     [Action]
     private void ShowFilters_Updating(int page, SiteType siteType, int categoryId, ObjectId urlId, bool isActivated)
     {
-        ShowFilters(page, siteType, categoryId, ShowFilters_Updating, isUpdating:true, urlId, isActivated);
-        RowButton(Back, Q(ShowFilterCategories_Updating, 0, siteType, urlId, isActivated));
+        ShowFilters(page, siteType, categoryId, ShowFilters_Updating, isUpdating: true, urlId, isActivated);
+        RowButton(_back, Q(ShowFilterCategories_Updating, 0, siteType, urlId, isActivated));
     }
 
     [Action(Command.RemoveFilter, CommandDescription.RemoveFilter)]
-    public void RemoveFilter()
+    public async Task RemoveFilter()
     {
-        ShowSitesThenShowUrisToVacancies(ShowFirstPageCategoriesByGetParams);
+        await ShowSitesThenShowUrisToVacancies(ShowFirstPageCategoriesByGetParams);
     }
 
     [Action]
     private async Task ShowFirstPageCategoriesByGetParams(ObjectId urlId, SiteType siteType)
     {
-        await ShowFilterCategoriesByGetParams(0, siteType, urlId, await _uriToVacanciesService.IsActivatedAsync(urlId, CancelToken));
+        await ShowFilterCategoriesByGetParams(0, siteType, urlId, await _uriToVacanciesRepository.IsActivatedAsync(urlId, CancelToken));
     }
 
     [Action]
     private async Task ShowFilterCategoriesByGetParams(int page, SiteType siteType, ObjectId urlId, bool isActivated)
     {
         Push("Виберіть категорію фільтра, яку бажаєте видалити з посилання.");
-        UriToVacancies uriToVacancies = await _uriToVacanciesService.GetAsync(urlId, CancelToken);
+        UriToVacancies uriToVacancies = await _uriToVacanciesRepository.GetAsync(urlId, CancelToken);
         List<GetParameter> getParameters = uriToVacancies.GetParameters();
         List<FilterCategory> categories = _filterService.GetFilterCategories(siteType, getParameters);
         Pager(categories, page, categories => (categories.Name,
                     Q(RemoveFilterFromUri, urlId!, siteType, categories.Id, categories.GetParameterName)),
-                                        Q(ShowFilterCategoriesByGetParams, FirstPage, siteType, urlId!, isActivated), 1);
+                                        Q(ShowFilterCategoriesByGetParams, _firstPage, siteType, urlId!, isActivated), 1);
         ActivateRowButton(urlId, isActivated, ShowFilterCategoriesByGetParams, page, siteType);
-        RowButton(Back, Q(ShowUrisToVacancies, 0, siteType, ShowFirstPageCategoriesByGetParams));
+        RowButton(_back, Q(ShowUrisToVacancies, 0, siteType, ShowFirstPageCategoriesByGetParams));
     }
 
     [Action]

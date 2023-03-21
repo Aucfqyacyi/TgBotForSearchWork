@@ -27,7 +27,7 @@ public class VacancyService
         try
         {
             IVacancyParser vacancyParser = VacancyParserFactory.Create(uriToVacancies.Uri);
-            List<Vacancy> relevantVacancies = await vacancyParser.ParseAsync(uriToVacancies.Uri, descriptionLength, 
+            List<Vacancy> relevantVacancies = await vacancyParser.ParseAsync(uriToVacancies.Uri, descriptionLength,
                                                                              uriToVacancies.LastVacanciesIds, cancellationToken);
 
             Log.Info($"{uriToVacancies.Uri.Host} has number of vacancies {relevantVacancies.Count}");
@@ -40,6 +40,6 @@ public class VacancyService
         catch (Exception ex)
         {
             Log.Info(ex.Message);
-        }      
+        }
     }
 }

@@ -12,7 +12,7 @@ public partial class UriToVacanciesController
     public async Task AddUrl()
     {
         await State(new AddingUrlState());
-        Push("Напишіть посилання, яке бажаєте додати, у повному форматі.");
+        Push("Напишіть посилання у повному форматі, яке бажаєте додати. Наприклад посилання з сайту де ви вабрали усі потрібні фільтри.");
     }
 
     [State]

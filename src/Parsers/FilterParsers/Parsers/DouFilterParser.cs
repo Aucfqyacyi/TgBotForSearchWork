@@ -69,21 +69,17 @@ internal class DouFilterParser : FilterParser
         if (lis is null)
             return;
 
-        for (int i = 1; i < lis.Count; i++)
+        for (int i = 0; i < lis.Count; i++)
             filters.Add(CreateFilterFromFilterRegion(categoryId, categoryName!, lis[i]));
     }
 
     protected Filter CreateFilterFromFilterRegion(int categoryId, string categoryName, IElement filterElement)
     {
         string filterName = filterElement.GetTextContent();
-        string[] splitedGetParamater = filterElement.GetHrefAttribute().Split('?').Last().Split('=');
-        string getParameterName = splitedGetParamater.First();
-        FilterCategory category = new(categoryId, categoryName, getParameterName);
-        GetParameter? getParameter = null;
-        if (splitedGetParamater.Length == 1)
-            getParameter = new(category.GetParameterName, "1");
-        else
-            getParameter = new(category.GetParameterName, splitedGetParamater.Last());
+        GetParameter getParameter = filterElement.GetGetParameter();
+        if (getParameter.Value.StartsWith('%'))
+            getParameter.Value = filterName;
+        FilterCategory category = new(categoryId, categoryName, getParameter.Name);
         return new Filter(filterName, category, getParameter, FilterType.CheckBox);
     }
 

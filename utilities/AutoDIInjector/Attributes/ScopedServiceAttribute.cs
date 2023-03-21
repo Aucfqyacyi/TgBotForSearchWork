@@ -4,7 +4,7 @@ namespace AutoDIInjector.Attributes;
 
 public class ScopedServiceAttribute : ServiceAttribute
 {
-    public ScopedServiceAttribute(Type? implementationType = null) : base(ServiceLifetime.Scoped, implementationType)
+    public ScopedServiceAttribute(Type? interfaceType = null) : base(ServiceLifetime.Scoped, interfaceType)
     {
     }
 }

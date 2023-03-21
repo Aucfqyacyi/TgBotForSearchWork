@@ -37,13 +37,8 @@ internal class DjinniFilterParser : FilterParser
     protected Filter CreateFilter(int categoryId, string categoryName, IElement filterElement)
     {
         string filterName = filterElement.GetTextContent();
-        string[] splitedGetParamater = filterElement.GetHrefAttribute().TrimStart('?').Split('=');
-        FilterCategory category = new(categoryId, categoryName, splitedGetParamater.First());
-        GetParameter? getParemetr = null;
-        if (splitedGetParamater.Length == 1)
-            getParemetr = new(category.GetParameterName, "1", true);
-        else
-            getParemetr = new(category.GetParameterName, splitedGetParamater.Last(), true);
-        return new Filter(filterName, category, getParemetr, FilterType.CheckBox);
+        GetParameter? getParemeter = filterElement.GetGetParameter();
+        FilterCategory category = new(categoryId, categoryName, getParemeter.Name);
+        return new Filter(filterName, category, getParemeter, FilterType.CheckBox);
     }
 }

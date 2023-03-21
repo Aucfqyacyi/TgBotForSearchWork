@@ -71,7 +71,7 @@ internal class WorkUaFilterParser : FilterParser
 
     protected Filter CreateFilter(int categoryId, string categoryName, IElement input, IElement elementWithId, bool isOption)
     {
-        string? filterName = null;
+        string? filterName;
         if(isOption is true)
             filterName = input.GetTextContent().GetWithoutTextInBrackets();
         else

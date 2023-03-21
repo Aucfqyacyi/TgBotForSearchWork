@@ -27,7 +27,7 @@ public class UserController : BotController
     public async Task Stop()
     {
         await _userRepository.ActivateAsync(ChatId, false, CancelToken);
-        await Send("До побачення!");
+        await Send("До побачення! Бот більше не буде присилати вам вакансії. Щоб заново активуватися викличте команду /start.");
     }
 
     [Action(Command.ChangeDescriptionLength, CommandDescription.ChangeDescriptionLength)]

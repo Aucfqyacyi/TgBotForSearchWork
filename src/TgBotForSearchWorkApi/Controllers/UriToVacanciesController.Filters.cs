@@ -10,8 +10,6 @@ namespace TgBotForSearchWorkApi.Controllers;
 
 public partial class UriToVacanciesController
 {
-
-    [Action]
     private void ShowFilters(int page, SiteType siteType, int categoryId, Delegate nextInPagination,
                              bool isUpdating, ObjectId? urlId, bool isActivated)
     {
@@ -19,7 +17,7 @@ public partial class UriToVacanciesController
         var idsToFilters = _filterService.SiteTypeToCategoriesToFilters[siteType][categoryId];
         Pager(idsToFilters, page, idToFilter =>
                   (idToFilter.Value.Name, Q(AddFilterToUrlAsync, urlId!, siteType, categoryId, idToFilter.Key, isUpdating)),
-                        Q(nextInPagination, FirstPage, siteType, categoryId, urlId!, isActivated));
+                        Q(nextInPagination, _firstPage, siteType, categoryId, urlId!, isActivated));
         ActivateRowButton(urlId, isActivated, nextInPagination, page, siteType, categoryId);
     }
 
@@ -33,13 +31,13 @@ public partial class UriToVacanciesController
         }
         else
         {
-            await State(new AddingSearchFilterToUrlState(urlId, filter.GetParameter.Name, siteType, isUpdating));
+            await State(new AddingTestFilterToUrlState(urlId, filter.GetParameter.Name, siteType, isUpdating));
             await Send("Введіть пошуковий запит.");
         }
     }
 
     [State]
-    private async Task HandleAddingSearchFilterToUrlAsync(AddingSearchFilterToUrlState state)
+    private async Task HandleAddingTestFilterToUrlAsync(AddingTestFilterToUrlState state)
     {
         await ClearState();
         string getParameterValue = Context.GetSafeTextPayload()!;

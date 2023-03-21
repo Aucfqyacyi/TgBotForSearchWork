@@ -7,11 +7,11 @@ namespace AutoDIInjector.Attributes;
 public class ServiceAttribute : Attribute
 {
     public ServiceLifetime ServiceLifetime { get; }
-    public Type? ImplementationType { get; set; }
+    public Type? InterfaceType { get; set; }
 
-    public ServiceAttribute(ServiceLifetime serviceLifetime, Type? implementationType = null)
+    public ServiceAttribute(ServiceLifetime serviceLifetime, Type? interfaceType = null)
     {
         ServiceLifetime = serviceLifetime;
-        ImplementationType = implementationType;
+        InterfaceType = interfaceType;
     }
 }

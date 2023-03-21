@@ -110,5 +110,14 @@ internal static class IElementExtension
         return elementsWithId;
     }
 
+    public static GetParameter GetGetParameter(this IElement iElement)
+    {
+        string[] splitedGetParamater = iElement.GetHrefAttribute().Split('?').Last().Split('=');
+        string getParameterName = splitedGetParamater.First();
+        if (splitedGetParamater.Length == 1)
+            return new GetParameter(getParameterName, "1");
+        else
+            return new GetParameter(getParameterName, splitedGetParamater.Last());
+    }
 }
 

@@ -79,7 +79,7 @@ public partial class UriToVacancies
     public List<GetParameter> GetParameters()
     {
         UriBuilder uriBuilder = new(Uri);
-        List<GetParameter> getParametrs = new List<GetParameter>();
+        List<GetParameter> getParametrs = new();
         NameValueCollection query = HttpUtility.ParseQueryString(uriBuilder.Query);
         for (int i = 0; i < query.Count; i++)
         {

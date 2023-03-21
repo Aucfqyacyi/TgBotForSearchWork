@@ -2,34 +2,39 @@
 using MongoDB.Bson;
 using Parsers.Constants;
 using System.Reflection;
+using TgBotForSearchWorkApi.Repositories;
 using TgBotForSearchWorkApi.Services;
 
 namespace TgBotForSearchWorkApi.Controllers;
 
 public partial class UriToVacanciesController : BotController
 {
-    protected const string Back = "Назад";
-    protected const string FirstPage = "{0}";
+    private const string _back = "Назад";
+    private const string _firstPage = "{0}";
 
-    protected readonly UriToVacanciesService _uriToVacanciesService;
-    protected readonly FilterService _filterService;
+    private readonly UriToVacanciesService _uriToVacanciesService;
+    private readonly FilterService _filterService;
+    private readonly UriToVacanciesRepository _uriToVacanciesRepository;
 
-    public UriToVacanciesController(FilterService filterService, UriToVacanciesService uriToVacanciesService)
+    public UriToVacanciesController(FilterService filterService,
+                                    UriToVacanciesService uriToVacanciesService, 
+                                    UriToVacanciesRepository uriToVacanciesRepository)
     {
         _filterService = filterService;
         _uriToVacanciesService = uriToVacanciesService;
+        _uriToVacanciesRepository = uriToVacanciesRepository;
     }
 
-    protected void ShowSites(Func<SiteType, string> q)
+    private void ShowSites(Func<SiteType, string> q, IEnumerable<SiteType>? siteTypes = null)
     {
         Push("Виберіть сайт.");
-        foreach (var siteType in Enum.GetValues<SiteType>())
+        foreach (var siteType in siteTypes ?? Enum.GetValues<SiteType>())
         {
             RowButton(siteType.ToString(), q(siteType));
         }
     }
 
-    protected void ActivateRowButton(ObjectId? urlId, bool? isActivated, Delegate? @delegate = null, params object[] args)
+    private void ActivateRowButton(ObjectId? urlId, bool? isActivated, Delegate? @delegate = null, params object[] args)
     {
         if (urlId is null || isActivated is null)
             return;
@@ -38,14 +43,13 @@ public partial class UriToVacanciesController : BotController
     }
 
     [Action]
-    protected async Task ActivateUrl(ObjectId urlId, bool isActivated, Delegate? @delegate = null, params object[] args)
+    private async Task ActivateUrl(ObjectId urlId, bool isActivated, Delegate? @delegate = null, params object[] args)
     {
-        await _uriToVacanciesService.ActivateAsync(urlId, isActivated, CancelToken);
-        string activatePhrase = "Посилання " + (isActivated ? "активоване." : "дезактивоване.");
+        await _uriToVacanciesRepository.ActivateAsync(urlId, isActivated, CancelToken);       
         if (@delegate is null)
         {
             await AnswerCallback();
-            await Send(activatePhrase);
+            await Send("Посилання " + (isActivated ? "активоване." : "дезактивоване."));
         }
         else
         {

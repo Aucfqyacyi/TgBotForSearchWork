@@ -10,7 +10,7 @@ public partial class UriToVacanciesController
     [Action(Command.CreateUrl, CommandDescription.CreateUrl)]
     public void CreateUrl()
     {
-        ShowSitesThenShowFilterCategories(urlId:null, isActivated:false);
+        ShowSitesThenShowFilterCategories(urlId: null, isActivated: false);
     }
 
     [Action]
@@ -19,18 +19,15 @@ public partial class UriToVacanciesController
         ShowSites(siteType => Q(ShowFilterCategories_Creating, 0, siteType, urlId!, isActivated));
     }
 
-    /// <summary>
-    /// Method ShowFilterCategories with back button to ShowSitesThenShowFilterCategories.
-    /// </summary>
     [Action]
     private void ShowFilterCategories_Creating(int page, SiteType siteType, ObjectId? urlId, bool isActivated)
     {
-        Push($"Виберіть потрібну категорію для фільтра.");
+        Push(CommandRecommendations.All[siteType]);
         IEnumerable<FilterCategory> categories = _filterService.SiteTypeToCategoriesToFilters[siteType].Keys;
         Pager(categories, page, category => (category.Name, Q(ShowFilters_Creating, 0, siteType, category.Id, urlId!, isActivated)),
-                                        Q(ShowFilterCategories_Creating, FirstPage, siteType, urlId!, isActivated), 1);
+                                        Q(ShowFilterCategories_Creating, _firstPage, siteType, urlId!, isActivated), 1);
         ActivateRowButton(urlId, isActivated, ShowFilterCategories_Creating, page, siteType);
-        RowButton(Back, Q(ShowSitesThenShowFilterCategories, new ObjectId?(), isActivated));
+        RowButton(_back, Q(ShowSitesThenShowFilterCategories, new ObjectId?(), isActivated));
     }
 
     /// <summary>
@@ -39,7 +36,7 @@ public partial class UriToVacanciesController
     [Action]
     private void ShowFilters_Creating(int page, SiteType siteType, int categoryId, ObjectId? urlId, bool isActivated)
     {
-        ShowFilters(page, siteType, categoryId, ShowFilters_Creating, isUpdating:false, urlId, isActivated);
-        RowButton(Back, Q(ShowFilterCategories_Creating, 0, siteType, urlId!, isActivated));
+        ShowFilters(page, siteType, categoryId, ShowFilters_Creating, isUpdating: false, urlId, isActivated);
+        RowButton(_back, Q(ShowFilterCategories_Creating, 0, siteType, urlId!, isActivated));
     }
 }

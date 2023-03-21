@@ -20,16 +20,6 @@ public class UriToVacanciesService
         _uriToVacanciesRepository = uriToVacanciesRepository;
     }
 
-    public ValueTask<List<UriToVacancies>> GetAllAsync(long chatId, SiteType siteType, CancellationToken cancellationToken)
-    {
-        return _uriToVacanciesRepository.GetAllAsync(chatId, siteType, cancellationToken);
-    }
-
-    public ValueTask<UriToVacancies> GetAsync(ObjectId uriId, CancellationToken cancellationToken)
-    {
-        return _uriToVacanciesRepository.GetAsync(uriId, cancellationToken);
-    }
-
     public async ValueTask<UriToVacancies?> CreateAsync(long chatId, SiteType siteType, GetParameter getParametr, CancellationToken cancellationToken)
     {
         UriToVacancies uriToVacancies = new(chatId, SiteTypesToUris.All[siteType], siteType);
@@ -56,18 +46,13 @@ public class UriToVacanciesService
         return uriToVacancies;
     }
 
-    public ValueTask ActivateAsync(ObjectId urlId, bool isActivated, CancellationToken cancellationToken)
-    {
-        return _uriToVacanciesRepository.ActivateAsync(urlId, isActivated, cancellationToken);
-    }
-
     public async ValueTask<UriToVacancies?> AddAsync(long chatId, string url, CancellationToken cancellationToken)
     {
         try
         {
             if (url.IsUrl() is false)
                 return null;
-            Uri uri = new Uri(url);
+            Uri uri = new(url);
             IVacancyParser vacancyParser = VacancyParserFactory.Create(uri);
             if (await vacancyParser.IsCorrectUriAsync(uri, cancellationToken) is false)
                 return null;
@@ -80,20 +65,5 @@ public class UriToVacanciesService
             Log.Info(ex.Message);
         }
         return null;
-    }
-
-    public ValueTask DeleteAsync(ObjectId urlId, CancellationToken cancellationToken)
-    {
-        return _uriToVacanciesRepository.DeleteAsync(urlId, cancellationToken);
-    }
-
-    public ValueTask<bool> IsActivatedAsync(ObjectId urlId, CancellationToken cancellationToken)
-    {
-        return _uriToVacanciesRepository.IsActivatedAsync(urlId, cancellationToken);
-    }
-
-    public ValueTask<long> CountAsync(long chatId, CancellationToken cancellationToken)
-    {
-        return _uriToVacanciesRepository.CountAsync(chatId, cancellationToken);
     }
 }

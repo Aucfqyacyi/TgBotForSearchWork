@@ -88,7 +88,7 @@ public static class StringExtension
     public static ulong GetNumberFromUrl(this string url, uint numberPositionInUrl, string? symbolNearNumber = null)
     {
         string rawNumber = url.Split('/')[numberPositionInUrl];
-        string? number = null;
+        string? number;
         if (symbolNearNumber is not null)
             number = rawNumber.Split(symbolNearNumber).First();
         else

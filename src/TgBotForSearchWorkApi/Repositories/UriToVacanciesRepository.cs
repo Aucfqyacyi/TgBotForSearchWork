@@ -63,10 +63,8 @@ public class UriToVacanciesRepository
 
     public async ValueTask<UriToVacancies> GetAsync(ObjectId urlId, CancellationToken cancellationToken)
     {
-        UriToVacancies? uriToVacancies = await GetOrDefaultAsync(urlId, cancellationToken);
-        if (uriToVacancies is null)
-            throw new Exception($"Uri with id({urlId}) doesn't exist.");
-        return uriToVacancies;
+        UriToVacancies? uriToVacancies = await GetOrDefaultAsync(urlId, cancellationToken);    
+        return uriToVacancies ?? throw new Exception($"Uri with id({urlId}) doesn't exist.");
     }
 
     public async ValueTask<UriToVacancies?> GetOrDefaultAsync(ObjectId urlId, CancellationToken cancellationToken)
@@ -78,7 +76,7 @@ public class UriToVacanciesRepository
     public ValueTask ReplaceAsync(UriToVacancies uriToVacancies, CancellationToken cancellationToken)
     {
         ReplaceOptions? replaceOptions = null;
-        return new(_mongoContext.UriToVacanciesCollection.ReplaceOneAsync(GetFilterById(uriToVacancies.Id), uriToVacancies, 
+        return new(_mongoContext.UriToVacanciesCollection.ReplaceOneAsync(GetFilterById(uriToVacancies.Id), uriToVacancies,
                                                                                         replaceOptions, cancellationToken));
     }
 
@@ -99,6 +97,14 @@ public class UriToVacanciesRepository
         options.Projection = new ProjectionDefinitionBuilder<UriToVacancies>().Expression(uri => uri.IsActivated);
         var cursor = await _mongoContext.UriToVacanciesCollection.FindAsync(GetFilterById(urlId), options, cancellationToken);
         return await cursor.FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async ValueTask<List<SiteType>> GetAllAsSiteTypesAsync(long chatId, CancellationToken cancellationToken)
+    {
+        var options = new FindOptions<UriToVacancies, SiteType>();
+        options.Projection = new ProjectionDefinitionBuilder<UriToVacancies>().Expression(uri => uri.SiteType);
+        var cursor = await _mongoContext.UriToVacanciesCollection.FindAsync(GetFilterByChatId(chatId), options, cancellationToken);
+        return await cursor.ToListAsync(cancellationToken);
     }
 
     public ValueTask UpdateManyLastVacancyIdsAsync(IEnumerable<UriToVacancies> urisToVacancies, CancellationToken cancellationToken)

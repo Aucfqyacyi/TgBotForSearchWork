@@ -46,15 +46,15 @@ public static class IServiceCollectionExtension
 
     private static void RegisterType(this IServiceCollection services, Type type, Func<Type, bool>? predicate = null)
     {
-        if (type.IsTypeToRegister() is false && (predicate?.Invoke(type) ?? false) is false)
-            return;
-
-        var attribute = type.GetCustomAttribute(_serviceAttributeType) as ServiceAttribute;
-        lock (_locker)
+        if (type.IsTypeToRegister() is true && (predicate?.Invoke(type) ?? true) is true)
         {
-            Type implementationType = attribute?.ImplementationType ?? type;
-            ServiceDescriptor serviceDescriptor = new ServiceDescriptor(type, implementationType, attribute!.ServiceLifetime);
-            services.Add(serviceDescriptor);
+            var attribute = type.GetCustomAttribute(_serviceAttributeType) as ServiceAttribute;
+            Type interfaceType = attribute?.InterfaceType ?? type;
+            ServiceDescriptor serviceDescriptor = new ServiceDescriptor(interfaceType, type, attribute!.ServiceLifetime);
+            lock (_locker)
+            {
+                services.Add(serviceDescriptor);
+            }
         }
     }
 

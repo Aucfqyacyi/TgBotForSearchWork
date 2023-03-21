@@ -16,8 +16,7 @@ public partial class UriToVacancies
     [BsonElement] public string HashedUrl { get => Uri.OriginalString.GetMD5(); }
     [BsonElement] public bool IsActivated { get; set; }
     [BsonElement] public SiteType SiteType { get; set; }
-
-    [BsonElement()] public IReadOnlyList<ulong> LastVacanciesIds
+    [BsonElement] public IReadOnlyList<ulong> LastVacanciesIds
     {
         get => _lastVacanciesIds;
         set

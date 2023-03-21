@@ -11,5 +11,5 @@ public static class Command
     public const string CreateUrl = "/create_url";
     public const string AddFilter = "/add_filter";
     public const string RemoveFilter = "/remove_filter";
-    public const string ChangeDescriptionLength = "/change_description_length";
+    public const string ChangeDescriptionLength = "/change_description";
 }

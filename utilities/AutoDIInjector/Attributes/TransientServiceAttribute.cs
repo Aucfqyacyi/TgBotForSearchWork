@@ -4,7 +4,7 @@ namespace AutoDIInjector.Attributes;
 
 public class TransientServiceAttribute : ServiceAttribute
 {
-    public TransientServiceAttribute(Type? implementationType = null) : base(ServiceLifetime.Transient, implementationType)
+    public TransientServiceAttribute(Type? interfaceType = null) : base(ServiceLifetime.Transient, interfaceType)
     {
     }
 

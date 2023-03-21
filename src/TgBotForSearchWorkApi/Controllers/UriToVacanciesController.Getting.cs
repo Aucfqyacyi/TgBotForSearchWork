@@ -10,38 +10,42 @@ public partial class UriToVacanciesController
 {
 
     [Action(Command.GetUrl, CommandDescription.GetUrl)]
-    public void GetUrl()
+    public async Task GetUrl()
     {
-        ShowSitesThenShowUrisToVacancies(GetUriToVacanciesAsync);
+        await ShowSitesThenShowUrisToVacancies(SendUriToVacanciesAsync);
     }
 
     [Action]
-    protected void ShowSitesThenShowUrisToVacancies(Delegate next)
+    private async Task ShowSitesThenShowUrisToVacancies(Delegate next)
     {
-        ShowSites(siteType => Q(ShowUrisToVacancies, 0, siteType, next));
+        IEnumerable<SiteType> siteTypes = (await _uriToVacanciesRepository.GetAllAsSiteTypesAsync(ChatId, CancelToken))
+                                                                          .Distinct();
+        if (siteTypes.Any())
+            ShowSites(siteType => Q(ShowUrisToVacancies, 0, siteType, next), siteTypes);
+        else
+            await Send("У вас немає жодної вакансій.");
     }
 
     [Action]
-    protected async Task ShowUrisToVacancies(int page, SiteType siteType, Delegate next)
+    private async Task ShowUrisToVacancies(int page, SiteType siteType, Delegate next)
     {
-        List<UriToVacancies> urlsToVacancies = await _uriToVacanciesService.GetAllAsync(ChatId, siteType, CancelToken);
-        if (urlsToVacancies.Count <= 0)
+        List<UriToVacancies> urlsToVacancies = await _uriToVacanciesRepository.GetAllAsync(ChatId, siteType, CancelToken);
+        if (urlsToVacancies.Any() is false)
         {
-            ShowSitesThenShowUrisToVacancies(next);
+            await ShowSitesThenShowUrisToVacancies(next);
             return;
         }
         Push("Виберіть потрібне посилання.");
         Pager(urlsToVacancies, page, indexToUrl => (indexToUrl.WithoutHttps, Q(next, indexToUrl.Id, siteType)),
-                                        Q(ShowUrisToVacancies, FirstPage, siteType, next), 1);
-        RowButton(Back, Q(ShowSitesThenShowUrisToVacancies, next));
+                                        Q(ShowUrisToVacancies, _firstPage, siteType, next), 1);
+        RowButton(_back, Q(ShowSitesThenShowUrisToVacancies, next));
     }
 
     [Action]
-    private async Task GetUriToVacanciesAsync(ObjectId urlId, SiteType siteType)
+    private async Task SendUriToVacanciesAsync(ObjectId urlId, SiteType siteType)
     {
-        UriToVacancies uriToVacancies = await _uriToVacanciesService.GetAsync(urlId, CancelToken);
+        UriToVacancies uriToVacancies = await _uriToVacanciesRepository.GetAsync(urlId, CancelToken);
         ActivateRowButton(urlId, uriToVacancies.IsActivated);
         await Send(uriToVacancies.OriginalString, new() { DisableWebPagePreview = true });
     }
-
 }
