@@ -23,12 +23,14 @@ public partial class UriToVacancies
         {
             if (value.Count >= _lastVacanciesIdsSize || _lastVacanciesIds is null)
             {
-                _lastVacanciesIds = new(value.Take(_lastVacanciesIdsSize));
+                int count = int.Min(value.Count, _lastVacanciesIdsSize);
+                _lastVacanciesIds = new List<ulong>(value.Take(count));
             }
             else
             {
                 List<ulong> newLastVacanciesIds = new(value);
-                newLastVacanciesIds.AddRange(_lastVacanciesIds.GetRange(0, _lastVacanciesIdsSize - value.Count));
+                if(_lastVacanciesIds.Any() is true)
+                    newLastVacanciesIds.AddRange(_lastVacanciesIds.GetRange(0, _lastVacanciesIdsSize - value.Count));
                 _lastVacanciesIds = newLastVacanciesIds;
             }
         }

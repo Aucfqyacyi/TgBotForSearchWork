@@ -69,16 +69,12 @@ public class VacancyBackgroundService : BackgroundService
     private async ValueTask<List<UriToVacancies>> SendVacanciesAsync(User user, CancellationToken cancellationToken)
     {
         List<UriToVacancies> urisToVacancies = await _uriToVacanciesRepository.GetAllActivatedAsync(user.ChatId, cancellationToken);
-        if (urisToVacancies.Any())
-            await SendVacanciesAsync(user, urisToVacancies, cancellationToken);
+        if (urisToVacancies.Any() is true)
+        {
+            List<Vacancy> relevantVacancies = await _vacancyService.GetRelevantVacanciesAsync(urisToVacancies, user.DescriptionLength, cancellationToken);
+            await SendVacanciesAsync(user, relevantVacancies, cancellationToken);
+        }
         return urisToVacancies;
-    }
-
-    private async ValueTask SendVacanciesAsync(User user, IEnumerable<UriToVacancies> urisToVacancies, CancellationToken cancellationToken)
-    {
-        List<Vacancy> relevantVacancies = await _vacancyService.GetRelevantVacanciesAsync(urisToVacancies, user.DescriptionLength, cancellationToken);
-        await SendVacanciesAsync(user, relevantVacancies, cancellationToken);
-        Log.Info($"All vacancies for the chat({user.ChatId}) were sent successfully.");
     }
 
     private async ValueTask SendVacanciesAsync(User user, IReadOnlyList<Vacancy> vacancies, CancellationToken cancellationToken)
