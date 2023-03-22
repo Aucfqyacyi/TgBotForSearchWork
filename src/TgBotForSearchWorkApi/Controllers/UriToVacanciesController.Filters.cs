@@ -25,19 +25,20 @@ public partial class UriToVacanciesController
     private async Task AddFilterToUrlAsync(ObjectId? urlId, SiteType siteType, int categoryId, int filterId, bool isUpdating)
     {
         Filter filter = _filterService.SiteTypeToCategoriesToFilters[siteType][categoryId][filterId];
-        if (filter.FilterType == FilterType.CheckBox)
+        switch (filter.FilterType)
         {
-            await CreateOrUpdateUriToVacanciesAsync(urlId, siteType, filter.GetParameter, isUpdating);
-        }
-        else
-        {
-            await State(new AddingTestFilterToUrlState(urlId, filter.GetParameter.Name, siteType, isUpdating));
-            await Send("Введіть пошуковий запит.");
+            case FilterType.Text:
+                await CreateOrUpdateUriToVacanciesAsync(urlId, siteType, filter.GetParameter, isUpdating);
+                break;
+            case FilterType.CheckBox:
+                await State(new AddingTextFilterToUrlState(urlId, filter.GetParameter.Name, siteType, isUpdating));
+                await Send("Введіть пошуковий запит.");
+                break;
         }
     }
 
     [State]
-    private async Task HandleAddingTestFilterToUrlAsync(AddingTestFilterToUrlState state)
+    private async Task HandleAddingTextFilterToUrlAsync(AddingTextFilterToUrlState state)
     {
         await ClearState();
         string getParameterValue = Context.GetSafeTextPayload()!;

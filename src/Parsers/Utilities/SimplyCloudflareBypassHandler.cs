@@ -20,10 +20,7 @@ internal class SimplyCloudflareBypassHandler : DelegatingHandler
     {
         SiteType siteType = SiteTypesToUris.HostsToSiteTypes[httpRequestMessage.RequestUri!.Host];
         if (siteType != SiteType.Dou || httpRequestMessage.RequestUri.OriginalString.Contains("/feeds/"))
-            return await base.SendAsync(httpRequestMessage, cancellationToken);
-        var response = await base.SendAsync(httpRequestMessage, cancellationToken);
-        if (response.IsSuccessStatusCode is false)
-            return response;   
+            return await base.SendAsync(httpRequestMessage, cancellationToken); 
         string request = $$"""
                     {
                         "Url": "{{httpRequestMessage.RequestUri.OriginalString}}"
