@@ -33,7 +33,7 @@ public static class FiltersImpl
     {
         var update = ctx.Update;
 
-        if(update.Type == UpdateType.EditedMessage || update.Type == UpdateType.Message)
+        if (update.Type == UpdateType.EditedMessage || update.Type == UpdateType.Message)
         {
             return true;
         }
@@ -56,7 +56,7 @@ public static class FiltersImpl
             ?? update?.EditedMessage?.Chat
             ?? update?.CallbackQuery?.Message?.Chat
             ?? update?.MyChatMember?.Chat;
-        
+
         return chat != null && chat.Type == ChatType.Private;
     }
 
@@ -68,7 +68,7 @@ public static class FiltersImpl
             ?? update?.EditedMessage?.Chat
             ?? update?.CallbackQuery?.Message?.Chat
             ?? update?.MyChatMember?.Chat;
-        
+
         return chat != null && chat.Type == ChatType.Group;
     }
 
@@ -76,7 +76,7 @@ public static class FiltersImpl
     {
         var parameter = ctx.GetFilterParameter();
 
-        if(parameter == null || parameter is not UpdateType type)
+        if (parameter == null || parameter is not UpdateType type)
         {
             throw new BotfException("Filters.Type expect UpdateType as parameter. Should be like: [Filter(Filters.Type, Param: UpdateType.Message)]");
         }
@@ -95,7 +95,7 @@ public static class FiltersImpl
     {
         var Store = ctx.Services.GetRequiredService<IKeyValueStorage>();
         var result = Store!.Contain(ctx.GetSafeUserId().GetValueOrDefault(), Consts.GLOBAL_STATE);
-        if(result.IsCompleted)
+        if (result.IsCompleted)
         {
             return result.Result;
         }
@@ -115,19 +115,19 @@ public static class FiltersImpl
     {
         var handler = ctx.GetCurrentHandler();
 
-        if(handler == null)
+        if (handler == null)
         {
             return false;
         }
 
         var stateType = GetStateType(handler.TargetMethod.DeclaringType!);
-        if(stateType == null)
+        if (stateType == null)
         {
             throw new BotfException($"The filter's Filters.CurrentGlobalState method {handler.TargetMethod.Name} of class {handler.TargetMethod.DeclaringType!.Name} must be declared inside subclass of BotControllerState<>");
         }
 
         var userId = ctx.GetSafeUserId();
-        if(!userId.HasValue)
+        if (!userId.HasValue)
         {
             return false;
         }
@@ -135,7 +135,7 @@ public static class FiltersImpl
         var Store = ctx.Services.GetRequiredService<IKeyValueStorage>();
         var containsTask = Store!.Contain(userId.Value, Consts.GLOBAL_STATE);
         var contains = false;
-        if(containsTask.IsCompleted)
+        if (containsTask.IsCompleted)
         {
             contains = containsTask.Result;
         }
@@ -144,14 +144,14 @@ public static class FiltersImpl
             contains = containsTask.AsTask().GetAwaiter().GetResult();
         }
 
-        if(!contains)
+        if (!contains)
         {
             return false;
         }
 
         var stateTask = Store!.Get(userId.Value, Consts.GLOBAL_STATE, null);
         object? state = null;
-        if(stateTask.IsCompleted)
+        if (stateTask.IsCompleted)
         {
             state = stateTask.Result;
         }
@@ -160,7 +160,7 @@ public static class FiltersImpl
             state = stateTask.AsTask().GetAwaiter().GetResult();
         }
 
-        if(state == null)
+        if (state == null)
         {
             return false;
         }
@@ -170,9 +170,9 @@ public static class FiltersImpl
         static Type? GetStateType(Type declatarion)
         {
             var current = declatarion;
-            while(current != null)
+            while (current != null)
             {
-                if(current.IsGenericType && current.GetGenericTypeDefinition() == _baseStateControllerType)
+                if (current.IsGenericType && current.GetGenericTypeDefinition() == _baseStateControllerType)
                 {
                     return current.GenericTypeArguments[0];
                 }
@@ -187,14 +187,14 @@ public static class FiltersImpl
     {
         var update = ctx.Update;
 
-        if(update.Type == UpdateType.InlineQuery)
+        if (update.Type == UpdateType.InlineQuery)
         {
             return true;
         }
 
         return false;
     }
-    
+
     public static bool FilterContact(IUpdateContext ctx)
     {
         var update = ctx.Update;
@@ -203,7 +203,7 @@ public static class FiltersImpl
                update.Message!.Type == MessageType.Contact &&
                update.Message.Contact != null;
     }
-    
+
     public static bool FilterLocation(IUpdateContext ctx)
     {
         var update = ctx.Update;
@@ -217,7 +217,7 @@ public static class FiltersImpl
     {
         var update = ctx.Update;
 
-        if(update.Type == UpdateType.Message && update.Message!.Type == MessageType.Text && update.Message!.Text!.StartsWith('/'))
+        if (update.Type == UpdateType.Message && update.Message!.Type == MessageType.Text && update.Message!.Text!.StartsWith('/'))
         {
             return true;
         }
@@ -276,34 +276,34 @@ public static class FiltersImpl
             && update.Message!.Type == MessageType.Sticker;
     }
 
-    private static readonly Dictionary<string, Regex> _regexCache = new ();
+    private static readonly Dictionary<string, Regex> _regexCache = new();
     public static bool FilterRegex(IUpdateContext ctx)
     {
         var parameter = ctx.GetFilterParameter();
 
-        if(parameter == null)
+        if (parameter == null)
         {
             throw new BotfException("Filters.Regex except not null string regexp in Filter parameter or Regex instance. Sould be like: [Filter(Filters.Regex, Param: @\"hello .*\\!\")]");
         }
 
         Regex? regex;
 
-        if(parameter is string strParam)
+        if (parameter is string strParam)
         {
-            if(!_regexCache.TryGetValue(strParam, out regex))
+            if (!_regexCache.TryGetValue(strParam, out regex))
             {
                 try
                 {
                     regex = new Regex(strParam, RegexOptions.Compiled);
                     _regexCache[strParam] = regex;
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     throw new BotfException($"Regex compilation is failed. Check the syntax of your query 'strParam'", e);
                 }
             }
         }
-        else if(parameter is Regex regex1)
+        else if (parameter is Regex regex1)
         {
             regex = regex1;
         }
@@ -313,7 +313,7 @@ public static class FiltersImpl
         }
 
         var payload = ctx.GetSafeTextPayload();
-        if(payload != null)
+        if (payload != null)
         {
             return regex.IsMatch(payload);
         }

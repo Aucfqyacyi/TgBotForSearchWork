@@ -63,7 +63,7 @@ public class UriToVacanciesRepository
 
     public async ValueTask<UriToVacancies> GetAsync(ObjectId urlId, CancellationToken cancellationToken)
     {
-        UriToVacancies? uriToVacancies = await GetOrDefaultAsync(urlId, cancellationToken);    
+        UriToVacancies? uriToVacancies = await GetOrDefaultAsync(urlId, cancellationToken);
         return uriToVacancies ?? throw new Exception($"Uri with id({urlId}) doesn't exist.");
     }
 

@@ -17,7 +17,7 @@ public class ArgumentBindSingle : IArgumentBind
 
     public ValueTask<object> Decode(ParameterInfo parameter, object argument, IUpdateContext _)
     {
-        return new (float.Parse(argument.ToString()!));
+        return new(float.Parse(argument.ToString()!));
     }
 
     public string Encode(ParameterInfo parameter, object argument, IUpdateContext _)

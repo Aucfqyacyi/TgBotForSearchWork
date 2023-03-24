@@ -1,4 +1,5 @@
 ﻿using Parsers.Constants;
+using Parsers.IntegrationTests.Utilities;
 
 namespace Parsers.IntegrationTests.FilterParsersTests;
 
@@ -17,7 +18,7 @@ public class WorkUaFilterParserTests : FilterParsersTests
         {"Пошуковий запит", 3 },
     };
 
-    public WorkUaFilterParserTests() : base(SiteType.WorkUa)
+    public WorkUaFilterParserTests(HttpClientFixture httpClientFixture) : base(SiteType.WorkUa, httpClientFixture)
     {
     }
 

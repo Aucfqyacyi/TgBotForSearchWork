@@ -33,9 +33,9 @@ public class GlobalStateService : IGlobalStateService
             ChatId = userId
         };
         var user = await TokenService.GetUser(userId);
-        if(newState == null)
+        if (newState == null)
         {
-            if(await Store!.Contain(userId, Consts.GLOBAL_STATE))
+            if (await Store!.Contain(userId, Consts.GLOBAL_STATE))
             {
                 var oldState = await Store!.Get(userId, Consts.GLOBAL_STATE, null);
                 if (callLeave && oldState != null)
@@ -51,7 +51,7 @@ public class GlobalStateService : IGlobalStateService
             if (await Store!.Contain(userId, Consts.GLOBAL_STATE))
             {
                 var oldState = await Store!.Get(userId, Consts.GLOBAL_STATE, null);
-                if(callEnter && oldState != null)
+                if (callEnter && oldState != null)
                 {
                     await Call(true, oldState);
                 }
@@ -85,18 +85,18 @@ public class GlobalStateService : IGlobalStateService
         {
             var handlersContainer = Handlers;
             var lookup = handlersContainer.GetHandlers(Handle.ClearState);
-            if(lookup == null)
+            if (lookup == null)
             {
                 return;
             }
-            
+
             foreach (var handler in lookup)
             {
-                if(context.IsHandlingStopRequested())
+                if (context.IsHandlingStopRequested())
                 {
                     break;
                 }
-                if(handler.TryFilter(context))
+                if (handler.TryFilter(context))
                 {
                     await Invoker.Invoke(context, cancelToken, handler.TargetMethod);
                 }

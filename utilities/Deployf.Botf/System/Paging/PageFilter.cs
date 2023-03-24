@@ -6,7 +6,7 @@ public class PageFilter
     public int? Count { get; set; }
 
     public PageFilter()
-    {    }
+    { }
 
     public PageFilter(int page, int limit = 10)
     {

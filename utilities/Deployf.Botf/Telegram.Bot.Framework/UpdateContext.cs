@@ -13,7 +13,7 @@ namespace Telegram.Bot.Framework
         public IServiceProvider Services { get; }
 
         public IDictionary<string, object> Items { get; }
-        
+
         public long? UserId { get; set; }
         public long? ChatId { get; set; }
 

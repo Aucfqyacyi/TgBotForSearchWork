@@ -17,10 +17,10 @@ public class BotControllersUnknownMiddleware : IUpdateHandler
     {
         var handlers = _handlers.TryFindHandlers(Handle.Unknown, context);
         var processed = false;
-        
-        foreach(var handle in handlers)
+
+        foreach (var handle in handlers)
         {
-            if(context.IsHandlingStopRequested())
+            if (context.IsHandlingStopRequested())
             {
                 break;
             }

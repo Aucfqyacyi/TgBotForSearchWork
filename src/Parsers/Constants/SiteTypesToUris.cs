@@ -2,10 +2,10 @@
 
 public static class SiteTypesToUris
 {
-    private static readonly Dictionary<SiteType, Uri> _all = new();
+    private static readonly SortedDictionary<SiteType, Uri> _all = new();
     public static IReadOnlyDictionary<SiteType, Uri> All { get => _all; }
 
-    private static readonly Dictionary<string, SiteType> _hostsToSiteTypes = new();
+    private static readonly SortedDictionary<string, SiteType> _hostsToSiteTypes = new();
     public static IReadOnlyDictionary<string, SiteType> HostsToSiteTypes { get => _hostsToSiteTypes; }
 
     static SiteTypesToUris()

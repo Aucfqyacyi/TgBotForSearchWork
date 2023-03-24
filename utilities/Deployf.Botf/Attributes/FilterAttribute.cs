@@ -11,15 +11,15 @@ public sealed class FilterAttribute : Attribute
 
     public FilterAttribute(string? Or = null, string? And = null, string? OrNot = null, string? AndNot = null, string? Not = null, object? Param = null)
     {
-        var arguments = new [] { Or, And, OrNot, AndNot, Not }.Where(c => c != null);
-        if(arguments.Count() > 1 || !arguments.Any())
+        var arguments = new[] { Or, And, OrNot, AndNot, Not }.Where(c => c != null);
+        if (arguments.Count() > 1 || !arguments.Any())
         {
             throw new BotfException("You must pass only single argument into Filter() attribute");
         }
 
         Filter = arguments.First()!;
 
-        if(And != null)
+        if (And != null)
         {
             Operation = BoolOp.And;
         }
@@ -47,13 +47,13 @@ public sealed class FilterAttribute : Attribute
 
     public static MethodInfo? GetMethod(string filter, Type? declaringType)
     {
-        if(filter.Contains('.'))
+        if (filter.Contains('.'))
         {
             var typeName = filter.Substring(0, filter.LastIndexOf('.'));
             var methodName = filter.Substring(filter.LastIndexOf('.') + 1);
 
             var type = Type.GetType(typeName);
-            if(type == null)
+            if (type == null)
             {
                 return null;
             }

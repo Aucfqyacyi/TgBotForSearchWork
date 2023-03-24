@@ -13,7 +13,7 @@ public class BotfProgram : BotController
 
         var botOptions = options;
 
-        if(botOptions == null && builder.Configuration["bot"] != null)
+        if (botOptions == null && builder.Configuration["bot"] != null)
         {
             var section = builder.Configuration.GetSection("bot");
             botOptions = section.Get<BotfOptions>();
@@ -24,8 +24,8 @@ public class BotfProgram : BotController
         {
             botOptions = ConnectionString.Parse(connectionString);
         }
-        
-        if(botOptions == null)
+
+        if (botOptions == null)
         {
             throw new BotfException("Configuration is not passed. Check the appsettings*.json.\n" +
                 "There must be configuration object like `{ \"bot\": { \"Token\": \"BotToken...\" } }`\n" +

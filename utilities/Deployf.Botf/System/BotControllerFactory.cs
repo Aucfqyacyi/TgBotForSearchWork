@@ -9,7 +9,7 @@ public delegate RouteSkipDelegate? RouteSkipFactoryDelegate(bool hasStates, Meth
 public class BotControllerFactory
 {
     private static Type baseController { get; } = typeof(BotController);
-    
+
     //TODO: make a check for controllers without Actions
     private static List<Type> _controllers { get; } = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(c => c.GetTypes())
@@ -19,7 +19,8 @@ public class BotControllerFactory
     public static BotControllerRoutes MakeRoutes(RouteSkipFactoryDelegate skipFactory)
     {
         var stateControllerType = typeof(BotControllerState);
-        var hasStateController = _controllers.Any(c => {
+        var hasStateController = _controllers.Any(c =>
+        {
             return stateControllerType.IsAssignableFrom(c);
         });
 
@@ -40,7 +41,7 @@ public class BotControllerFactory
     {
         var routes = method.GetCustomAttributes<ActionAttribute>();
         return routes.Select(route => route.Template ?? GetAnonymousName(method)); //TODO: Check multiple attributes
-        
+
         static string GetAnonymousName(MethodInfo m)
         {
             var signature = $"{m.DeclaringType!.FullName}_{m}";
@@ -87,24 +88,24 @@ public class BotControllerFactory
         {
             var filters = target.GetCustomAttributes<FilterAttribute>().ToArray();
 
-            if(filters.Length == 0 && on.Filter == null)
+            if (filters.Length == 0 && on.Filter == null)
             {
                 return null;
             }
 
-            if(filters.Length != 0 && on.Filter != null)
+            if (filters.Length != 0 && on.Filter != null)
             {
                 throw new BotfException("Use only Filter() attribute to pass filter methods of handlers");
             }
 
-            if(on.Filter != null)
+            if (on.Filter != null)
             {
                 var methodInTarget = FilterAttribute.GetMethod(on.Filter, target.DeclaringType);
                 CheckFilterMethod(methodInTarget, on.Filter, target.DeclaringType!.Name);
                 return (ActionFilter)ActionFilter.CreateDelegate(typeof(ActionFilter), methodInTarget!);
             }
 
-            if(filters.Length == 0)
+            if (filters.Length == 0)
             {
                 return null;
             }
@@ -118,9 +119,9 @@ public class BotControllerFactory
                 CheckFilterMethod(method, filter.Filter, target.DeclaringType!.Name);
                 var action = (ActionFilter)ActionFilter.CreateDelegate(typeof(ActionFilter), method!);
 
-                if(result == null)
+                if (result == null)
                 {
-                    if(filter.Operation == FilterAttribute.BoolOp.Not)
+                    if (filter.Operation == FilterAttribute.BoolOp.Not)
                     {
                         result = (IUpdateContext ctx) =>
                         {
@@ -147,23 +148,23 @@ public class BotControllerFactory
                         ctx.SetFilterParameter(filter.Param);
                         var rightResult = action(ctx);
 
-                        if(filter.Operation == FilterAttribute.BoolOp.And)
+                        if (filter.Operation == FilterAttribute.BoolOp.And)
                         {
                             return leftResult && rightResult;
                         }
-                        else if(filter.Operation == FilterAttribute.BoolOp.Or)
+                        else if (filter.Operation == FilterAttribute.BoolOp.Or)
                         {
                             return leftResult || rightResult;
                         }
-                        else if(filter.Operation == FilterAttribute.BoolOp.AndNot)
+                        else if (filter.Operation == FilterAttribute.BoolOp.AndNot)
                         {
                             return leftResult && !rightResult;
                         }
-                        else if(filter.Operation == FilterAttribute.BoolOp.OrNot)
+                        else if (filter.Operation == FilterAttribute.BoolOp.OrNot)
                         {
                             return leftResult || !rightResult;
                         }
-                        else if(filter.Operation == FilterAttribute.BoolOp.Not)
+                        else if (filter.Operation == FilterAttribute.BoolOp.Not)
                         {
                             throw new NotSupportedException($"Operation NOT is supported only for first filter");
                         }
@@ -177,7 +178,7 @@ public class BotControllerFactory
 
             static void CheckFilterMethod(MethodInfo? filter, string methodName, string typeName)
             {
-                if(filter == null
+                if (filter == null
                     || filter.ReturnType != typeof(bool)
                     || filter.GetParameters().Length != 1
                     || filter.GetParameters()[0].ParameterType != typeof(IUpdateContext))

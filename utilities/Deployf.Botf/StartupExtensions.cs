@@ -66,7 +66,7 @@ public static class StartupExtensions
 
     public static IServiceCollection AddBotf(this IServiceCollection services, BotfOptions options)
     {
-        if(string.IsNullOrEmpty(options.Username))
+        if (string.IsNullOrEmpty(options.Username))
         {
             var telegramClient = new TelegramBotClient(new TelegramBotClientOptions(options.Token!, baseUrl: options.ApiBaseUrl));
             var botUser = telegramClient.GetMeAsync()
@@ -154,14 +154,12 @@ public static class StartupExtensions
             Timeout = 100,
             AllowedUpdates = new UpdateType[0]
         };
-
-        Task.Run(LoongPooling, cancellationToken)
-            .ContinueWith(t =>
-            {
-                LogException(t.Exception, "Bot long pooling task error");
-                throw t.Exception ?? new Exception();
-            }, TaskContinuationOptions.OnlyOnFaulted);
-
+        Task.Factory.StartNew(LoongPooling, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Current)
+                    .ContinueWith(t =>
+        {
+            LogException(t.Exception, "Bot long pooling task error");
+            throw t.Exception ?? new Exception();
+        }, TaskContinuationOptions.OnlyOnFaulted);
         return app;
 
         async Task LoongPooling()
@@ -218,10 +216,11 @@ public static class StartupExtensions
     {
         var updateDelegate = botBuilder.Build();
         var conf = app.ApplicationServices.GetRequiredService<BotfOptions>();
-        app.Map((PathString)conf.WebhookPath, builder => 
+        app.Map((PathString)conf.WebhookPath, builder =>
         {
-            var type = typeof(Telegram.Bot.Framework.TelegramBotMiddleware<BotfBot>);;
-            builder.UseMiddleware(type!, new [] { updateDelegate });
+            var type = typeof(Telegram.Bot.Framework.TelegramBotMiddleware<BotfBot>);
+            ;
+            builder.UseMiddleware(type!, new[] { updateDelegate });
         });
         return app;
     }

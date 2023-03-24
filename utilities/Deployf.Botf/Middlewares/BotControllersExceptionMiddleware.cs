@@ -27,9 +27,9 @@ public class BotControllersExceptionMiddleware : IUpdateHandler
 
             if (handlers.Count > 0)
             {
-                foreach(var handler in handlers)
+                foreach (var handler in handlers)
                 {
-                    if(context.IsHandlingStopRequested())
+                    if (context.IsHandlingStopRequested())
                     {
                         break;
                     }
@@ -56,9 +56,9 @@ public class BotControllersExceptionMiddleware : IUpdateHandler
                 return;
             }
 
-            foreach(var handler in handlers)
+            foreach (var handler in handlers)
             {
-                if(context.IsHandlingStopRequested())
+                if (context.IsHandlingStopRequested())
                 {
                     break;
                 }

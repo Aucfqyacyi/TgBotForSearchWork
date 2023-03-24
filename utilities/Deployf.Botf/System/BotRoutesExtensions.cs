@@ -39,7 +39,7 @@ public static class BotRoutesExtensions
 
     public static string Truncate(this string str, int length)
     {
-        if(str.Length <= length)
+        if (str.Length <= length)
         {
             return str;
         }

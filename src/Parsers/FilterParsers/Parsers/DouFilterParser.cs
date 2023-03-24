@@ -16,6 +16,10 @@ internal class DouFilterParser : FilterParser
     protected readonly HtmlElement _a = new(string.Empty, "a");
     protected readonly HtmlElement _category = new(string.Empty, "option");
 
+    public DouFilterParser(HttpClient httpClient) : base(httpClient)
+    {
+    }
+
     protected override void CollectFilters(IDocument document, List<Filter> filters)
     {
         FilterCategory category = new("Категорії", "category");

@@ -4,7 +4,7 @@ public static class TimeSpanFormatExtensions
 {
     public static TimeSpan? TryParseTimeSpan(this string format)
     {
-        if(format == "-1")
+        if (format == "-1")
         {
             return null;
         }

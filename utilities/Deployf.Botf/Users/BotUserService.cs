@@ -1,12 +1,10 @@
-﻿using Telegram.Bot.Framework.Abstractions;
-
-namespace Deployf.Botf;
+﻿namespace Deployf.Botf;
 
 public class BotUserService
 {
     readonly IBotUserService? _userService;
     private readonly ILogger<BotUserService> _log;
-    
+
     public BotUserService(IBotUserService? userService, ILogger<BotUserService> log)
     {
         _userService = userService;
@@ -17,20 +15,20 @@ public class BotUserService
     {
         _log = log;
     }
-    
+
     public BotUserService()
     {
     }
 
     public async ValueTask<(string? id, string[]? roles)> GetUserIdWithRoles(long tgUserId)
     {
-        if(_userService != null)
+        if (_userService != null)
         {
             return await _userService.GetUserIdWithRoles(tgUserId);
         }
         return (null, null);
     }
-    
+
     public async Task<UserClaims> GetUser(long? tgUserId)
     {
         if (!tgUserId.HasValue)

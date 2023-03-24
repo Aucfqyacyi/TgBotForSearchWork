@@ -16,7 +16,7 @@ public class BotControllersAuthMiddleware : IUpdateHandler
 
     public async Task HandleAsync(IUpdateContext context, UpdateDelegate next, CancellationToken cancellationToken)
     {
-        if(context.Items.TryGetValue("controller", out var value) && value is BotController controller)
+        if (context.Items.TryGetValue("controller", out var value) && value is BotController controller)
         {
             var method = (MethodInfo)context.Items["action"];
             var user = await _tokenService.GetUser(context.GetSafeUserId());
@@ -31,13 +31,13 @@ public class BotControllersAuthMiddleware : IUpdateHandler
     {
         var policy = method.GetAuthPolicy()?.Trim();
 
-        if(policy == null)
+        if (policy == null)
         {
             _log.LogDebug("Authorization skipping");
             return;
         }
 
-        if(policy == string.Empty && !controller.User.IsAuthorized)
+        if (policy == string.Empty && !controller.User.IsAuthorized)
         {
             throw new UnauthorizedAccessException();
         }
@@ -47,7 +47,7 @@ public class BotControllersAuthMiddleware : IUpdateHandler
             throw new UnauthorizedAccessException("you are not admin");
         }
 
-        if(!string.IsNullOrEmpty(policy) && !controller.User.IsInRole(policy))
+        if (!string.IsNullOrEmpty(policy) && !controller.User.IsInRole(policy))
         {
             throw new UnauthorizedAccessException();
         }

@@ -22,7 +22,7 @@ public class ArgumentBindBoolean : IArgumentBind
 
     public string Encode(ParameterInfo parameter, object argument, IUpdateContext _)
     {
-        if(argument is bool boolValue)
+        if (argument is bool boolValue)
         {
             return boolValue ? "1" : "0";
         }

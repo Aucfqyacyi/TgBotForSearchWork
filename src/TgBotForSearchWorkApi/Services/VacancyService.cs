@@ -1,5 +1,6 @@
 ﻿using AutoDIInjector.Attributes;
 using Parsers.Models;
+using Parsers.ParserFactories;
 using Parsers.VacancyParsers;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Utilities;
@@ -9,6 +10,14 @@ namespace TgBotForSearchWorkApi.Services;
 [SingletonService]
 public class VacancyService
 {
+    private readonly VacancyParserFactory _vacancyParserFactory;
+    private readonly SemaphoreSlim _semaphoreSlim = new(1);
+
+    public VacancyService(VacancyParserFactory vacancyParserFactory)
+    {
+        _vacancyParserFactory = vacancyParserFactory;
+    }
+
     public async ValueTask<List<Vacancy>> GetRelevantVacanciesAsync(IEnumerable<UriToVacancies> urisToVacancies, int descriptionLength,
                                                                     CancellationToken cancellationToken)
     {
@@ -26,7 +35,7 @@ public class VacancyService
     {
         try
         {
-            IVacancyParser vacancyParser = VacancyParserFactory.Create(uriToVacancies.Uri);
+            IVacancyParser vacancyParser = _vacancyParserFactory.GetOrCreate(uriToVacancies.Uri);
             List<Vacancy> relevantVacancies = await vacancyParser.ParseAsync(uriToVacancies.Uri, descriptionLength,
                                                                              uriToVacancies.LastVacanciesIds, cancellationToken);
 
@@ -34,8 +43,9 @@ public class VacancyService
             if (relevantVacancies.Count == 0)
                 return;
             uriToVacancies.LastVacanciesIds = relevantVacancies.Select(vacancy => vacancy.Id).ToList();
-            lock (vacancies)
-                vacancies.AddRange(relevantVacancies);
+            await _semaphoreSlim.WaitAsync(cancellationToken);
+            vacancies.AddRange(relevantVacancies);
+            _semaphoreSlim.Release();
         }
         catch (Exception ex)
         {

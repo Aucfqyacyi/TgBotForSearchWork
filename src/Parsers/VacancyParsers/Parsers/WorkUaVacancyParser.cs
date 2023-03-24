@@ -1,11 +1,11 @@
 ﻿using Parsers.Extensions;
 using Parsers.Models;
-using Parsers.Utilities;
 
 namespace Parsers.VacancyParsers.Parsers;
 
 internal class WorkUaVacancyParser : HtmlPageVacancyParser
 {
+
     protected override HtmlElement VacancyItem { get; } = new("card card-hover card-visited wordwrap job-link");
 
     protected override HtmlElement Title { get; } = new(string.Empty, "H2");
@@ -18,10 +18,13 @@ internal class WorkUaVacancyParser : HtmlPageVacancyParser
 
     protected override string SymbolNearId { get; } = "/";
 
+    public WorkUaVacancyParser(HttpClient httpClient) : base(httpClient)
+    {
+    }
 
     protected override async ValueTask<string?> GetDescriptionAsync(string url, int descrtiptionLenght, CancellationToken cancellationToken)
     {
-        var elements = await HtmlParser.GetElementsAsync(new(url), document => document.GetElementById(Description.CssClassName), cancellationToken);
+        var elements = await _httpClient.GetElementsAsync(new(url), document => document.GetElementById(Description.CssClassName), cancellationToken);
         return elements?.GetTextContent(descrtiptionLenght);
     }
 

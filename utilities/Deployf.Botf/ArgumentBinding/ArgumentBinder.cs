@@ -30,17 +30,17 @@ public class ArgumentBinder
                 }
             }
 
-            if(found)
+            if (found)
             {
                 continue;
             }
 
-            if(p.ParameterType.IsAssignableFrom(arg.GetType()))
+            if (p.ParameterType.IsAssignableFrom(arg.GetType()))
             {
                 bindings.Add(arg);
                 continue;
             }
-            
+
             throw new NotImplementedException($"Binding for parameter {p} for action {method} not found");
         }
         return bindings.ToArray();

@@ -20,7 +20,7 @@ public class ChainStorage
 
     public void Clear(long id)
     {
-        if(_chains.ContainsKey(id))
+        if (_chains.ContainsKey(id))
         {
             _chains[id] = null;
             _chains.Remove(id);

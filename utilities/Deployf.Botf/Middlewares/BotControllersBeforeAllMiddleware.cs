@@ -26,14 +26,15 @@ public class BotControllersBeforeAllMiddleware : IUpdateHandler
             && message!.Chat.Id != message.From!.Id // detect that we are in private chat with user
             && !((message.ReplyToMessage != null && message.ReplyToMessage.From!.Username == _options.Username)
                || (message.Text!.Contains(_options.UsernameTag!)))
-        ){
+        )
+        {
             return;
         }
 
         var handlers = _handlers.TryFindHandlers(Handle.BeforeAll, context);
-        foreach(var handler in handlers)
+        foreach (var handler in handlers)
         {
-            if(context.IsHandlingStopRequested())
+            if (context.IsHandlingStopRequested())
             {
                 break;
             }

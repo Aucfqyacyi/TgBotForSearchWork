@@ -17,7 +17,7 @@ public class ArgumentBindString : IArgumentBind
 
     public ValueTask<object> Decode(ParameterInfo parameter, object argument, IUpdateContext _)
     {
-        return new (argument);
+        return new(argument);
     }
 
     public string Encode(ParameterInfo parameter, object argument, IUpdateContext _)

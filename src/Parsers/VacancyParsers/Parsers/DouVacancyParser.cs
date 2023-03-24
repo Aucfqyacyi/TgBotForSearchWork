@@ -16,11 +16,11 @@ internal class DouVacancyParser : IVacancyParser
         List<Vacancy> vacancies = new();
         foreach (SyndicationItem item in feed.Items)
         {
-            Vacancy vacancy = await CreateVacancyAsync(item, descriptionLenght, cancellationToken);
-            if (vacancyIdsToIgnore is not null && vacancyIdsToIgnore.Contains(vacancy.Id))
+            ulong vacancyId = item.Id.GetNumberFromUrl(6, "/");
+            if (vacancyIdsToIgnore is not null && vacancyIdsToIgnore.Contains(vacancyId))
                 return vacancies;
-            else
-                vacancies.Add(vacancy);
+            Vacancy vacancy = await CreateVacancyAsync(vacancyId, item, descriptionLenght, cancellationToken);
+            vacancies.Add(vacancy);
         }
         return vacancies;
     }
@@ -38,7 +38,7 @@ internal class DouVacancyParser : IVacancyParser
         catch (Exception)
         {
             return ValueTask.FromResult(false);
-        }        
+        }
     }
 
     private Uri AddFeedsStrToUri(Uri uri)
@@ -53,18 +53,18 @@ internal class DouVacancyParser : IVacancyParser
 
     protected SyndicationFeed GetSyndicationFeed(Uri uri)
     {
-        using XmlReader reader = XmlReader.Create(AddFeedsStrToUri(uri).OriginalString, new() { DtdProcessing  = DtdProcessing.Ignore, });
+        using XmlReader reader = XmlReader.Create(AddFeedsStrToUri(uri).OriginalString, new() { DtdProcessing = DtdProcessing.Ignore, });
         return SyndicationFeed.Load(reader);
     }
 
-    protected async ValueTask<Vacancy> CreateVacancyAsync(SyndicationItem item, int descriptionLenght, CancellationToken cancellationToken)
+    protected async ValueTask<Vacancy> CreateVacancyAsync(ulong id, SyndicationItem item, int descriptionLenght, CancellationToken cancellationToken)
     {
         string url = item.Id;
         string title = item.Title.Text.ParseHtml();
         string description = await GetDescriptionAsync(item, descriptionLenght, cancellationToken);
-        ulong id = url!.GetNumberFromUrl(6, "/");
         return new Vacancy(id, title, url, description);
     }
+
 
     protected async ValueTask<string> GetDescriptionAsync(SyndicationItem item, int descriptionLenght, CancellationToken cancellationToken)
     {

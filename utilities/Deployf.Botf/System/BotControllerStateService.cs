@@ -4,8 +4,8 @@ namespace Deployf.Botf;
 
 public struct BotControllerStateService
 {
-    public static Dictionary<Type, Func<BotController, Task>?> _savers = new ();
-    public static Dictionary<Type, Func<BotController, Task>?> _loaders = new ();
+    public static Dictionary<Type, Func<BotController, Task>?> _savers = new();
+    public static Dictionary<Type, Func<BotController, Task>?> _loaders = new();
 
     public async Task Load(BotController controller)
     {
@@ -72,7 +72,7 @@ public struct BotControllerStateService
                 {
                     var value = field.GetValue(_controller);
                     var key = GetKey(field, controllerType);
-                    if(value != null)
+                    if (value != null)
                     {
                         await storage.Set(_controller.FromId, key, value);
                     }
@@ -86,7 +86,7 @@ public struct BotControllerStateService
                 {
                     var value = prop.GetValue(_controller);
                     var key = GetKey(prop, controllerType);
-                    if(value != null)
+                    if (value != null)
                     {
                         await storage.Set(_controller.FromId, key, value);
                     }

@@ -3,6 +3,7 @@ using Deployf.Botf;
 using MongoDB.Bson;
 using Parsers.Constants;
 using Parsers.Models;
+using Parsers.ParserFactories;
 using Parsers.VacancyParsers;
 using TgBotForSearchWorkApi.Models;
 using TgBotForSearchWorkApi.Repositories;
@@ -14,10 +15,12 @@ namespace TgBotForSearchWorkApi.Services;
 public class UriToVacanciesService
 {
     private readonly UriToVacanciesRepository _uriToVacanciesRepository;
+    private readonly VacancyParserFactory _vacancyParserFactory;
 
-    public UriToVacanciesService(UriToVacanciesRepository uriToVacanciesRepository)
+    public UriToVacanciesService(UriToVacanciesRepository uriToVacanciesRepository, VacancyParserFactory vacancyParserFactory)
     {
         _uriToVacanciesRepository = uriToVacanciesRepository;
+        _vacancyParserFactory = vacancyParserFactory;
     }
 
     public async ValueTask<UriToVacancies?> CreateAsync(long chatId, SiteType siteType, GetParameter getParametr, CancellationToken cancellationToken)
@@ -53,7 +56,7 @@ public class UriToVacanciesService
             if (url.IsUrl() is false)
                 return null;
             Uri uri = new(url);
-            IVacancyParser vacancyParser = VacancyParserFactory.Create(uri);
+            IVacancyParser vacancyParser = _vacancyParserFactory.GetOrCreate(uri);
             if (await vacancyParser.IsCorrectUriAsync(uri, cancellationToken) is false)
                 return null;
             UriToVacancies uriToVacancies = new(chatId, uri);

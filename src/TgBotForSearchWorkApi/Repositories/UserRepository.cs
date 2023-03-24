@@ -22,8 +22,8 @@ public class UserRepository
 
     public async ValueTask<User> GetAsync(long chatId, CancellationToken cancellationToken)
     {
-        User? user = await GetOrDefaultAsync(chatId, cancellationToken); 
-        return user ?? throw new Exception($"User with chatId({chatId}) doesnot exist.");     
+        User? user = await GetOrDefaultAsync(chatId, cancellationToken);
+        return user ?? throw new Exception($"User with chatId({chatId}) doesnot exist.");
     }
 
     public async ValueTask<User?> GetOrDefaultAsync(long chatId, CancellationToken cancellationToken)

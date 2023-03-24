@@ -56,7 +56,7 @@ public class BotControllersFSMMiddleware : IUpdateHandler
         }
 
         await next(context, cancellationToken);
-        if(afterNext != null)
+        if (afterNext != null)
         {
             await afterNext();
         }

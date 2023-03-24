@@ -1,16 +1,26 @@
-﻿using Parsers.Constants;
+﻿using AutoDIInjector.Attributes;
+using Parsers.Constants;
 using Parsers.FilterParsers;
 using Parsers.Models;
+using Parsers.ParserFactories;
 
 namespace TgBotForSearchWorkApi.Services;
 
-
+[SingletonService]
 public class FilterService
 {
+    private readonly FilterParserFactory _filterParserFactory;
+    private readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1);
+
     private SortedDictionary<SiteType, IReadOnlyDictionary<FilterCategory, IReadOnlyDictionary<int, Filter>>> _siteTypeToCategoriesToFilters = new();
     public IReadOnlyDictionary<SiteType, IReadOnlyDictionary<FilterCategory, IReadOnlyDictionary<int, Filter>>> SiteTypeToCategoriesToFilters
     {
         get => _siteTypeToCategoriesToFilters;
+    }
+
+    public FilterService(FilterParserFactory filterParserFactory)
+    {
+        _filterParserFactory = filterParserFactory;
     }
 
     public async ValueTask CollectFiltersAsync(CancellationToken cancellationToken = default)
@@ -20,7 +30,7 @@ public class FilterService
 
     private async ValueTask CollectFiltersAsync(KeyValuePair<SiteType, Uri> siteTypeToUri, CancellationToken cancellationToken)
     {
-        IFilterParser filterParser = FilterParserFactory.Create(siteTypeToUri.Key);
+        IFilterParser filterParser = _filterParserFactory.GetOrCreate(siteTypeToUri.Key);
         List<Filter> filters = await filterParser.ParseAsync(siteTypeToUri.Value, cancellationToken);
         SortedDictionary<FilterCategory, IReadOnlyDictionary<int, Filter>> categoriesToFilters = new();
         SortedDictionary<int, Filter>? idsToFilters = null;
@@ -36,8 +46,9 @@ public class FilterService
                 categoriesToFilters.Add(filter.Category, idsToFilters);
             }
         }
-        lock (this)
-            _siteTypeToCategoriesToFilters.Add(siteTypeToUri.Key, categoriesToFilters);
+        await _semaphoreSlim.WaitAsync(cancellationToken);
+        _siteTypeToCategoriesToFilters.Add(siteTypeToUri.Key, categoriesToFilters);
+        _semaphoreSlim.Release();
     }
 
     public List<FilterCategory> GetFilterCategories(SiteType siteType, List<GetParameter> getParameters)

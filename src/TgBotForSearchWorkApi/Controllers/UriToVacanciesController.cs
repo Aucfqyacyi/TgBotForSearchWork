@@ -17,7 +17,7 @@ public partial class UriToVacanciesController : BotController
     private readonly UriToVacanciesRepository _uriToVacanciesRepository;
 
     public UriToVacanciesController(FilterService filterService,
-                                    UriToVacanciesService uriToVacanciesService, 
+                                    UriToVacanciesService uriToVacanciesService,
                                     UriToVacanciesRepository uriToVacanciesRepository)
     {
         _filterService = filterService;
@@ -45,7 +45,7 @@ public partial class UriToVacanciesController : BotController
     [Action]
     private async Task ActivateUrl(ObjectId urlId, bool isActivated, Delegate? @delegate = null, params object[] args)
     {
-        await _uriToVacanciesRepository.ActivateAsync(urlId, isActivated, CancelToken);       
+        await _uriToVacanciesRepository.ActivateAsync(urlId, isActivated, CancelToken);
         if (@delegate is null)
         {
             await AnswerCallback();

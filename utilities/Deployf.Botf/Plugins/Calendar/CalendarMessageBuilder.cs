@@ -20,7 +20,7 @@ public class CalendarMessageBuilder
     private Func<DateTime, string>? _formatHour { get; set; }
     private Func<DateTime, string>? _formatMinute { get; set; }
 
-    private Action<DateTime, CalendarDepth, MessageBuilder>? _formatText { get; set;}
+    private Action<DateTime, CalendarDepth, MessageBuilder>? _formatText { get; set; }
 
     private Func<DateTime, string, string>? _select { get; set; }
     private Func<string, string>? _nav { get; set; }
@@ -199,7 +199,7 @@ public class CalendarMessageBuilder
 
     public void Build(MessageBuilder b, PagingService pagingService)
     {
-        if(_nav == null)
+        if (_nav == null)
         {
             throw new ArgumentException($"You should call {nameof(OnNavigatePath)} before to call `Build`");
         }
@@ -211,11 +211,11 @@ public class CalendarMessageBuilder
 
         _formatText?.Invoke(_state, _state.Depth, b);
 
-        if(_state.Hour != null)
+        if (_state.Hour != null)
         {
             BuildMinute(b);
         }
-        else if(_state.Day != null)
+        else if (_state.Day != null)
         {
             BuildHour(b);
         }
@@ -227,7 +227,7 @@ public class CalendarMessageBuilder
         {
             BuildMonth(b);
         }
-        else 
+        else
         {
             BuildYear(b, pagingService);
         }
@@ -258,7 +258,7 @@ public class CalendarMessageBuilder
 
         string click(CalendarState state)
         {
-            if(!_depth.HasFlag(CalendarDepth.Months))
+            if (!_depth.HasFlag(CalendarDepth.Months))
             {
                 return _select!(state, state);
             }
@@ -454,7 +454,7 @@ public class CalendarMessageBuilder
         {
             var state = _state with { Minute = min, MinutePage = null };
             var skip = _filterMinute?.Invoke(state) ?? false;
-            if(skip)
+            if (skip)
             {
                 continue;
             }
@@ -468,7 +468,7 @@ public class CalendarMessageBuilder
         var preffer = PrefferToMinDiv(list.Count, 6);
         for (int i = 0; i < list.Count; i++)
         {
-            if(i % preffer == 0 && i != 0)
+            if (i % preffer == 0 && i != 0)
             {
                 b.MakeButtonRow();
             }
@@ -497,7 +497,7 @@ public class CalendarMessageBuilder
 
     private int PrefferToMinDiv(int size, int collums)
     {
-        if(size < 2)
+        if (size < 2)
         {
             return collums;
         }
@@ -508,7 +508,7 @@ public class CalendarMessageBuilder
             .OrderBy(c => c.rate)
             .ThenBy(c => Math.Abs(c.number - collums)).ToArray();
 
-        if(variants.Any(c => c.rate == 0))
+        if (variants.Any(c => c.rate == 0))
         {
             return variants.First().number;
         }

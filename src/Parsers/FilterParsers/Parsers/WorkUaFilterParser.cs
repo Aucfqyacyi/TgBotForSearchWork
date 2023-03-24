@@ -19,6 +19,10 @@ internal class WorkUaFilterParser : FilterParser
     protected HtmlElement _div = new(string.Empty, "div");
     protected HtmlElement _span = new(string.Empty, "SPAN");
 
+    public WorkUaFilterParser(HttpClient httpClient) : base(httpClient)
+    {
+    }
+
     protected override void CollectFilters(IDocument document, List<Filter> filters)
     {
         CollectFiltersFromCities(filters);
@@ -34,7 +38,7 @@ internal class WorkUaFilterParser : FilterParser
             return;
         int categoryId = UniqueIntGenerator.Generate();
         List<IElement> elementsWithId = filterGroup.GetElementsWithId(_div);
-        
+
         if (categoryName == "Зарплата")
             CollectFiltersFromSalaryCategory(filterGroup, filters, categoryName!, elementsWithId);
         else
@@ -72,7 +76,7 @@ internal class WorkUaFilterParser : FilterParser
     protected Filter CreateFilter(int categoryId, string categoryName, IElement input, IElement elementWithId, bool isOption)
     {
         string? filterName;
-        if(isOption is true)
+        if (isOption is true)
             filterName = input.GetTextContent().GetWithoutTextInBrackets();
         else
             filterName = input.GetNearestSiblingTextContent().GetWithoutTextInBrackets();
@@ -95,7 +99,7 @@ internal class WorkUaFilterParser : FilterParser
             GetParameter getParameter = new(category.GetParameterName, id.ToString());
             filters.Add(new Filter(cities[i], category, getParameter, FilterType.CheckBox));
         }
-            
+
     }
 
 }

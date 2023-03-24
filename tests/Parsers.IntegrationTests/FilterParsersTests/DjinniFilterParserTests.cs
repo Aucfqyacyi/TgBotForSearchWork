@@ -1,4 +1,5 @@
 ﻿using Parsers.Constants;
+using Parsers.IntegrationTests.Utilities;
 
 namespace Parsers.IntegrationTests.FilterParsersTests;
 
@@ -17,7 +18,7 @@ public class DjinniFilterParserTests : FilterParsersTests
         {"Editorial jobs", 5}, {"Добірки вакансій" , 5},
     };
 
-    public DjinniFilterParserTests() : base(SiteType.Djinni)
+    public DjinniFilterParserTests(HttpClientFixture httpClientFixture) : base(SiteType.Djinni, httpClientFixture)
     {
     }
 

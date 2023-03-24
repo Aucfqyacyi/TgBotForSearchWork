@@ -93,7 +93,7 @@ public static class StringExtension
             number = rawNumber.Split(symbolNearNumber).First();
         else
             number = rawNumber;
-        
+
         if (ulong.TryParse(number, out ulong num))
             return num;
         else

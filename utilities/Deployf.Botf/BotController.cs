@@ -1,5 +1,4 @@
 ﻿using Deployf.Botf.System;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Linq.Expressions;
 using Telegram.Bot;
 using Telegram.Bot.Framework.Abstractions;
@@ -142,7 +141,7 @@ public abstract class BotController
         sendMessageOptions ??= new();
         IsDirty = false;
         Message message;
-        if(Message.PhotoUrl == null)
+        if (Message.PhotoUrl == null)
         {
             message = await Client.SendTextMessageAsync(
                 ChatId == 0 ? Context!.GetSafeChatId()! : ChatId,
@@ -213,7 +212,7 @@ public abstract class BotController
             await Client.AnswerCallbackQueryAsync(Context!.GetCallbackQuery().Id,
             text,
             cancellationToken: CancelToken);
-        }        
+        }
     }
 
     public async Task<Message?> Send(SendMessageOptions? sendMessageOptions = null)
@@ -269,7 +268,7 @@ public abstract class BotController
                 }
             }
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             var logger = Context.Services.GetService<ILogger<BotController>>();
             logger?.LogError(e, "Error while trying to clean last message reply keyboard");
@@ -282,13 +281,14 @@ public abstract class BotController
     public InlineKeyboardButton WebApp(string text, string? url = null)
     {
         var internalUrl = url ?? ((BotfBot)Context.Bot).Options.WebAppUrl;
-        if(internalUrl == null)
+        if (internalUrl == null)
         {
             throw new BotfException("Web app url is empty! You must pass the web app url to the WebApp method though parameter `url` " +
                 "or through global configuration option `WebAppUrl` or through connection string");
         }
 
-        return InlineKeyboardButton.WithWebApp(text, new WebAppInfo {
+        return InlineKeyboardButton.WithWebApp(text, new WebAppInfo
+        {
             Url = internalUrl
         });
     }
@@ -296,13 +296,14 @@ public abstract class BotController
     public KeyboardButton KWebApp(string text, string? url = null)
     {
         var internalUrl = url ?? ((BotfBot)Context.Bot).Options.WebAppUrl;
-        if(internalUrl == null)
+        if (internalUrl == null)
         {
             throw new BotfException("Web app url is empty! You must pass the web app url to the KWebApp method though parameter `url` " +
                 "or through global configuration option `WebAppUrl` or through connection string");
         }
 
-        return KeyboardButton.WithWebApp(text, new WebAppInfo {
+        return KeyboardButton.WithWebApp(text, new WebAppInfo
+        {
             Url = internalUrl
         });
     }
@@ -393,7 +394,7 @@ public abstract class BotController
 
     public void Reply(int? messageId = default)
     {
-        if(messageId == null)
+        if (messageId == null)
         {
             Message.ReplyTo(Context!.GetSafeMessageId() ?? 0);
         }
@@ -517,27 +518,27 @@ public abstract class BotController
         var options = ((BotfBot)Context.Bot).Options;
         var store = Context.Services.GetRequiredService<ChainStorage>();
         var tcs = new TaskCompletionSource<IUpdateContext>();
-        store.Set(ChatId, new (tcs));
-        if(options.ChainTimeout.HasValue)
+        store.Set(ChatId, new(tcs));
+        if (options.ChainTimeout.HasValue)
         {
             _ = Task.Run(async () =>
             {
                 await Task.Delay(options.ChainTimeout.Value);
-                if(tcs != null)
+                if (tcs != null)
                 {
                     store.Clear(ChatId);
                     tcs.SetCanceled();
                 }
             });
         }
-        
+
         try
         {
             var context = await tcs.Task;
             tcs = null;
             return context;
         }
-        catch(TaskCanceledException)
+        catch (TaskCanceledException)
         {
             onCanceled?.Invoke();
             throw new ChainTimeoutException(onCanceled != null);

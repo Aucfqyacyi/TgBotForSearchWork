@@ -33,7 +33,7 @@ internal static class RouteStateSkipFunction
         {
             return isStateController;
         }
-        else if(!isStateController)
+        else if (!isStateController)
         {
             return true;
         }

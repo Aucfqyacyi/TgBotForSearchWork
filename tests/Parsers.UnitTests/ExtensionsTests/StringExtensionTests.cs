@@ -7,18 +7,18 @@ public class StringExtensionTests
     [Fact]
     public void GetWithoutTextInBrackets_StrWithTextInBrackets_StrNotContainTextInBrackets()
     {
-		// Arrange
-		string textInBrackets = "(some text)";
-		string str = "Some text " + textInBrackets;
+        // Arrange
+        string textInBrackets = "(some text)";
+        string str = "Some text " + textInBrackets;
 
-		//Act
-		string newStr = str.GetWithoutTextInBrackets();
+        //Act
+        string newStr = str.GetWithoutTextInBrackets();
 
         //Assert
         Assert.NotEmpty(newStr);
         Assert.NotEqual(' ', newStr[^1]);
-		Assert.DoesNotContain(textInBrackets, newStr);
-	}
+        Assert.DoesNotContain(textInBrackets, newStr);
+    }
 
     [Fact]
     public void GetWithoutTextInBrackets_StrWithoutTextInBrackets_StrNotChanged()
@@ -117,7 +117,7 @@ public class StringExtensionTests
     public void ParseHtml_TextWithHTags_ReplaceThemOnBTagsWithNewLine()
     {
         // Arrange
-        string text = "<h1>Some text next text text text text</h1>" + 
+        string text = "<h1>Some text next text text text text</h1>" +
                       "<h2>Some text next text text text text</h2>" +
                       "<h3>Some text next text text text text</h3>";
 

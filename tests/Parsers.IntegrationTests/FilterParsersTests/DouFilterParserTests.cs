@@ -1,4 +1,5 @@
 ﻿using Parsers.Constants;
+using Parsers.IntegrationTests.Utilities;
 
 namespace Parsers.IntegrationTests.FilterParsersTests;
 
@@ -12,7 +13,7 @@ public class DouFilterParserTests : FilterParsersTests
         { "Місто", 25 },
     };
 
-    public DouFilterParserTests() : base(SiteType.Dou)
+    public DouFilterParserTests(HttpClientFixture httpClientFixture) : base(SiteType.Dou, httpClientFixture)
     {
     }
 }

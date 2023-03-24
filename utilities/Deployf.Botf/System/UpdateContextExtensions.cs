@@ -16,7 +16,7 @@ public static class UpdateContextExtensions
         {
             return context.ChatId.Value;
         }
-        
+
         return context.Update!.Message!.Chat.Id;
     }
 
@@ -31,7 +31,7 @@ public static class UpdateContextExtensions
         {
             return context.ChatId.Value;
         }
-        
+
         return context.Update.Message?.Chat.Id
                ?? context.Update.EditedMessage?.Chat.Id
                ?? context.Update.CallbackQuery?.Message?.Chat.Id
@@ -56,7 +56,7 @@ public static class UpdateContextExtensions
         {
             return context.UserId.Value;
         }
-        
+
         var value = context.Update.Message?.From?.Id
                ?? context.Update.EditedMessage?.From?.Id
                ?? context.Update.CallbackQuery?.From?.Id
@@ -98,17 +98,17 @@ public static class UpdateContextExtensions
     {
         return context!.Update!.CallbackQuery!.Message!.Chat.Id;
     }
-    
+
     public static InlineQuery GetInlineQuery(this IUpdateContext context)
     {
         return context!.Update!.InlineQuery!;
     }
-    
+
     public static string GetInlineQueryId(this IUpdateContext context)
     {
         return context!.Update!.InlineQuery!.Id;
     }
-    
+
     public static string? GetSafeInlineQueryId(this IUpdateContext context)
     {
         return context!.Update!.InlineQuery?.Id;
@@ -161,18 +161,18 @@ public static class UpdateContextExtensions
 
     public static void SetCurrentHandler(this IUpdateContext context, HandlerItem? handler)
     {
-        if(handler == null && context.Items.ContainsKey(CURRENT_HANDLER_KEY))
+        if (handler == null && context.Items.ContainsKey(CURRENT_HANDLER_KEY))
         {
             context.Items.Remove(CURRENT_HANDLER_KEY);
         }
-        else if(handler != null)
+        else if (handler != null)
         {
             context.Items[CURRENT_HANDLER_KEY] = handler;
         }
     }
     public static HandlerItem? GetCurrentHandler(this IUpdateContext context)
     {
-        if(context.Items.TryGetValue(CURRENT_HANDLER_KEY, out var handler) && handler != null && handler is HandlerItem result)
+        if (context.Items.TryGetValue(CURRENT_HANDLER_KEY, out var handler) && handler != null && handler is HandlerItem result)
         {
             return result;
         }
@@ -182,18 +182,18 @@ public static class UpdateContextExtensions
 
     public static void SetFilterParameter(this IUpdateContext context, object? parameter)
     {
-        if(parameter == null && context.Items.ContainsKey(FILTER_PARAMETER_KEY))
+        if (parameter == null && context.Items.ContainsKey(FILTER_PARAMETER_KEY))
         {
             context.Items.Remove(FILTER_PARAMETER_KEY);
         }
-        else if(parameter != null)
+        else if (parameter != null)
         {
             context.Items[FILTER_PARAMETER_KEY] = parameter;
         }
     }
     public static object? GetFilterParameter(this IUpdateContext context)
     {
-        if(context.Items.TryGetValue(FILTER_PARAMETER_KEY, out var parameter))
+        if (context.Items.TryGetValue(FILTER_PARAMETER_KEY, out var parameter))
         {
             return parameter;
         }

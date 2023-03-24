@@ -29,7 +29,7 @@ public partial class UriToVacanciesController
         {
             case FilterType.Text:
                 await State(new AddingTextFilterToUrlState(urlId, filter.GetParameter.Name, siteType, isUpdating));
-                await Send("Введіть пошуковий запит.");               
+                await Send("Введіть пошуковий запит.");
                 break;
             case FilterType.CheckBox:
                 await CreateOrUpdateUriToVacanciesAsync(urlId, siteType, filter.GetParameter, isUpdating);

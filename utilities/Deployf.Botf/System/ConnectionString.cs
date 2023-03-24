@@ -10,7 +10,7 @@ public class ConnectionString
     /// <exception cref="BotfException"></exception>
     public static BotfOptions Parse(string value)
     {
-        if(string.IsNullOrEmpty(value))
+        if (string.IsNullOrEmpty(value))
         {
             throw new ArgumentNullException("value");
         }
@@ -19,7 +19,7 @@ public class ConnectionString
 
         var main = value.Split('?', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-        if(main.Length > 0)
+        if (main.Length > 0)
         {
             options.Token = main[0];
         }
@@ -28,7 +28,7 @@ public class ConnectionString
             throw new BotfException("Connection string for BotF (configuration string) is empty or has only whitespaces.");
         }
 
-        if(main.Length == 1)
+        if (main.Length == 1)
         {
             return options;
         }
@@ -37,7 +37,7 @@ public class ConnectionString
         foreach (var kv in values)
         {
             var cortage = kv.Split('=', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            if(cortage == null || cortage.Length != 2)
+            if (cortage == null || cortage.Length != 2)
             {
                 throw new BotfException("Botf connection string is wrong. It must have format like `bot_token?key1=value1&key2=value2..`");
             }
@@ -48,7 +48,7 @@ public class ConnectionString
                     options.Username = cortage[1];
                     break;
                 case "autosend":
-                    if(bool.TryParse(cortage[1], out var autosend))
+                    if (bool.TryParse(cortage[1], out var autosend))
                     {
                         options.AutoSend = autosend;
                     }

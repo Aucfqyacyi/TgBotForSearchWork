@@ -1,12 +1,13 @@
 ﻿using Parsers.Constants;
 using Parsers.Extensions;
-using Parsers.Models;
 using Parsers.IntegrationTests.Utilities;
+using Parsers.Models;
+using Parsers.ParserFactories;
 using Parsers.VacancyParsers;
 
 namespace Parsers.IntegrationTests.VacancyParsersTests;
 
-public abstract class VacancyParserTests
+public abstract class VacancyParserTests : IClassFixture<HttpClientFixture>
 {
     protected readonly Uri _incorrectUri;
     protected readonly Uri _correctUri;
@@ -14,13 +15,14 @@ public abstract class VacancyParserTests
     protected readonly SiteType _siteType;
     protected readonly IVacancyParser _vacancyParser;
 
-    protected VacancyParserTests(SiteType siteType, string urlWithoutVacancies)
+    protected VacancyParserTests(SiteType siteType, string urlWithoutVacancies, HttpClientFixture httpClientFixture)
     {
         _siteType = siteType;
         Uri uri = SiteTypesToUris.All[_siteType];
         _incorrectUri = new(uri.OriginalString.Replace(uri.PathAndQuery, "/something/"));
         _correctUri = SiteTypesToUris.All[_siteType];
-        _vacancyParser = VacancyParserFactory.Create(_siteType);
+        VacancyParserFactory vacancyParserFactory = new(httpClientFixture.Client);
+        _vacancyParser = vacancyParserFactory.Create(_siteType);
         _uriWithoutVacancies = new(urlWithoutVacancies);
     }
 

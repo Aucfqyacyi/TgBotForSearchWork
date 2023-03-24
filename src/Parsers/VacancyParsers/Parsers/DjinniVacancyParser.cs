@@ -15,4 +15,8 @@ internal class DjinniVacancyParser : HtmlPageVacancyParser
     protected override uint IdPositionInUrl { get; } = 4;
 
     protected override string SymbolNearId { get; } = "-";
+
+    public DjinniVacancyParser(HttpClient httpClient) : base(httpClient)
+    {
+    }
 }

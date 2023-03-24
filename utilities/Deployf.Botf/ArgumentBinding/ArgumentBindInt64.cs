@@ -17,7 +17,7 @@ public class ArgumentBindInt64 : IArgumentBind
 
     public ValueTask<object> Decode(ParameterInfo parameter, object argument, IUpdateContext _)
     {
-        return new (long.Parse(argument.ToString()!));
+        return new(long.Parse(argument.ToString()!));
     }
 
     public string Encode(ParameterInfo parameter, object argument, IUpdateContext _)

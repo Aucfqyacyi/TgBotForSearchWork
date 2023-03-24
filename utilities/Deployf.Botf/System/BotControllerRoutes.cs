@@ -43,15 +43,15 @@ public class BotControllerRoutes : BotControllerListMap<string>
 {
     static readonly Type STATE_TYPE = typeof(BotControllerState);
 
-    public BotControllerRoutes(IList<(string command, RouteInfo<string> action)> data) :base(data)
+    public BotControllerRoutes(IList<(string command, RouteInfo<string> action)> data) : base(data)
     {
     }
 
     public (string? template, MethodInfo? method) FindTemplate(string controller, string action, object[] args)
     {
-        foreach(var item in this)
+        foreach (var item in this)
         {
-            if(item.info.Method.Name == action
+            if (item.info.Method.Name == action
                 && item.info.Method.DeclaringType!.Name == controller
                 && args.Length == item.info.Method.GetParameters().Length) //TODO: check the argument types
             {
@@ -64,7 +64,7 @@ public class BotControllerRoutes : BotControllerListMap<string>
 
     public async ValueTask<MethodInfo?> GetValue(string key, string[] arguments, IUpdateContext context)
     {
-        if(!_lookup.Contains(key))
+        if (!_lookup.Contains(key))
         {
             return null;
         }
@@ -72,7 +72,7 @@ public class BotControllerRoutes : BotControllerListMap<string>
         var targets = _lookup[key];
         foreach (var item in targets)
         {
-            if(item.Skip != null && await item.Skip(key, item, context))
+            if (item.Skip != null && await item.Skip(key, item, context))
             {
                 continue;
             }
@@ -116,7 +116,7 @@ public class HandlerItem
 
     public bool TryFilter(IUpdateContext context)
     {
-        if(Filter == null)
+        if (Filter == null)
         {
             return true;
         }
@@ -141,9 +141,9 @@ public class BotControllerHandlers
     private Dictionary<Handle, List<HandlerItem>> BuildLookupTable()
     {
         var table = new Dictionary<Handle, List<HandlerItem>>();
-        foreach(var item in Handlers)
+        foreach (var item in Handlers)
         {
-            if(table.TryGetValue(item.Handler, out var lookup))
+            if (table.TryGetValue(item.Handler, out var lookup))
             {
                 lookup.Add(item);
             }
@@ -162,12 +162,12 @@ public class BotControllerHandlers
     {
         foreach (var item in Handlers)
         {
-            if(item.Handler != handle)
+            if (item.Handler != handle)
             {
                 continue;
             }
 
-            if(item.TryFilter(context))
+            if (item.TryFilter(context))
             {
                 yield return item.TargetMethod;
             }
@@ -176,7 +176,7 @@ public class BotControllerHandlers
 
     public IReadOnlyList<HandlerItem>? GetHandlers(Handle handle)
     {
-        if(LookupTable.TryGetValue(handle, out var lookup))
+        if (LookupTable.TryGetValue(handle, out var lookup))
         {
             return lookup;
         }

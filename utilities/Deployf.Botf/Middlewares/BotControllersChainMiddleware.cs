@@ -44,15 +44,15 @@ public class BotControllersChainMiddleware : IUpdateHandler
                 await next(context, cancellationToken);
             }
         }
-        catch(ChainTimeoutException e)
+        catch (ChainTimeoutException e)
         {
             _log.LogDebug("Chain timeout reached for chat {chatId}", context.GetChatId());
             if (!e.Handled)
             {
                 var handlers = _handlers.TryFindHandlers(Handle.ChainTimeout, context);
-                foreach(var handler in handlers)
+                foreach (var handler in handlers)
                 {
-                    if(context.IsHandlingStopRequested())
+                    if (context.IsHandlingStopRequested())
                     {
                         break;
                     }

@@ -20,12 +20,12 @@ public class InMemoryKeyValueStorage : IKeyValueStorage
     public ValueTask<T?> Get<T>(long userId, string key, T? defaultValue)
     {
         var realKey = GetRealKey(userId, key);
-        if(_store.TryGetValue(realKey, out var value))
+        if (_store.TryGetValue(realKey, out var value))
         {
-            return new ((T)value);
+            return new((T)value);
         }
 
-        return new (defaultValue);
+        return new(defaultValue);
     }
 
     public ValueTask<object?> Get(long userId, string key, object? defaultValue)
@@ -41,7 +41,7 @@ public class InMemoryKeyValueStorage : IKeyValueStorage
 
     public async ValueTask Remove(long userId, string key)
     {
-        if(await Contain(userId, key))
+        if (await Contain(userId, key))
         {
             var realKey = GetRealKey(userId, key);
             _store.Remove(realKey);
