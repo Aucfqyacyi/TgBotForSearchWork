@@ -49,13 +49,15 @@ public partial class UriToVacancies
         UpdateUri(uriBuilder, query.ToString());
     }
 
-    public void RemoveGetParameter(GetParameter getParametr)
+    public void RemoveGetParameter(IEnumerable<string> getParameterNames)
     {
         UriBuilder uriBuilder = new(Uri);
         NameValueCollection query = HttpUtility.ParseQueryString(uriBuilder.Query);
         if (query.HasKeys() is true)
         {
-            query.Remove(getParametr.Name);
+            foreach (var getParameterName in getParameterNames)
+                query.Remove(getParameterName);
+
             UpdateUri(uriBuilder, query.ToString());
         }
     }
@@ -65,9 +67,9 @@ public partial class UriToVacancies
         uriToVacancies.AddGetParameter(getParametr);
     }
 
-    public static void RemoveGetParameter(UriToVacancies uriToVacancies, GetParameter getParametr)
+    public static void RemoveGetParameter(UriToVacancies uriToVacancies, IEnumerable<string> getParameterNames)
     {
-        uriToVacancies.RemoveGetParameter(getParametr);
+        uriToVacancies.RemoveGetParameter(getParameterNames);
     }
 
     private void UpdateUri(UriBuilder uriBuilder, string? newQuery)

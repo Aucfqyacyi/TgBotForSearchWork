@@ -41,13 +41,14 @@ public class UserController : BotController
     public async Task HandleChangingDescriptionLength(ChangingDescriptionLength state)
     {
         await ClearState();
-        if (int.TryParse(Context.GetSafeTextPayload(), out int descriptionLength))
+        if (uint.TryParse(Context.GetSafeTextPayload(), out uint descriptionLength))
         {
             await _userRepository.UpdateAsync(ChatId, descriptionLength, CancelToken);
             await Send("Розмір опису змінено.");
         }
         else
         {
+            await State(new ChangingDescriptionLength());
             await Send("Не корректне повідомлення.");
         }
     }

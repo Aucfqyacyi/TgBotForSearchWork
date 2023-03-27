@@ -6,18 +6,21 @@ public record FilterCategory : IComparable<FilterCategory>
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public string GetParameterName { get; set; }
+    public HashSet<string> GetParameterNames { get; set; }
 
-    public FilterCategory(string name, string getParameterName = "", int? id = null)
+    public FilterCategory(string name, string? getParameter = null, int? id = null)
     {
         Id = id ?? UniqueIntGenerator.Generate();
         Name = name;
-        GetParameterName = getParameterName;
+        GetParameterNames = new();
+        if(getParameter is not null)
+            GetParameterNames.Add(getParameter);
     }
 
-    public FilterCategory(int id, string name, string getParameterName) : this(name, getParameterName, id)
+    public FilterCategory(int id, string name, string? getParameter = null) : this(name, getParameter, id)
     {
     }
+
 
     public int CompareTo(FilterCategory? other)
     {

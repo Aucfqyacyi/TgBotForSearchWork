@@ -2,7 +2,6 @@
 using Parsers.Constants;
 using Parsers.Extensions;
 using Parsers.Models;
-using Parsers.Utilities;
 
 namespace Parsers.FilterParsers.Parsers;
 
@@ -33,16 +32,16 @@ internal class DjinniFilterParser : FilterParser
         string? categoryName = set.PreviousElementSibling?.GetTextContent();
         if (categoryName.IsNullOrEmpty())
             return;
-        int categoryId = UniqueIntGenerator.Generate();
+        FilterCategory category = new(categoryName!);
         foreach (var filterElement in filterElements)
-            filters.Add(CreateFilter(categoryId, categoryName!, filterElement));
+            filters.Add(CreateFilter(category, filterElement));
     }
 
-    protected Filter CreateFilter(int categoryId, string categoryName, IElement filterElement)
+    protected Filter CreateFilter(FilterCategory category, IElement filterElement)
     {
         string filterName = filterElement.GetTextContent();
         GetParameter? getParemeter = filterElement.GetGetParameter();
-        FilterCategory category = new(categoryId, categoryName, getParemeter.Name);
+        category.GetParameterNames.Add(getParemeter.Name);
         return new Filter(filterName, category, getParemeter, FilterType.CheckBox);
     }
 }

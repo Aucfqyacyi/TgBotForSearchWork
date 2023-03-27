@@ -6,9 +6,9 @@ public class User
 {
     [BsonId] public long ChatId { get; set; }
     [BsonElement] public bool IsActivated { get; set; }
-    [BsonElement] public int DescriptionLength { get; set; }
+    [BsonElement] public uint DescriptionLength { get; set; }
 
-    public User(long chatId, int descriptionLength = 1000, bool isActivated = true)
+    public User(long chatId, uint descriptionLength = 1000, bool isActivated = true)
     {
         ChatId = chatId;
         DescriptionLength = descriptionLength;

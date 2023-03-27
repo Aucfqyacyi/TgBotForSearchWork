@@ -57,22 +57,23 @@ public partial class UriToVacanciesController
 
     [Action]
     private async Task ShowFilterCategoriesByGetParams(int page, SiteType siteType, ObjectId urlId, bool isActivated)
-    {
-        Push("Виберіть категорію фільтра, яку бажаєте видалити з посилання.");
+    {        
         UriToVacancies uriToVacancies = await _uriToVacanciesRepository.GetAsync(urlId, CancelToken);
         List<GetParameter> getParameters = uriToVacancies.GetParameters();
-        List<FilterCategory> categories = _filterService.GetFilterCategories(siteType, getParameters);
+        IEnumerable<FilterCategory> categories = _filterService.GetFilterCategories(siteType, getParameters);
+        Push("Виберіть категорію фільтра, яку бажаєте видалити з посилання.");
         Pager(categories, page, categories => (categories.Name,
-                    Q(RemoveFilterFromUri, urlId!, siteType, categories.Id, categories.GetParameterName)),
+                    Q(RemoveFilterFromUri, urlId!, siteType, categories.Id)),
                                         Q(ShowFilterCategoriesByGetParams, _firstPage, siteType, urlId!, isActivated), 1);
         ActivateRowButton(urlId, isActivated, ShowFilterCategoriesByGetParams, page, siteType);
         RowButton(_back, Q(ShowUrisToVacancies, 0, siteType, ShowFirstPageCategoriesByGetParams));
     }
 
     [Action]
-    private async Task RemoveFilterFromUri(ObjectId urlId, SiteType siteType, int categoryId, string getParamName)
+    private async Task RemoveFilterFromUri(ObjectId urlId, SiteType siteType, int categoryId)
     {
-        await _uriToVacanciesService.RemoveFilterAsync(urlId, new(getParamName, string.Empty), CancelToken);
+        FilterCategory category =_filterService.SiteTypeToCategoriesToFilters[siteType].First(category => category.Key.Id == categoryId).Key;
+        await _uriToVacanciesService.RemoveFilterAsync(urlId, category.GetParameterNames, CancelToken);
         await AnswerOkCallback();
         await ShowFirstPageCategoriesByGetParams(urlId, siteType);
     }

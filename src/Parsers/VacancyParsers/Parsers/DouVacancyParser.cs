@@ -10,7 +10,7 @@ namespace Parsers.VacancyParsers.Parsers;
 internal class DouVacancyParser : IVacancyParser
 {
 
-    public async ValueTask<List<Vacancy>> ParseAsync(Uri uri, int descriptionLenght, IReadOnlyList<ulong>? vacancyIdsToIgnore = null, CancellationToken cancellationToken = default)
+    public async ValueTask<List<Vacancy>> ParseAsync(Uri uri, uint descriptionLenght, IReadOnlyList<ulong>? vacancyIdsToIgnore = null, CancellationToken cancellationToken = default)
     {
         SyndicationFeed feed = GetSyndicationFeed(uri);
         List<Vacancy> vacancies = new();
@@ -57,7 +57,7 @@ internal class DouVacancyParser : IVacancyParser
         return SyndicationFeed.Load(reader);
     }
 
-    protected async ValueTask<Vacancy> CreateVacancyAsync(ulong id, SyndicationItem item, int descriptionLenght, CancellationToken cancellationToken)
+    protected async ValueTask<Vacancy> CreateVacancyAsync(ulong id, SyndicationItem item, uint descriptionLenght, CancellationToken cancellationToken)
     {
         string url = item.Id;
         string title = item.Title.Text.ParseHtml();
@@ -66,7 +66,7 @@ internal class DouVacancyParser : IVacancyParser
     }
 
 
-    protected async ValueTask<string> GetDescriptionAsync(SyndicationItem item, int descriptionLenght, CancellationToken cancellationToken)
+    protected async ValueTask<string> GetDescriptionAsync(SyndicationItem item, uint descriptionLenght, CancellationToken cancellationToken)
     {
         using IBrowsingContext browsingContext = BrowsingContext.New();
         using IDocument document = await browsingContext.OpenAsync(req => req.Content(item.Summary.Text), cancellationToken);

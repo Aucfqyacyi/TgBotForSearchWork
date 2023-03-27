@@ -6,7 +6,7 @@ namespace Telegram.Bot.Framework.Abstractions
         where TBot : IBot
     {
         Task RunAsync(
-            GetUpdatesRequest? requestParams = default,
+            GetUpdatesRequest requestParams,
             CancellationToken cancellationToken = default
         );
     }

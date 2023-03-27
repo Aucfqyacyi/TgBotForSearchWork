@@ -151,7 +151,7 @@ public static class StartupExtensions
         var getUpdatesRequest = new GetUpdatesRequest()
         {
             Offset = 0,
-            Timeout = 100,
+            Timeout = 30,
             AllowedUpdates = new UpdateType[0]
         };
         Task.Factory.StartNew(LoongPooling, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Current)
@@ -165,13 +165,8 @@ public static class StartupExtensions
         async Task LoongPooling()
         {
             await Task.Delay(startAfter, cancellationToken);
-            while (true)
+            while (cancellationToken.IsCancellationRequested is false)
             {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    break;
-                }
-
                 try
                 {
                     await updateManager.RunAsync(getUpdatesRequest, cancellationToken: cancellationToken);

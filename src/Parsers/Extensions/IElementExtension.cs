@@ -5,12 +5,12 @@ namespace Parsers.Extensions;
 
 internal static class IElementExtension
 {
-    public static string GetTextContent(this IElement element, HtmlElement htmlElement, int? maxLenght = null)
+    public static string GetTextContent(this IElement element, HtmlElement htmlElement, uint? maxLenght = null)
     {
         return element.GetElement(htmlElement)?.GetTextContent(maxLenght) ?? string.Empty;
     }
 
-    public static string GetTextContent(this IElement element, int? maxLength = null)
+    public static string GetTextContent(this IElement element, uint? maxLength = null)
     {
         return element!.InnerHtml.Trim('\t', '\n', '\r', ' ').ParseHtml(maxLength);
     }

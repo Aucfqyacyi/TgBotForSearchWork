@@ -18,7 +18,7 @@ public class VacancyService
         _vacancyParserFactory = vacancyParserFactory;
     }
 
-    public async ValueTask<List<Vacancy>> GetRelevantVacanciesAsync(IEnumerable<UriToVacancies> urisToVacancies, int descriptionLength,
+    public async ValueTask<List<Vacancy>> GetRelevantVacanciesAsync(IEnumerable<UriToVacancies> urisToVacancies, uint descriptionLength,
                                                                     CancellationToken cancellationToken)
     {
         List<Vacancy> vacancies = new();
@@ -30,7 +30,7 @@ public class VacancyService
         return vacancies;
     }
 
-    private async ValueTask GetRelevantVacanciesAsync(UriToVacancies uriToVacancies, List<Vacancy> vacancies, int descriptionLength,
+    private async ValueTask GetRelevantVacanciesAsync(UriToVacancies uriToVacancies, List<Vacancy> vacancies, uint descriptionLength,
                                                       CancellationToken cancellationToken)
     {
         try

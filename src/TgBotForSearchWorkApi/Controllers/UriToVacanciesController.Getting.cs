@@ -23,7 +23,7 @@ public partial class UriToVacanciesController
         if (siteTypes.Any())
             ShowSites(siteType => Q(ShowUrisToVacancies, 0, siteType, next), siteTypes);
         else
-            await Send("У вас немає жодної вакансій.");
+            Push("У вас немає жодної вакансій.");
     }
 
     [Action]

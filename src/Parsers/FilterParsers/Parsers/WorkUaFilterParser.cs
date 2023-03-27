@@ -36,33 +36,34 @@ internal class WorkUaFilterParser : FilterParser
         string? categoryName = filterGroup.GetElement(_filterGroupTitle)?.TextContent;
         if (categoryName.IsNullOrEmpty())
             return;
-        int categoryId = UniqueIntGenerator.Generate();
+        FilterCategory category = new(categoryName!);
         List<IElement> elementsWithId = filterGroup.GetElementsWithId(_div);
 
         if (categoryName == "Зарплата")
-            CollectFiltersFromSalaryCategory(filterGroup, filters, categoryName!, elementsWithId);
+            CollectFiltersFromSalaryCategory(filterGroup, filters, category, elementsWithId);
         else
             for (int i = 0; i < elementsWithId.Count; i++)
-                CollectFiltersFromElement(filters, elementsWithId[i], categoryId, categoryName!);
+                CollectFiltersFromElement(filters, elementsWithId[i], category);
     }
 
     protected void CollectFiltersFromSalaryCategory(IElement filterGroup, List<Filter> filters,
-                                              string categoryName, List<IElement> elementsWithId)
+                                                    FilterCategory category, List<IElement> elementsWithId)
     {
         List<IElement> subCategories = filterGroup.GetElements(_filterSmallText);
         for (int i = 0; i < elementsWithId.Count; i++)
         {
             IElement? subCategory = subCategories.ElementAtOrDefault(i);
-            string newCategoryName = categoryName + " ";
+            string newCategoryName = category.Name + " ";
             if (subCategory is not null)
                 newCategoryName += subCategory.TextContent;
             else
                 newCategoryName += elementsWithId[i].GetElement(_span)!.TextContent.ToLower();
-            CollectFiltersFromElement(filters, elementsWithId[i], UniqueIntGenerator.Generate(), newCategoryName);
+            FilterCategory newCategory = new FilterCategory(newCategoryName) { GetParameterNames = category.GetParameterNames };
+            CollectFiltersFromElement(filters, elementsWithId[i], newCategory);
         }
     }
 
-    protected void CollectFiltersFromElement(List<Filter> filters, IElement element, int categoryId, string categoryName)
+    protected void CollectFiltersFromElement(List<Filter> filters, IElement element, FilterCategory category)
     {
         List<IElement> inputs = element.GetElements(_input);
         bool isOption = inputs.Any() is false;
@@ -70,10 +71,10 @@ internal class WorkUaFilterParser : FilterParser
             inputs = element.GetElements(_option);
 
         foreach (var input in inputs)
-            filters.Add(CreateFilter(categoryId, categoryName, input, element, isOption));
+            filters.Add(CreateFilter(category, input, element, isOption));
     }
 
-    protected Filter CreateFilter(int categoryId, string categoryName, IElement input, IElement elementWithId, bool isOption)
+    protected Filter CreateFilter(FilterCategory category, IElement input, IElement elementWithId, bool isOption)
     {
         string? filterName;
         if (isOption is true)
@@ -81,14 +82,15 @@ internal class WorkUaFilterParser : FilterParser
         else
             filterName = input.GetNearestSiblingTextContent().GetWithoutTextInBrackets();
         string getParamName = elementWithId.Id!.Replace("_selection", string.Empty);
-        FilterCategory category = new(categoryId, categoryName, getParamName);
-        GetParameter getParameter = new(category.GetParameterName, input.GetValueAttribute());
+        category.GetParameterNames.Add(getParamName);
+        GetParameter getParameter = new(getParamName, input.GetValueAttribute());
         return new Filter(filterName, category, getParameter, FilterType.CheckBox);
     }
 
     protected void CollectFiltersFromCities(List<Filter> filters)
     {
-        FilterCategory category = new("Міста", "region");
+        string getParameterName = "region";
+        FilterCategory category = new("Міста", getParameterName);
         string[] cities = { "Вінниця" , "Дніпро", "Донецьк", "Житомир", "Запоріжжя", "Івано-Франківськ","Київ",
                             "Кропивницький", "Сімферополь", "Луганськ", "Луцьк", "Львів",  "Миколаїв", "Одеса",
                             "Полтава","Рівне","Суми", "Тернопіль", "Ужгород", "Харків","Херсон", "Хмельницький",
@@ -96,7 +98,7 @@ internal class WorkUaFilterParser : FilterParser
         int id = 60;
         for (int i = cities.Length - 1; i >= 0; i--, id--)
         {
-            GetParameter getParameter = new(category.GetParameterName, id.ToString());
+            GetParameter getParameter = new(getParameterName, id.ToString());
             filters.Add(new Filter(cities[i], category, getParameter, FilterType.CheckBox));
         }
 

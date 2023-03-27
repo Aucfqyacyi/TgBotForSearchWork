@@ -29,7 +29,7 @@ public static class StringExtension
         return str.Split('(').First().TrimEnd();
     }
 
-    public static string ParseHtml(this string htmlText, int? maxLength = null)
+    public static string ParseHtml(this string htmlText, uint? maxLength = null)
     {
         StringBuilder stringBuilder = new StringBuilder(htmlText.Length);
         bool isTag = false;

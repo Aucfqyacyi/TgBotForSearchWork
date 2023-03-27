@@ -20,7 +20,7 @@ internal abstract class HtmlPageVacancyParser : IVacancyParser
         _httpClient = httpClient;
     }
 
-    public async ValueTask<List<Vacancy>> ParseAsync(Uri uri, int descriptionLenght, IReadOnlyList<ulong>? vacancyIdsToIgnore = null, CancellationToken cancellationToken = default)
+    public async ValueTask<List<Vacancy>> ParseAsync(Uri uri, uint descriptionLenght, IReadOnlyList<ulong>? vacancyIdsToIgnore = null, CancellationToken cancellationToken = default)
     {
         IHtmlCollection<IElement> vacancyElements = await GetVacancyElementsAsync(uri, cancellationToken);
         List<Vacancy> vacancies = new();
@@ -53,7 +53,7 @@ internal abstract class HtmlPageVacancyParser : IVacancyParser
         return _httpClient.GetElementsAsync(uri, document => document.GetElementsByClassName(VacancyItem.CssClassName), cancellationToken);
     }
 
-    protected virtual async ValueTask<Vacancy> CreateVacancyAsync(IElement element, string url, ulong id, int descriptionLenght, CancellationToken cancellationToken)
+    protected virtual async ValueTask<Vacancy> CreateVacancyAsync(IElement element, string url, ulong id, uint descriptionLenght, CancellationToken cancellationToken)
     {
         string title = element.GetTextContent(Title);
         string description = string.Empty;
@@ -71,7 +71,7 @@ internal abstract class HtmlPageVacancyParser : IVacancyParser
         return (url!, id);
     }
 
-    protected virtual async ValueTask<string?> GetDescriptionAsync(string url, int descriptionLenght, CancellationToken cancellationToken)
+    protected virtual async ValueTask<string?> GetDescriptionAsync(string url, uint descriptionLenght, CancellationToken cancellationToken)
     {
         var elements = await _httpClient.GetElementsAsync(new(url), document => document.GetElementsByClassName(Description.CssClassName), cancellationToken);
         return elements.FirstOrDefault()?.GetTextContent(descriptionLenght);

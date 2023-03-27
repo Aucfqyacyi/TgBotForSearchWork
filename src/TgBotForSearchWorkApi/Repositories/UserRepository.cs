@@ -62,9 +62,9 @@ public class UserRepository
         return false;
     }
 
-    public ValueTask UpdateAsync(long chatId, int descriptionLength, CancellationToken cancellationToken)
+    public ValueTask UpdateAsync(long chatId, uint descriptionLength, CancellationToken cancellationToken)
     {
-        descriptionLength = int.Min(int.Max(0, descriptionLength), 6000);
+        descriptionLength = uint.Min(descriptionLength, 6000);
         var updateDefinition = Builders<User>.Update.Set(user => user.DescriptionLength, descriptionLength);
         return new(_mongoContext.UserCollection.UpdateOneAsync(GetFilterById(chatId), updateDefinition, null, cancellationToken));
     }

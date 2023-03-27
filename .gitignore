@@ -361,6 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/TgBotForSearchWorkApi/appsettings.json
-/TgBotForSearchWorkApi/appsettings.Release.json
-/TgBotForSearchWorkApi/appsettings.Test.json
+src/TgBotForSearchWorkApi/appsettings.Release.json
+src/TgBotForSearchWorkApi/appsettings.Test.json

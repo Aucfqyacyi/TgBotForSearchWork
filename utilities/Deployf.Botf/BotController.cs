@@ -386,6 +386,8 @@ public abstract class BotController
 
     public void Pager<T>(IEnumerable<T> entities, int page, Func<T, (string text, string data)> row, string format, int buttonsInRow = 2)
     {
+        if (entities.Any() is false)
+            return;
         var pager = new PagingService();
         var query = entities.AsQueryable();
         var pageModel = pager.Paging(query, new(page));

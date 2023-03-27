@@ -22,7 +22,7 @@ internal class WorkUaVacancyParser : HtmlPageVacancyParser
     {
     }
 
-    protected override async ValueTask<string?> GetDescriptionAsync(string url, int descrtiptionLenght, CancellationToken cancellationToken)
+    protected override async ValueTask<string?> GetDescriptionAsync(string url, uint descrtiptionLenght, CancellationToken cancellationToken)
     {
         var elements = await _httpClient.GetElementsAsync(new(url), document => document.GetElementById(Description.CssClassName), cancellationToken);
         return elements?.GetTextContent(descrtiptionLenght);

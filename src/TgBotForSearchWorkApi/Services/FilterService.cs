@@ -3,6 +3,7 @@ using Parsers.Constants;
 using Parsers.FilterParsers;
 using Parsers.Models;
 using Parsers.ParserFactories;
+using TgBotForSearchWorkApi.Extensions;
 
 namespace TgBotForSearchWorkApi.Services;
 
@@ -42,7 +43,7 @@ public class FilterService
             }
             else
             {
-                idsToFilters = new() { { filter.Id, filter } };
+                idsToFilters = new SortedDictionary<int, Filter>() { { filter.Id, filter } };
                 categoriesToFilters.Add(filter.Category, idsToFilters);
             }
         }
@@ -51,15 +52,10 @@ public class FilterService
         _semaphoreSlim.Release();
     }
 
-    public List<FilterCategory> GetFilterCategories(SiteType siteType, List<GetParameter> getParameters)
+    public IEnumerable<FilterCategory> GetFilterCategories(SiteType siteType, List<GetParameter> getParameters)
     {
-        var allCategories = _siteTypeToCategoriesToFilters[siteType].Keys;
-        return allCategories.Aggregate(new List<FilterCategory>(), (categories, category) =>
-        {
-            GetParameter? getParameter = getParameters.FirstOrDefault(getParam => getParam.Name == category.GetParameterName);
-            if (getParameter is not null)
-                categories.Add(category);
-            return categories;
-        });
+        IEnumerable<FilterCategory> allCategories = _siteTypeToCategoriesToFilters[siteType].Keys;
+        IEnumerable<string> getParameterNames = getParameters.Select(getParameter => getParameter.Name);
+        return allCategories.Where(category => category.GetParameterNames.Contains(getParameterNames));
     }
 }

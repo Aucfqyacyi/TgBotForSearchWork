@@ -44,7 +44,7 @@ internal class DouFilterParser : FilterParser
         string getParameterValue = filterElement.GetValueAttribute();
         if (getParameterValue.IsNullOrEmpty())
             return null;
-        GetParameter getParameter = new(category.GetParameterName, getParameterValue);
+        GetParameter getParameter = new(category.GetParameterNames.First(), getParameterValue);
         return new Filter(filterName, category, getParameter, FilterType.CheckBox);
     }
 
@@ -57,9 +57,9 @@ internal class DouFilterParser : FilterParser
         List<IElement> uls = filterRegion.GetElements(_ul);
         if (uls is null)
             return;
-
         foreach (var ul in uls)
             CollectFiltersFromFilterRegion(ul, filters);
+
     }
 
     protected void CollectFiltersFromFilterRegion(IElement ul, List<Filter> filters)
@@ -67,23 +67,24 @@ internal class DouFilterParser : FilterParser
         string? categoryName = ul.PreviousElementSibling?.GetTextContent();
         if (categoryName.IsNullOrEmpty())
             return;
-
-        int categoryId = UniqueIntGenerator.Generate();
+        FilterCategory category = new(categoryName!);
         List<IElement> lis = ul.GetElements(_a);
         if (lis is null)
             return;
-
-        for (int i = 0; i < lis.Count; i++)
-            filters.Add(CreateFilterFromFilterRegion(categoryId, categoryName!, lis[i]));
+        int i = 0;
+        if (categoryName == "Досвід")
+            i++;
+        for (; i < lis.Count; i++)
+            filters.Add(CreateFilterFromFilterRegion(category, lis[i]));
     }
 
-    protected Filter CreateFilterFromFilterRegion(int categoryId, string categoryName, IElement filterElement)
+    protected Filter CreateFilterFromFilterRegion(FilterCategory category, IElement filterElement)
     {
         string filterName = filterElement.GetTextContent();
         GetParameter getParameter = filterElement.GetGetParameter();
         if (getParameter.Value.StartsWith('%'))
             getParameter.Value = filterName;
-        FilterCategory category = new(categoryId, categoryName, getParameter.Name);
+        category.GetParameterNames.Add(getParameter.Name);
         return new Filter(filterName, category, getParameter, FilterType.CheckBox);
     }
 

@@ -36,15 +36,15 @@ public class UriToVacanciesService
         return UpdateAsync(urlId, getParametr, UriToVacancies.AddGetParameter, cancellationToken);
     }
 
-    public ValueTask<UriToVacancies> RemoveFilterAsync(ObjectId urlId, GetParameter getParametr, CancellationToken cancellationToken)
+    public ValueTask<UriToVacancies> RemoveFilterAsync(ObjectId urlId, IEnumerable<string> getParameterNames, CancellationToken cancellationToken)
     {
-        return UpdateAsync(urlId, getParametr, UriToVacancies.RemoveGetParameter, cancellationToken);
+        return UpdateAsync(urlId, getParameterNames, UriToVacancies.RemoveGetParameter, cancellationToken);
     }
 
-    private async ValueTask<UriToVacancies> UpdateAsync(ObjectId urlId, GetParameter getParametr, Action<UriToVacancies, GetParameter> updateAction, CancellationToken cancellationToken)
+    private async ValueTask<UriToVacancies> UpdateAsync<TValue>(ObjectId urlId, TValue value, Action<UriToVacancies, TValue> updateAction, CancellationToken cancellationToken)
     {
         UriToVacancies uriToVacancies = await _uriToVacanciesRepository.GetAsync(urlId, cancellationToken);
-        updateAction(uriToVacancies, getParametr);
+        updateAction(uriToVacancies, value);
         await _uriToVacanciesRepository.ReplaceAsync(uriToVacancies, cancellationToken);
         return uriToVacancies;
     }

@@ -20,16 +20,22 @@ public partial class UriToVacanciesController
     {
         await ClearState();
         UriToVacancies? uriToVacancies = await _uriToVacanciesService.AddAsync(ChatId, Context.GetSafeTextPayload()!, CancelToken);
-        OnAdd(uriToVacancies?.Id, uriToVacancies?.IsActivated);
+        await OnAdd(uriToVacancies?.Id, uriToVacancies?.IsActivated);
     }
 
     [Action]
-    private void OnAdd(ObjectId? uriId, bool? isActivated)
+    private async Task OnAdd(ObjectId? uriId, bool? isActivated)
     {
         ActivateRowButton(uriId, isActivated, OnAdd);
         if (uriId is not null)
+        {
             Push("Посилання було добавленно.");
+        }
         else
+        {
+            await State(new AddingUrlState());
             Push("Посилання не корректне, або не містить жодної вакансії, або вже добавленно.");
+        }
+            
     }
 }
