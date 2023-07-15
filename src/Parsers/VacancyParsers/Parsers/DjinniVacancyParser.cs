@@ -8,7 +8,7 @@ internal class DjinniVacancyParser : HtmlPageVacancyParser
 
     protected override HtmlElement Title { get; } = new("profile", "A");
 
-    protected override HtmlElement Description { get; } = new("profile-page-section");
+    protected override HtmlElement Description { get; } = new("mb-4");
 
     protected override HtmlElement Url { get; } = new("profile", "A");
 

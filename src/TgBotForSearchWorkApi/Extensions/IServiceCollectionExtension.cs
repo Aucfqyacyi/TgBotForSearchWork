@@ -10,13 +10,13 @@ public static class IServiceCollectionExtension
     public static IServiceCollection AddNamedHttpClient(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddHttpClient(nameof(HttpClient))
-                .ConfigurePrimaryHttpMessageHandler(provider =>
+                /*.ConfigurePrimaryHttpMessageHandler(provider =>
                 {
                     string? SimpleCloudflareBypassUrl = configuration.GetValue<string>(nameof(SimpleCloudflareBypassUrl));
                     if (SimpleCloudflareBypassUrl is null)
                         throw new Exception($"{nameof(SimpleCloudflareBypassUrl)} doesn't exist at the appsettings.json.");
                     return new SimplyCloudflareBypassHandler(SimpleCloudflareBypassUrl);
-                })
+                })*/
                 .ConfigureHttpClient(httpClient =>
                 {
                     httpClient.Timeout = TimeSpan.FromMinutes(2);

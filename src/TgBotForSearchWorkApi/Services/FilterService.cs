@@ -11,9 +11,9 @@ namespace TgBotForSearchWorkApi.Services;
 public class FilterService
 {
     private readonly FilterParserFactory _filterParserFactory;
-    private readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1);
+    private readonly SemaphoreSlim _semaphoreSlim = new (initialCount:1);
 
-    private SortedDictionary<SiteType, IReadOnlyDictionary<FilterCategory, IReadOnlyDictionary<int, Filter>>> _siteTypeToCategoriesToFilters = new();
+    private readonly SortedDictionary<SiteType, IReadOnlyDictionary<FilterCategory, IReadOnlyDictionary<int, Filter>>> _siteTypeToCategoriesToFilters = new();
     public IReadOnlyDictionary<SiteType, IReadOnlyDictionary<FilterCategory, IReadOnlyDictionary<int, Filter>>> SiteTypeToCategoriesToFilters
     {
         get => _siteTypeToCategoriesToFilters;

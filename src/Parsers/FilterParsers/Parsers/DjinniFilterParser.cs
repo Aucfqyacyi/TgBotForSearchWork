@@ -10,12 +10,12 @@ internal class DjinniFilterParser : FilterParser
 {
     protected override string SearchGetParamName { get; } = "keywords";
 
-    protected HtmlElement _filterSet = new("jobs-filter__set");
-    protected HtmlElement _filterLink = new("jobs-filter__link", "a");
+    protected readonly HtmlElement _filterSet = new("jobs-filter__set");
+    protected readonly HtmlElement _filterLink = new("filter-check-input");
 
     public DjinniFilterParser(HttpClient httpClient) : base(httpClient)
     {
-    }
+    }  
 
     protected override void CollectFilters(IDocument document, List<Filter> filters)
     {
@@ -26,8 +26,8 @@ internal class DjinniFilterParser : FilterParser
 
     protected void CollectFiltersFromSet(IElement set, List<Filter> filters)
     {
-        List<IElement>? filterElements = set.GetElements(_filterLink);
-        if (filterElements == null)
+        List<IElement> filterElements = set.GetElements(_filterLink);
+        if (filterElements.Any() is false)
             return;
         string? categoryName = set.PreviousElementSibling?.GetTextContent();
         if (categoryName.IsNullOrEmpty())
@@ -39,9 +39,9 @@ internal class DjinniFilterParser : FilterParser
 
     protected Filter CreateFilter(FilterCategory category, IElement filterElement)
     {
-        string filterName = filterElement.GetTextContent();
-        GetParameter? getParemeter = filterElement.GetGetParameter();
-        category.GetParameterNames.Add(getParemeter.Name);
-        return new Filter(filterName, category, getParemeter, FilterType.CheckBox);
+        string filterName = filterElement.GetValueAttribute();
+        GetParameter getParameter = new (filterElement.GetNameAttribute(), filterName, canBeDuplicated:true);
+        category.GetParameterNames.Add(getParameter.Name);
+        return new Filter(filterName, category, getParameter, FilterType.CheckBox);
     }
 }

@@ -1,7 +1,7 @@
-﻿using Parsers.Constants;
-using System.Text;
+﻿namespace TgBotForSearchWorkApi.Utilities;
 
-namespace Parsers.Utilities;
+using System.Text;
+using Parsers.Constants;
 
 internal class SimplyCloudflareBypassHandler : DelegatingHandler
 {

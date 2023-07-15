@@ -26,27 +26,27 @@ internal static class IElementExtension
 
     public static string GetHrefAttribute(this IElement element)
     {
-        string? url = element.GetAttribute("href");
-        if (url == null)
-        {
-            return string.Empty;
-        }
-        return url;
+        return element.GetNotNullAttribute("href");
     }
 
     public static string GetValueAttribute(this IElement element)
     {
-        string? url = element.GetAttribute("value");
-        if (url == null)
-        {
-            return string.Empty;
-        }
-        return url;
+        return element.GetNotNullAttribute("value");
     }
 
+    public static string GetNameAttribute(this IElement element)
+    {
+        return element.GetNotNullAttribute("name");
+    }
+    
+    public static string GetNotNullAttribute(this IElement element, string attributeName)
+    {
+        return element.GetAttribute(attributeName) ?? string.Empty;
+    }
+    
     public static string GetHrefAttribute(this IElement element, string host)
     {
-        string? url = GetHrefAttribute(element);
+        string url = GetHrefAttribute(element);
         if (url.StartsWith(Uri.UriSchemeHttps + Uri.SchemeDelimiter))
         {
             return url;
@@ -112,12 +112,12 @@ internal static class IElementExtension
 
     public static GetParameter GetGetParameter(this IElement iElement)
     {
-        string[] splitedGetParamater = iElement.GetHrefAttribute().Split('?').Last().Split('=');
-        string getParameterName = splitedGetParamater.First();
-        if (splitedGetParamater.Length == 1)
+        string[] splitGetParameter = iElement.GetHrefAttribute().Split('?').Last().Split('=');
+        string getParameterName = splitGetParameter.First();
+        if (splitGetParameter.Length == 1)
             return new GetParameter(getParameterName, "1");
         else
-            return new GetParameter(getParameterName, splitedGetParamater.Last());
+            return new GetParameter(getParameterName, splitGetParameter.Last());
     }
 }
 
