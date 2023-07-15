@@ -22,8 +22,7 @@ public class VacancyService
                                                                     CancellationToken cancellationToken)
     {
         List<Vacancy> vacancies = new();
-        await Parallel.ForEachAsync(urisToVacancies, cancellationToken,
-                            (UriToVacancies uriToVacancies, CancellationToken cancellationToken) =>
+        await Parallel.ForEachAsync(urisToVacancies, cancellationToken, (uriToVacancies, cancellationToken) =>
         {
             return GetRelevantVacanciesAsync(uriToVacancies, vacancies, descriptionLength, cancellationToken);
         });
@@ -49,7 +48,7 @@ public class VacancyService
         }
         catch (Exception ex)
         {
-            Log.Info(ex.Message);
+            Log.Info($"Inside VacancyService.GetRelevantVacanciesAsync was thrown exception, error - {ex.Message}");
         }
     }
 }

@@ -7,8 +7,8 @@ namespace TgBotForSearchWorkApi.Models;
 
 public partial class UriToVacancies
 {
-    private const int _lastVacanciesIdsSize = 5;
-    private List<ulong> _lastVacanciesIds = new(_lastVacanciesIdsSize);
+    private const int LastVacanciesIdsSize = 5;
+    private List<ulong> _lastVacanciesIds = new(LastVacanciesIdsSize);
 
     [BsonId] public ObjectId Id { get; set; }
     [BsonElement] public long ChatId { get; set; }
@@ -22,16 +22,16 @@ public partial class UriToVacancies
         get => _lastVacanciesIds;
         set
         {
-            if (value.Count >= _lastVacanciesIdsSize || _lastVacanciesIds is null)
+            if (value.Count >= LastVacanciesIdsSize || _lastVacanciesIds is null)
             {
-                int count = int.Min(value.Count, _lastVacanciesIdsSize);
+                int count = int.Min(value.Count, LastVacanciesIdsSize);
                 _lastVacanciesIds = new List<ulong>(value.Take(count));
             }
             else
             {
                 List<ulong> newLastVacanciesIds = new(value);
-                if (_lastVacanciesIds.Any() is true)
-                    newLastVacanciesIds.AddRange(_lastVacanciesIds.GetRange(0, _lastVacanciesIdsSize - value.Count));
+                if (_lastVacanciesIds.Any())
+                    newLastVacanciesIds.AddRange(_lastVacanciesIds.Take(LastVacanciesIdsSize - value.Count));
                 _lastVacanciesIds = newLastVacanciesIds;
             }
         }

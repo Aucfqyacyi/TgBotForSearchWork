@@ -69,7 +69,7 @@ public class VacancyBackgroundService : BackgroundService
     private async ValueTask<List<UriToVacancies>> SendVacanciesAsync(User user, CancellationToken cancellationToken)
     {
         List<UriToVacancies> urisToVacancies = await _uriToVacanciesRepository.GetAllActivatedAsync(user.ChatId, cancellationToken);
-        if (urisToVacancies.Any() is true)
+        if (urisToVacancies.Any())
         {
             List<Vacancy> relevantVacancies = await _vacancyService.GetRelevantVacanciesAsync(urisToVacancies, user.DescriptionLength, cancellationToken);
             await SendVacanciesAsync(user, relevantVacancies, cancellationToken);

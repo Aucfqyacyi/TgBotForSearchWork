@@ -44,16 +44,18 @@ internal class DouVacancyParser : IVacancyParser
     private Uri AddFeedsStrToUri(Uri uri)
     {
         string feeds = "feeds/";
-        if (uri.LocalPath.EndsWith(feeds) is true)
+        if (uri.LocalPath.EndsWith(feeds))
             return uri;
-        UriBuilder uriBuilder = new(uri);
-        uriBuilder.Path = uri.LocalPath + feeds;
+        UriBuilder uriBuilder = new (uri)
+        {
+            Path = uri.LocalPath + feeds
+        };
         return uriBuilder.Uri;
     }
 
     protected SyndicationFeed GetSyndicationFeed(Uri uri)
     {
-        using XmlReader reader = XmlReader.Create(AddFeedsStrToUri(uri).OriginalString, new() { DtdProcessing = DtdProcessing.Ignore, });
+        using XmlReader reader = XmlReader.Create(AddFeedsStrToUri(uri).OriginalString, new() { DtdProcessing = DtdProcessing.Ignore });
         return SyndicationFeed.Load(reader);
     }
 
