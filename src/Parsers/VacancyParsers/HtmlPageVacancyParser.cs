@@ -53,7 +53,7 @@ internal abstract class HtmlPageVacancyParser : IVacancyParser
         return _httpClient.GetElementsAsync(uri, document => document.GetElementsByClassName(VacancyItem.CssClassName), cancellationToken);
     }
 
-    protected virtual async ValueTask<Vacancy> CreateVacancyAsync(IElement element, string url, ulong id, uint descriptionLenght, CancellationToken cancellationToken)
+    protected async ValueTask<Vacancy> CreateVacancyAsync(IElement element, string url, ulong id, uint descriptionLenght, CancellationToken cancellationToken)
     {
         string title = element.GetTextContent(Title);
         string description = string.Empty;
