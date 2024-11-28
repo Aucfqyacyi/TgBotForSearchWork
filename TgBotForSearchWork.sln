@@ -21,8 +21,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deployf.Botf", "utilities\D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoDIInjector", "utilities\AutoDIInjector\AutoDIInjector.csproj", "{28467F5A-EDA5-4AF1-BBA4-DC5F09C371C7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleCloudflareBypass", "..\SimpleCloudflareBypass\SimpleCloudflareBypass\SimpleCloudflareBypass.csproj", "{C8F78997-F58A-4560-9C34-94CA06BC252E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,10 +51,6 @@ Global
 		{28467F5A-EDA5-4AF1-BBA4-DC5F09C371C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28467F5A-EDA5-4AF1-BBA4-DC5F09C371C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28467F5A-EDA5-4AF1-BBA4-DC5F09C371C7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C8F78997-F58A-4560-9C34-94CA06BC252E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C8F78997-F58A-4560-9C34-94CA06BC252E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C8F78997-F58A-4560-9C34-94CA06BC252E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C8F78997-F58A-4560-9C34-94CA06BC252E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -68,7 +62,6 @@ Global
 		{4C88DE98-20F3-4C15-9C82-568307616DA4} = {5573BA75-94A4-4382-84B0-AE1926939FD5}
 		{820F1B53-0CB1-43F0-9B4B-B3CDB77F44B4} = {DDB31FAD-7275-4648-9BAB-B64756B78B51}
 		{28467F5A-EDA5-4AF1-BBA4-DC5F09C371C7} = {DDB31FAD-7275-4648-9BAB-B64756B78B51}
-		{C8F78997-F58A-4560-9C34-94CA06BC252E} = {DDB31FAD-7275-4648-9BAB-B64756B78B51}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {78C452D9-FA65-40A9-BB5F-FA518582E0AB}

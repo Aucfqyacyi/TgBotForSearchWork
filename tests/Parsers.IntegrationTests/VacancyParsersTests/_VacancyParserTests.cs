@@ -20,7 +20,7 @@ public abstract class VacancyParserTests : IClassFixture<HttpClientFixture>
         _siteType = siteType;
         Uri uri = SiteTypesToUris.All[_siteType];
         _incorrectUri = new(uri.OriginalString.Replace(uri.PathAndQuery, "/something/"));
-        _correctUri = SiteTypesToUris.All[_siteType];
+        _correctUri = new("https://djinni.co/jobs/?primary_keyword=.NET&region=eu&eu_country=AUT&eu_country=BEL&eu_country=BGR&eu_country=CZE&eu_country=DNK&eu_country=DEU&eu_country=IRL&eu_country=LUX&eu_country=NLD&eu_country=POL&exp_level=2y&exp_level=3y&exp_level=4y&employment=remote&employment=office");
         VacancyParserFactory vacancyParserFactory = new(httpClientFixture.Client);
         _vacancyParser = vacancyParserFactory.Create(_siteType);
         _uriWithoutVacancies = new(urlWithoutVacancies);

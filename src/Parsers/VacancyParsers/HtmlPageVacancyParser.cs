@@ -22,17 +22,21 @@ internal abstract class HtmlPageVacancyParser : IVacancyParser
 
     public async ValueTask<List<Vacancy>> ParseAsync(Uri uri, uint descriptionLenght, IReadOnlyList<ulong>? vacancyIdsToIgnore = null, CancellationToken cancellationToken = default)
     {
-        IHtmlCollection<IElement> vacancyElements = await GetVacancyElementsAsync(uri, cancellationToken);
-        List<Vacancy> vacancies = new();
-        foreach (IElement vacancyElement in vacancyElements)
+        var vacancyListElement = (await GetVacancyElementsAsync(uri, cancellationToken)).FirstOrDefault();
+		List<Vacancy> vacancies = new();
+        IElement? vacancyElement = vacancyListElement?.FirstElementChild;
+        if (vacancyElement is null)
+            return new();
+        do
         {
             (string url, ulong id) = GetVacancyUrlAndId(vacancyElement, uri.Host);
             if (vacancyIdsToIgnore is not null && vacancyIdsToIgnore.Contains(id))
                 return vacancies;
             Vacancy vacancy = await CreateVacancyAsync(vacancyElement, url, id, descriptionLenght, cancellationToken);
             vacancies.Add(vacancy);
-        }
-        return vacancies;
+        } while ((vacancyElement = vacancyElement?.NextElementSibling) is not null);
+
+		return vacancies;
     }
 
     public async ValueTask<bool> IsCorrectUriAsync(Uri uri, CancellationToken cancellationToken = default)
